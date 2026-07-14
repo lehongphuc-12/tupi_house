@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "777696090287",
+    "project_id": "tubi-home",
+    "storage_bucket": "tubi-home.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777696090287:android:d9c95a5b3afb7707359c5a",
+        "android_client_info": {
+          "package_name": "com.example.tubi_home"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "777696090287-ojia3kc1m17gsjql1r8q49nsr1fbge9p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR8ZHQO14T76_67k33xCkJ0ty0coctqnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "777696090287-ojia3kc1m17gsjql1r8q49nsr1fbge9p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "bup-bê-len-handmade",
+    "name": "Búp bê Len Handmade",
+    "image": "https://handmadeshop.vn/wp-content/uploads/2025/06/2-1-1000x1250.png?x30202",
+    "description": "",
+    "order": 1,
+    "createdAt": "2026-07-14T09:44:24.315775"
+  },
+  {
+    "id": "thu-bông-len",
+    "name": "Thú bông len",
+    "image": "https://handmadeshop.vn/wp-content/uploads/2025/11/z7165092625955_0bfd136fe4e5a1fa5f34ab54c42fb307-1000x573.jpg?x30202",
+    "description": "",
+    "order": 2,
+    "createdAt": "2026-07-14T09:44:24.315775"
+  },
+  {
+    "id": "hoa-len-handmade",
+    "name": "Hoa Len Handmade",
+    "image": "https://handmadeshop.vn/wp-content/uploads/2025/11/z7247290543270_87af67c8e2bad0b57a9f4166ce4fa14c-1000x1333.jpg?x30202",
+    "description": "",
+    "order": 3,
+    "createdAt": "2026-07-14T09:44:24.315775"
+  },
+  {
+    "id": "len-handmade-decor",
+    "name": "Len Handmade Decor",
+    "image": "https://handmadeshop.vn/wp-content/uploads/2025/07/1.jpg?x30202",
+    "description": "",
+    "order": 4,
+    "createdAt": "2026-07-14T09:44:24.315775"
+  },
+  {
+    "id": "uncategorized",
+    "name": "Uncategorized",
+    "image": "https://handmadeshop.vn/wp-content/uploads/2025/11/z7230960329150_b3c8c0feda7b4627e36fecec83e29784.jpg?x30202",
+    "description": "",
+    "order": 5,
+    "createdAt": "2026-07-14T09:44:24.315775"
+  },
+  {
+    "id": "moc-chìa-khoa-len",
+    "name": "Móc chìa khóa len",
+    "image": "https://handmadeshop.vn/wp-content/uploads/2025/03/Moc-chia-khoa-bang-len-Handmade-MCK001-1-1000x1500.png?x30202",
+    "description": "",
+    "order": 6,
+    "createdAt": "2026-07-14T09:44:24.315775"
+  },
+  {
+    "id": "phụ-kiện-len-handmade",
+    "name": "Phụ kiện Len Handmade",
+    "image": "https://handmadeshop.vn/wp-content/uploads/2025/02/Phu-Kien-Boc-Tai-Nghe-Hinh-Khung-Long-bang-Len-Handmade-Pk001-1000x1500.png?x30202",
+    "description": "",
+    "order": 7,
+    "createdAt": "2026-07-14T09:44:24.315775"
+  }
+]

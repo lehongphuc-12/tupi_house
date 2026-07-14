@@ -1,0 +1,141 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../theme/app_theme.dart';
+import '../screens/login_screen.dart';
+
+class AppDrawer extends StatelessWidget {
+  const AppDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+
+    return Drawer(
+      backgroundColor: AppColors.background,
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header User
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.softPink, AppColors.softGreen],
+                ),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Colors.white,
+                    child: Image.asset('assets/logo.png', width: 36),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    auth.currentUser?.fullName ?? 'Khách',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 17),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    auth.currentUser?.email ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        const TextStyle(color: AppColors.muted, fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+
+            // Menu Items (chỉ UI, không chuyển trang)
+            _DrawerItem(
+              icon: Icons.favorite_border,
+              title: 'Yêu thích',
+              onTap: () {}, // Không chuyển trang
+            ),
+            _DrawerItem(
+              icon: Icons.shopping_cart_outlined,
+              title: 'Giỏ hàng',
+              onTap: () {}, // Không chuyển trang
+            ),
+            _DrawerItem(
+              icon: Icons.bar_chart_outlined,
+              title: 'Thống kê doanh thu',
+              onTap: () {}, // Không chuyển trang
+            ),
+
+            const Spacer(),
+            const Divider(height: 1),
+
+            if (auth.isLoggedIn)
+              _DrawerItem(
+                icon: Icons.logout,
+                title: 'Đăng xuất',
+                danger: true,
+                onTap: () async {
+                  await context.read<AuthProvider>().logout();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đã đăng xuất')),
+                  );
+                },
+              )
+            else
+              _DrawerItem(
+                icon: Icons.login,
+                title: 'Đăng nhập',
+                onTap: () {
+                  Navigator.pop(context); // Close drawer
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+              ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final bool danger;
+
+  const _DrawerItem({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.danger = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = danger ? Colors.redAccent : AppColors.ink;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        leading: Icon(icon, color: color),
+        title: Text(
+          title,
+          style: TextStyle(color: color, fontWeight: FontWeight.w700),
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+}
