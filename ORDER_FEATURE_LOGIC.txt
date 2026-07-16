@@ -1,0 +1,440 @@
+================================================================================
+         LOGIC LUỒNG XỬ LÝ – ORDER FEATURE (NGƯỜI 4)
+         Dự án: Tupi House – Flutter + Firebase
+         Ngày viết: 16/07/2026
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. LỊCH SỬ ĐƠN HÀNG (Order History)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MỤC TIÊU:
+  Hiển thị toàn bộ đơn hàng của người dùng hiện tại, có thể lọc theo trạng thái.
+
+CÁC FILE LIÊN QUAN:
+  - lib/screens/orders/order_history_screen.dart  → UI màn hình chính
+  - lib/providers/order_provider.dart             → Quản lý state
+  - lib/services/order_service.dart               → Truy vấn Firestore
+
+LUỒNG XỬ LÝ:
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  User mở màn hình "Đơn hàng của tôi" (từ Drawer)                        │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Kiểm tra: isLoggedIn?                                                    │
+  │    - KHÔNG → Hiển thị màn hình "Đăng nhập để xem đơn hàng" + nút login  │
+  │    - CÓ    → Tiếp tục luồng                                               │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  initState() gọi:                                                         │
+  │    OrderProvider.listenToOrders(userId)                                   │
+  │      → OrderService.listenOrders(userId)                                  │
+  │        → Firestore.collection('orders')                                   │
+  │             .where('userId', isEqualTo: userId)                           │
+  │             .snapshots()   ← REAL-TIME STREAM                             │
+  │      → Sort theo createdAt (mới nhất trước)                               │
+  │      → Cập nhật _orders trong Provider                                    │
+  │      → notifyListeners() → UI tự rebuild                                  │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Hiển thị UI:                                                             │
+  │    - isLoading = true  → CircularProgressIndicator                        │
+  │    - errorMessage ≠ null → Thông báo lỗi + nút thử lại                   │
+  │    - orders.isEmpty    → Empty state (biểu tượng + text)                  │
+  │    - orders.isNotEmpty → ListView danh sách _OrderCard                    │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  5 Tab Filter (TabBar):                                                   │
+  │    - "Tất cả"     → allOrders (không lọc)                                 │
+  │    - "Đang xử lý" → status IN ['pending', 'confirmed']                   │
+  │    - "Đang giao"  → status == 'shipping'                                  │
+  │    - "Đã giao"    → status == 'delivered'                                 │
+  │    - "Đã hủy"     → status == 'cancelled'                                 │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Mỗi _OrderCard hiển thị:                                                 │
+  │    - Mã đơn hàng (8 ký tự đầu của docId, viết hoa)                       │
+  │    - Badge trạng thái (OrderStatusBadge)                                  │
+  │    - Ảnh thumbnail sản phẩm đầu tiên + tên sản phẩm                      │
+  │    - "+N sản phẩm khác" nếu có nhiều hơn 1 sản phẩm                      │
+  │    - Ngày đặt hàng + Tổng tiền                                            │
+  │    → Tap → chuyển đến OrderDetailScreen                                   │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+DATA FLOW:
+  Firestore DB → OrderService (Stream) → OrderProvider (State) → UI
+
+TRẠNG THÁI ĐƠN HÀNG (status values):
+  pending   → Chờ xác nhận
+  confirmed → Đã xác nhận
+  shipping  → Đang giao hàng
+  delivered → Đã giao hàng
+  cancelled → Đã hủy
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. CHI TIẾT ĐƠN HÀNG (Order Detail)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MỤC TIÊU:
+  Hiển thị đầy đủ thông tin một đơn hàng cụ thể.
+
+CÁC FILE LIÊN QUAN:
+  - lib/screens/orders/order_detail_screen.dart    → UI màn hình chi tiết
+  - lib/models/order.dart                          → Order & OrderItem model
+  - lib/widgets/order_status_badge.dart            → Badge trạng thái
+
+LUỒNG XỬ LÝ:
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  User tap vào _OrderCard trong danh sách                                 │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Navigator.push() → OrderDetailScreen(order: order)                      │
+  │  (truyền thẳng object Order đã có sẵn, không gọi Firestore lại)          │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  UI render theo thứ tự từ trên xuống:                                    │
+  │                                                                           │
+  │  [1] OrderTrackingWidget   → Timeline theo dõi trạng thái                │
+  │  [2] Thông tin đơn hàng    → Mã đơn, ngày đặt, trạng thái,               │
+  │                               tình trạng thanh toán, phương thức         │
+  │  [3] Địa chỉ giao hàng     → Tên người nhận, SĐT, địa chỉ               │
+  │  [4] Danh sách sản phẩm    → Ảnh thumbnail, tên, màu, size,             │
+  │                               số lượng, thành tiền từng sản phẩm         │
+  │  [5] Tổng thanh toán       → Hiển thị nổi bật với gradient               │
+  │  [6] Nút Hủy đơn hàng     → CHỈ HIỆN khi status == 'pending'            │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+CÁC HELPER FUNCTION:
+  - _formatPrice(int)  → Format tiền VND  (VD: 320.000₫)
+  - _formatDate(DateTime) → Format ngày giờ (VD: 14:30 - 16/07/2026)
+  - _paymentLabel(String) → Chuyển mã phương thức → tên đầy đủ
+      cod  → "Thanh toán khi nhận hàng (COD)"
+      bank → "Chuyển khoản ngân hàng"
+      momo → "Ví MoMo"
+
+MODEL ORDER:
+  Order {
+    id              : String  - Firestore document ID
+    userId          : String  - ID người dùng
+    items           : List<OrderItem>
+    totalAmount     : int     - Tổng tiền (VND)
+    status          : String  - pending/confirmed/shipping/delivered/cancelled
+    paymentStatus   : String  - paid/unpaid
+    paymentMethod   : String  - cod/bank/momo
+    shippingAddress : Map     - {name, phone, address}
+    createdAt       : DateTime
+    updatedAt       : DateTime?
+  }
+
+  OrderItem {
+    productId  : String
+    title      : String
+    price      : int
+    quantity   : int
+    color      : String?
+    size       : String?
+    thumbnail  : String (URL)
+  }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. THEO DÕI TRẠNG THÁI (Order Status Tracking)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MỤC TIÊU:
+  Hiển thị trực quan tiến trình xử lý đơn hàng dạng timeline.
+
+CÁC FILE LIÊN QUAN:
+  - lib/screens/orders/order_tracking_widget.dart  → Widget timeline
+  - lib/widgets/order_status_badge.dart            → Badge trạng thái
+
+LUỒNG XỬ LÝ:
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  OrderTrackingWidget nhận vào: currentStatus (String)                    │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Nếu status == 'cancelled':                                              │
+  │    → Render _CancelledTracker (banner đỏ đặc biệt)                      │
+  │    → Kết thúc, không render timeline                                     │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓ (nếu không phải cancelled)
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Xác định vị trí hiện tại trong 4 bước:                                  │
+  │    _currentIndex() = index của status trong mảng _steps                  │
+  │                                                                           │
+  │    Bước 0: pending   → "Chờ xác nhận"                                    │
+  │    Bước 1: confirmed → "Đã xác nhận"                                     │
+  │    Bước 2: shipping  → "Đang giao hàng"                                  │
+  │    Bước 3: delivered → "Đã giao hàng"                                    │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Với mỗi bước (i = 0..3), render _StepRow:                              │
+  │                                                                           │
+  │  Xác định kiểu hiển thị dựa trên so sánh i với currentIndex:            │
+  │                                                                           │
+  │  isDone    = i < currentIndex                                             │
+  │  isCurrent = i == currentIndex                                            │
+  │  (else)    = i > currentIndex (bước chưa đến)                            │
+  │                                                                           │
+  │  ┌── isDone (đã qua) ──────────────────────────────────────────────────┐ │
+  │  │  Dot: Nền xanh lá (softGreen), viền xanh, icon check               │ │
+  │  │  Line: Màu xanh lá đậm (pastelGreenDark)                           │ │
+  │  │  Label: Màu ink (đen đậm), hiển thị cả label + sublabel            │ │
+  │  └─────────────────────────────────────────────────────────────────────┘ │
+  │                                                                           │
+  │  ┌── isCurrent (đang ở bước này) ─────────────────────────────────────┐ │
+  │  │  Dot: Nền hồng (softPink), viền hồng đậm, icon đặc trưng bước     │ │
+  │  │  Line: Màu xám nhạt                                                │ │
+  │  │  Label: Màu hồng đậm (pastelPinkDark), hiển thị sublabel           │ │
+  │  └─────────────────────────────────────────────────────────────────────┘ │
+  │                                                                           │
+  │  ┌── Chưa đến ─────────────────────────────────────────────────────────┐ │
+  │  │  Dot: Nền xám, viền xám, icon mờ                                   │ │
+  │  │  Line: Màu xám nhạt                                                │ │
+  │  │  Label: Màu muted (xám), KHÔNG hiển thị sublabel                   │ │
+  │  └─────────────────────────────────────────────────────────────────────┘ │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+CẤU TRÚC LAYOUT mỗi _StepRow:
+  Row
+  ├── Column (trái, rộng 36px)
+  │     ├── Container tròn 36x36 (Dot – icon)
+  │     └── Container cao 2px (đường dọc nối bước)
+  │          └── [Không render nếu là bước cuối cùng]
+  └── Column (phải, flex)
+        ├── Text: label (tên bước)
+        └── Text: sublabel (mô tả) [chỉ hiện nếu isDone hoặc isCurrent]
+
+VÍ DỤ TRỰC QUAN – Status = 'shipping':
+  ✅ [CHECK]  Chờ xác nhận        ← done (xanh lá)
+      │
+  ✅ [CHECK]  Đã xác nhận         ← done (xanh lá)
+      │
+  🚚 [TRUCK]  Đang giao hàng      ← CURRENT (hồng, highlight)
+              "Đơn hàng đang trên đường giao đến bạn"
+      │
+  ⬜ [CIRCLE] Đã giao hàng        ← chưa đến (xám)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. HỦY ĐƠN HÀNG (Cancel Order)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MỤC TIÊU:
+  Cho phép người dùng hủy đơn hàng đang ở trạng thái "Chờ xác nhận" (pending).
+
+CÁC FILE LIÊN QUAN:
+  - lib/screens/orders/order_detail_screen.dart  → UI nút hủy + confirm dialog
+  - lib/providers/order_provider.dart            → Action cancelOrder()
+  - lib/services/order_service.dart              → Cập nhật Firestore
+
+ĐIỀU KIỆN:
+  Nút "Hủy đơn hàng" CHỈ ĐƯỢC HIỂN THỊ khi: order.status == 'pending'
+  (Đơn đã confirmed/shipping/delivered không thể hủy từ phía người dùng)
+
+LUỒNG XỬ LÝ:
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  User tap nút "Hủy đơn hàng" (màu đỏ, cuối trang chi tiết)             │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  _confirmCancel() → showDialog AlertDialog                               │
+  │    Title: "Hủy đơn hàng?"                                               │
+  │    Content: Cảnh báo không thể hoàn tác                                 │
+  │    Actions:                                                              │
+  │      [Giữ đơn]       → Navigator.pop(false) → Không làm gì              │
+  │      [Xác nhận hủy]  → Navigator.pop(true)  → Tiếp tục luồng            │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓ (user chọn "Xác nhận hủy")
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  OrderProvider.cancelOrder(orderId)                                      │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  OrderService.cancelOrder(orderId)                                       │
+  │    → Firestore.collection('orders').doc(orderId).update({                │
+  │        'status': 'cancelled',                                            │
+  │        'updatedAt': FieldValue.serverTimestamp()                         │
+  │      })                                                                  │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌────────────────────────────────────────────────┐  ┌──────────────────────┐
+  │  Thành công:                                   │  │  Thất bại:           │
+  │  - SnackBar: "✅ Đã hủy đơn hàng thành công"  │  │  - SnackBar: "❌ ..." │
+  │  - Navigator.pop() → quay về danh sách        │  │  - Ở lại màn hình    │
+  └────────────────────────────────────────────────┘  └──────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Real-time Stream tự động cập nhật:                                      │
+  │    Firestore thay đổi → Stream emit → OrderProvider._orders cập nhật     │
+  │    → UI tự rebuild → Đơn chuyển sang tab "Đã hủy" tự động               │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+LƯU Ý:
+  - Không cần gọi lại fetchOrders() sau khi hủy
+  - Real-time stream xử lý tự động toàn bộ việc cập nhật UI
+  - Khi hủy thành công, nút "Hủy đơn hàng" biến mất (vì status ≠ 'pending')
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. THÔNG BÁO ĐƠN HÀNG (Order Notifications)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MỤC TIÊU:
+  Tự động hiển thị thông báo in-app (SnackBar) khi trạng thái đơn hàng
+  thay đổi trên Firestore (VD: admin cập nhật từ pending → confirmed).
+
+CÁC FILE LIÊN QUAN:
+  - lib/services/notification_service.dart  → Service lắng nghe & hiển thị
+  - lib/main.dart                           → GlobalKey<ScaffoldMessengerState>
+
+KIẾN TRÚC:
+  GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey
+    → Được đăng ký trong MaterialApp (scaffoldMessengerKey: ...)
+    → Cho phép hiển thị SnackBar từ bất kỳ nơi nào, kể cả ngoài Widget tree
+
+LUỒNG XỬ LÝ:
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  NotificationService.startListening(userId, messengerKey)                │
+  │  (Gọi khi user đăng nhập thành công)                                     │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Firestore.collection('orders')                                          │
+  │    .where('userId', isEqualTo: userId)                                   │
+  │    .snapshots()   ← Lắng nghe real-time                                  │
+  │    .listen(snapshot => xử lý từng docChange)                             │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓ Với mỗi document thay đổi
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Phân loại DocumentChangeType:                                            │
+  │                                                                           │
+  │  ┌── DocumentChangeType.added ─────────────────────────────────────────┐ │
+  │  │  → Lưu vào Map _lastStatuses[orderId] = status hiện tại             │ │
+  │  │  → Không hiển thị thông báo (đây là load lần đầu)                   │ │
+  │  └─────────────────────────────────────────────────────────────────────┘ │
+  │                                                                           │
+  │  ┌── DocumentChangeType.modified ──────────────────────────────────────┐ │
+  │  │  → Lấy newStatus từ document mới                                    │ │
+  │  │  → So sánh với _lastStatuses[orderId] (status cũ)                   │ │
+  │  │  → Nếu khác nhau:                                                   │ │
+  │  │      → _showNotification() → SnackBar                               │ │
+  │  │  → Cập nhật _lastStatuses[orderId] = newStatus                      │ │
+  │  └─────────────────────────────────────────────────────────────────────┘ │
+  └────────────────────────────┬─────────────────────────────────────────────┘
+                               ↓ Khi phát hiện thay đổi
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  _showNotification():                                                    │
+  │    scaffoldMessengerKey.currentState?.showSnackBar(                      │
+  │      SnackBar với:                                                       │
+  │        - Nền tối (AppColors.ink)                                         │
+  │        - Icon đặc trưng theo status mới                                  │
+  │        - Text: "Đơn #XXXXXX: [trạng thái mới]"                          │
+  │        - Duration: 5 giây                                                │
+  │    )                                                                     │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+BẢNG ICON THÔNG BÁO:
+  confirmed → Icons.check_circle_outline
+  shipping  → Icons.local_shipping_outlined
+  delivered → Icons.celebration_outlined
+  cancelled → Icons.cancel_outlined
+  (khác)    → Icons.notifications_outlined
+
+BẢNG NỘI DUNG THÔNG BÁO:
+  pending   → "Chờ xác nhận ⏳"
+  confirmed → "Đã xác nhận ✅"
+  shipping  → "Đang giao hàng 🚚"
+  delivered → "Đã giao thành công 🎉"
+  cancelled → "Đã hủy đơn ❌"
+
+QUẢN LÝ VÒNG ĐỜI:
+  - startListening() → Gọi khi user đăng nhập
+  - stopListening()  → Gọi khi user đăng xuất
+    → _subscription?.cancel()
+    → _lastStatuses.clear()
+  → Tránh memory leak và thông báo giả khi đổi tài khoản
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TỔNG QUAN KIẾN TRÚC HỆ THỐNG ORDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+     ┌───────────────────────────────────────────────┐
+     │             FIREBASE FIRESTORE                 │
+     │   Collection: orders                           │
+     │   Fields: userId, status, items, totalAmount,  │
+     │           paymentStatus, paymentMethod,        │
+     │           shippingAddress, createdAt, updatedAt│
+     └───────────────┬───────────────────────────────┘
+                     │ Real-time Stream (.snapshots())
+                     ↓
+     ┌───────────────────────────────────────────────┐
+     │           ORDER SERVICE                        │
+     │   - listenOrders(userId): Stream<List<Order>>  │
+     │   - getOrders(userId): Future<List<Order>>     │
+     │   - cancelOrder(orderId): Future<void>         │
+     │   - _fromDoc(): convert Firestore doc → Order  │
+     └───────────────┬───────────────────────────────┘
+                     │
+           ┌─────────┴──────────┐
+           ↓                    ↓
+  ┌────────────────┐   ┌──────────────────────────┐
+  │ ORDER PROVIDER │   │  NOTIFICATION SERVICE     │
+  │ - _orders      │   │  - _lastStatuses (Map)    │
+  │ - _isLoading   │   │  - _subscription (Stream) │
+  │ - cancelOrder()│   │  - startListening()       │
+  │ - filtered     │   │  - stopListening()        │
+  │   getters      │   │  - _showNotification()    │
+  └───────┬────────┘   └──────────────┬────────────┘
+          │                           │
+          │ notifyListeners()         │ scaffoldMessengerKey
+          ↓                           ↓
+  ┌─────────────────────────────────────────────────┐
+  │                     UI LAYER                     │
+  │                                                  │
+  │  OrderHistoryScreen                              │
+  │    └── _OrderCard (×N)                           │
+  │          └── tap → OrderDetailScreen             │
+  │                      ├── OrderTrackingWidget     │
+  │                      ├── Product list            │
+  │                      └── Cancel button           │
+  │                                                  │
+  │  SnackBar (thông báo trạng thái thay đổi)        │
+  └─────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DANH SÁCH FILE ORDER FEATURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  lib/
+  ├── models/
+  │     └── order.dart                         ← Order & OrderItem model
+  ├── services/
+  │     ├── order_service.dart                 ← Firestore CRUD
+  │     └── notification_service.dart          ← Real-time status listener
+  ├── providers/
+  │     └── order_provider.dart                ← State management (ChangeNotifier)
+  ├── screens/
+  │     └── orders/
+  │           ├── order_history_screen.dart    ← Danh sách + filter tabs
+  │           ├── order_detail_screen.dart     ← Chi tiết + hủy đơn
+  │           └── order_tracking_widget.dart   ← Timeline stepper
+  ├── widgets/
+  │     └── order_status_badge.dart            ← Badge màu trạng thái
+  └── utils/
+        └── seed_orders.dart                   ← Tạo dữ liệu mẫu (dev tool)
+
+================================================================================
+                                 END OF DOCUMENT
+================================================================================
