@@ -71,6 +71,24 @@ class OrderService {
     });
   }
 
+    /// Tạo đơn hàng mới
+  Future<String> createOrder(Order order) async {
+    try {
+      final docRef = _firestore.collection('orders').doc(order.id);
+      
+      await docRef.set({
+        ...order.toJson(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return order.id;
+    } catch (e) {
+      print("❌ Lỗi tạo đơn hàng: $e");
+      rethrow;
+    }
+  }
+
   /// Hủy đơn hàng
   Future<void> cancelOrder(String orderId) async {
     await _firestore.collection('orders').doc(orderId).update({
