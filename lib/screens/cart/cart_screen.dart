@@ -4,6 +4,7 @@ import '../../models/cart.dart';
 import '../../providers/cart_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/formatters.dart';
+import '../checkout_screen.dart'; 
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -216,8 +217,13 @@ class _CartScreenState extends State<CartScreen> {
               onPressed: _selectedItems.isEmpty 
                   ? null 
                   : () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Chức năng thanh toán đang được phát triển")),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CheckoutScreen(
+                            selectedItems: cart.items.where((item) => _selectedItems.contains(item.productId)).toList(),
+                          ),
+                        ),
                       );
                     },
               child: const Text(

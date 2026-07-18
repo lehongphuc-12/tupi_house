@@ -60,6 +60,26 @@ class OrderProvider extends ChangeNotifier {
       return false;
     }
   }
+  
+    /// Tạo đơn hàng mới
+  Future<bool> createOrder(Order order) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _service.createOrder(order);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = 'Không thể tạo đơn hàng: $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 
   /// Dừng lắng nghe khi user đăng xuất
   void stopListening() {

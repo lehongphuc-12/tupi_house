@@ -36,7 +36,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = context.read<AuthProvider>();
-      if (auth.isLoggedIn) {
+      if (auth.isLoggedIn && auth.firebaseUser != null) {
         context.read<OrderProvider>().listenToOrders(auth.firebaseUser!.uid);
       }
     });
@@ -163,22 +163,23 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+Widget build(BuildContext context) {
+  final auth = context.watch<AuthProvider>();
 
-    if (!auth.isLoggedIn) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Đơn hàng của tôi')),
-        body: _NotLoggedIn(),
-      );
-    }
-
+  // Kiểm tra đăng nhập chặt chẽ hơn
+  if (!auth.isLoggedIn || auth.firebaseUser == null) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Đơn hàng của tôi'),
-        actions: [
-          PopupMenuButton<String>(
+      appBar: AppBar(title: const Text('Đơn hàng của tôi')),
+      body: _NotLoggedIn(),
+    );
+  }
+
+  return Scaffold(
+    backgroundColor: AppColors.background,
+    appBar: AppBar(
+      title: const Text('Đơn hàng của tôi'),
+      actions: [
+        PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'Công cụ test',
             onSelected: (value) async {
@@ -215,77 +216,58 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
               ),
             ],
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          labelColor: AppColors.pastelPinkDark,
-          unselectedLabelColor: AppColors.muted,
-          indicatorColor: AppColors.pastelPinkDark,
-          indicatorWeight: 2.5,
-          labelStyle: const TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w700),
-          unselectedLabelStyle: const TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w500),
-          tabs: _tabs.map((t) => Tab(text: t.label)).toList(),
-        ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        labelColor: AppColors.pastelPinkDark,
+        unselectedLabelColor: AppColors.muted,
+        indicatorColor: AppColors.pastelPinkDark,
+        indicatorWeight: 2.5,
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+        unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+        tabs: _tabs.map((t) => Tab(text: t.label)).toList(),
       ),
-      body: Consumer<OrderProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading) {
-            return const Center(
+    ),
+    body: Consumer<OrderProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (provider.errorMessage != null) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Đang tải đơn hàng...',
-                      style: TextStyle(color: AppColors.muted)),
+                  const Icon(Icons.error_outline, size: 56, color: Colors.redAccent),
+                  const SizedBox(height: 16),
+                  Text(provider.errorMessage!, textAlign: TextAlign.center),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => provider.listenToOrders(auth.firebaseUser!.uid),
+                    child: const Text('Thử lại'),
+                  ),
                 ],
               ),
-            );
-          }
-
-          if (provider.errorMessage != null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.wifi_off_outlined,
-                        size: 56, color: AppColors.muted),
-                    const SizedBox(height: 16),
-                    Text(
-                      provider.errorMessage!,
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(color: AppColors.muted, fontSize: 14),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () => provider.listenToOrders(
-                          auth.firebaseUser!.uid),
-                      child: const Text('Thử lại'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return TabBarView(
-            controller: _tabController,
-            children: _tabs.map((tab) {
-              final orders = _filteredOrders(provider, tab.filter);
-              return _OrderList(orders: orders);
-            }).toList(),
+            ),
           );
-        },
-      ),
-    );
-  }
+        }
+
+        return TabBarView(
+          controller: _tabController,
+          children: _tabs.map((tab) {
+            final orders = _filteredOrders(provider, tab.filter);
+            return _OrderList(orders: orders);
+          }).toList(),
+        );
+      },
+    ),
+  );
+}
 }
 
 // ──────────────────────────────────────────────────────────────
