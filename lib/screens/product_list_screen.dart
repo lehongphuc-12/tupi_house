@@ -6,6 +6,7 @@ import '../widgets/product_card.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/responsive_frame.dart';
 import 'product_detail_screen.dart';
+import 'cart/cart_screen.dart'; 
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -53,7 +54,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () {}, // Không làm gì
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
+            }, 
           ),
           const SizedBox(width: 8),
         ],

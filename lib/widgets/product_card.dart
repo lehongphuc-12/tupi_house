@@ -85,8 +85,8 @@ class ProductCard extends StatelessWidget {
                                 isFavorite: isFavorite,
                               ),
                             const SizedBox(width: 4),
-                            if (onAddToCart != null)
-                              _CartButton(onPressed: onAddToCart!),
+                            // if (onAddToCart != null)
+                            //   _CartButton(onPressed: onAddToCart!),
                           ],
                         ),
                       ],
