@@ -2,6 +2,10 @@
 cmake_minimum_required(VERSION 3.14)
 project(tubi_home LANGUAGES CXX)
 
+# Fix: Firebase C++ SDK uses old cmake_minimum_required syntax incompatible
+# with newer CMake versions. This policy allows it to configure correctly.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
 set(BINARY_NAME "tubi_home")
