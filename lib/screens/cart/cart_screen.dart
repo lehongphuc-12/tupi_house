@@ -157,20 +157,47 @@ class _CartScreenState extends State<CartScreen> {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                       icon: const Icon(Icons.remove, size: 20),
-                      onPressed: () => cartProvider.updateQuantity(item.productId, item.quantity - 1),
+                      onPressed: () async {
+                        try {
+                          await cartProvider.updateQuantity(item.productId, item.quantity - 1);
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+                          }
+                        }
+                      },
                     ),
                     Text("${item.quantity}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     IconButton(
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                       icon: const Icon(Icons.add, size: 20),
-                      onPressed: () => cartProvider.updateQuantity(item.productId, item.quantity + 1),
+                      onPressed: () async {
+                        try {
+                          await cartProvider.updateQuantity(item.productId, item.quantity + 1);
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+                          }
+                        }
+                      },
                     ),
                   ],
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => cartProvider.removeItem(item.productId),
+                  onPressed: () async {
+                    try {
+                      await cartProvider.removeItem(item.productId);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Đã xóa sản phẩm khỏi giỏ hàng")));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+                      }
+                    }
+                  },
                 ),
               ],
             ),
@@ -268,10 +295,23 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _deleteSelectedItems(CartProvider cartProvider) async {
-    for (String productId in List.from(_selectedItems)) {
-      await cartProvider.removeItem(productId);
+    try {
+      for (String productId in List.from(_selectedItems)) {
+        await cartProvider.removeItem(productId);
+      }
+      _selectedItems.clear();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Đã xóa các sản phẩm đã chọn")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        );
+      }
     }
-    _selectedItems.clear();
   }
 
   void _showClearDialog(BuildContext context, CartProvider cartProvider) {

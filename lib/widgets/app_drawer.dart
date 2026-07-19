@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../screens/login_screen.dart';
 import '../screens/orders/order_history_screen.dart';
+import '../screens/cart/cart_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -65,7 +66,15 @@ class AppDrawer extends StatelessWidget {
             _DrawerItem(
               icon: Icons.shopping_cart_outlined,
               title: 'Giỏ hàng',
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CartScreen(),
+                  ),
+                );  
+              },
             ),
             _DrawerItem(
               icon: Icons.receipt_long_outlined,
@@ -79,11 +88,6 @@ class AppDrawer extends StatelessWidget {
                   ),
                 );
               },
-            ),
-            _DrawerItem(
-              icon: Icons.bar_chart_outlined,
-              title: 'Thống kê doanh thu',
-              onTap: () {},
             ),
 
             const Spacer(),

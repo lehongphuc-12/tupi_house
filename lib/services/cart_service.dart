@@ -9,11 +9,9 @@ class CartService {
   String get _userId {
     final user = _auth.currentUser;
     if (user != null) {
-      print("✅ CartService - User logged in: ${user.uid}");
       return user.uid;
     } else {
-      print("⚠️ CartService - No user, using guest mode");
-      return "guest_user";
+      throw Exception("Vui lòng đăng nhập để sử dụng giỏ hàng");
     }
   }
 
@@ -48,9 +46,7 @@ class CartService {
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
-      print("✅ Added to cart: ${item.title}");
     } catch (e) {
-      print("❌ Error addToCart: $e");
       rethrow;
     }
   }
@@ -68,11 +64,15 @@ class CartService {
   }
 
   Stream<Cart> getCartStream() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return Stream.value(Cart(userId: '', items: []));
+    }
     return _cartRef.snapshots().map((snapshot) {
       final items = snapshot.docs
           .map((doc) => CartItem.fromJson(doc.data()))
           .toList();
-      return Cart(userId: _userId, items: items);
+      return Cart(userId: user.uid, items: items);
     });
   }
 
