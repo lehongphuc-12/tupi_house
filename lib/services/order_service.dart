@@ -84,7 +84,6 @@ class OrderService {
 
       return order.id;
     } catch (e) {
-      print("❌ Lỗi tạo đơn hàng: $e");
       rethrow;
     }
   }

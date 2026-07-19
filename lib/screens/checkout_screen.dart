@@ -240,9 +240,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     // Kiểm tra theo 2 cách
     final firebaseUser = authProvider.firebaseUser;           // User từ FirebaseAuth
-    final appUser = authProvider.currentUser;    
-    print("Firebase User: ${firebaseUser?.uid}");
-    print("AppUser: ${appUser?.id}");
+    final appUser = authProvider.currentUser;
 
     if (firebaseUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
