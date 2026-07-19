@@ -1,4 +1,5 @@
-// Cart Item
+// lib/models/cart.dart
+
 class CartItem {
   final String productId;
   final String title;
@@ -41,9 +42,21 @@ class CartItem {
       'quantity': quantity,
     };
   }
+
+  CartItem copyWith({int? quantity}) {
+    return CartItem(
+      productId: productId,
+      title: title,
+      price: price,
+      thumbnail: thumbnail,
+      color: color,
+      size: size,
+      quantity: quantity ?? this.quantity,
+    );
+  }
 }
 
-// Cart
+// Cart Model
 class Cart {
   final String userId;
   final List<CartItem> items;
@@ -54,6 +67,17 @@ class Cart {
 
   int get totalPrice =>
       items.fold(0, (sum, item) => sum + (item.price * item.quantity));
+
+  // Tìm item theo productId + variant
+  CartItem? findItem(String productId, {String? color, String? size}) {
+    return items.firstWhere(
+      (item) =>
+          item.productId == productId &&
+          item.color == color &&
+          item.size == size,
+      orElse: () => throw Exception('Item not found'),
+    );
+  }
 
   factory Cart.fromJson(Map<String, dynamic> json) {
     var itemsList = json['items'] as List? ?? [];

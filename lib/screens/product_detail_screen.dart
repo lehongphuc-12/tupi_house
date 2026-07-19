@@ -7,6 +7,8 @@ import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import '../widgets/product_image.dart';
 import '../widgets/product_card.dart';
+import '../models/cart.dart';
+import '../providers/cart_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -26,11 +28,36 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     _product = widget.product;
   }
 
-  void _addToCart() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Tính năng giỏ hàng đang phát triển')),
-    );
-  }
+  void _addToCart() async {
+  final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+  final cartItem = CartItem(
+    productId: _product.id,
+    title: _product.title,
+    price: _product.price,
+    thumbnail: _product.thumbnail,
+    quantity: _quantity,
+  );
+
+  try {
+      await cartProvider.addToCart(cartItem);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã thêm vào giỏ hàng! 🎉'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Có lỗi xảy ra: $e')),
+        );
+      }
+    }
+}
 
   Widget _buildSuggestedProducts() {
     return Consumer<ProductProvider>(
