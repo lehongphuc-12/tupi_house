@@ -161,13 +161,13 @@ class _LoginScreenState extends State<LoginScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: auth.isLoading ? null : () async {
-              // final ok = await auth.loginWithGoogle();
-              // if (!mounted) return;
-              // if (ok) {
-              //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const ProductListScreen()));
-              // } else if (auth.errorMessage != null) {
-              //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
-              // }
+              final ok = await auth.loginWithGoogle();
+              if (!mounted) return;
+              if (ok) {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const ProductListScreen()));
+              } else if (auth.errorMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
+              }
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

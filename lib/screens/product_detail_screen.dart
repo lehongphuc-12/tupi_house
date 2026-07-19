@@ -9,6 +9,9 @@ import '../widgets/product_image.dart';
 import '../widgets/product_card.dart';
 import '../models/cart.dart';
 import '../providers/cart_provider.dart';
+import '../providers/wishlist_provider.dart';
+import '../providers/auth_provider.dart';
+import 'login_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -168,7 +171,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: isWide ? BorderRadius.circular(24) : const BorderRadius.vertical(top: Radius.circular(36)),
-        boxShadow: isWide ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 4))] : null,
+        boxShadow: isWide ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 4))] : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +197,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.amber.withOpacity(0.12),
+                        color: Colors.amber.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Row(
@@ -281,6 +284,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final wishlistProvider = context.watch<WishlistProvider>();
+    final isFavorite = wishlistProvider.isFavorite(_product.id);
+
     return Scaffold(
       backgroundColor: const Color(0xFFFAF9F9), // Light background to contrast with the card
       extendBodyBehindAppBar: true,
@@ -290,7 +296,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.9),
+            backgroundColor: Colors.white.withValues(alpha: 0.9),
             child: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 20),
               onPressed: () => Navigator.pop(context),
@@ -301,13 +307,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: CircleAvatar(
-              backgroundColor: Colors.white.withOpacity(0.9),
+              backgroundColor: Colors.white.withValues(alpha: 0.9),
               child: IconButton(
-                icon: const Icon(Icons.favorite_border_rounded, color: AppColors.pastelPinkDark, size: 22),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tính năng yêu thích đang phát triển')),
-                  );
+                icon: Icon(
+                  isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  color: AppColors.pastelPinkDark,
+                  size: 22,
+                ),
+                onPressed: () async {
+                  final auth = context.read<AuthProvider>();
+                  if (!auth.isLoggedIn) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    );
+                    return;
+                  }
+                  try {
+                    await wishlistProvider.toggleWishlist(_product);
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi: $e')),
+                    );
+                  }
                 },
               ),
             ),
@@ -369,7 +392,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 15,
                 offset: const Offset(0, -5),
               ),

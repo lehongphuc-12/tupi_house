@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/wishlist_provider.dart';
 import 'screens/product_list_screen.dart';
 import 'theme/app_theme.dart';
 import 'firebase_options.dart';
@@ -83,6 +84,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => WishlistProvider()),
       ],
       child: MaterialApp(
         title: 'Tupi House',

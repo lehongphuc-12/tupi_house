@@ -7,6 +7,10 @@ import '../widgets/app_drawer.dart';
 import '../widgets/responsive_frame.dart';
 import 'product_detail_screen.dart';
 import 'cart/cart_screen.dart'; 
+import '../providers/auth_provider.dart';
+import '../providers/wishlist_provider.dart';
+import 'wishlist/wishlist_screen.dart';
+import 'login_screen.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -50,7 +54,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite_border),
-            onPressed: () {}, // Không làm gì
+            onPressed: () {
+              final auth = context.read<AuthProvider>();
+              if (auth.isLoggedIn) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const WishlistScreen()),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              }
+            },
           ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
@@ -197,6 +214,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         itemCount: products.length,
                         itemBuilder: (context, index) {
                           final product = products[index];
+                          final wishlistProvider = context.watch<WishlistProvider>();
+                          final isFavorite = wishlistProvider.isFavorite(product.id);
+
                           return ProductCard(
                             product: product,
                             onTap: () {
@@ -207,8 +227,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 ),
                               );
                             },
-                            isFavorite: false,
-                            onToggleFavorite: () {},
+                            isFavorite: isFavorite,
+                            onToggleFavorite: () async {
+                              final auth = context.read<AuthProvider>();
+                              if (!auth.isLoggedIn) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                );
+                                return;
+                              }
+                              try {
+                                await wishlistProvider.toggleWishlist(product);
+                              } catch (e) {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Lỗi: $e')),
+                                );
+                              }
+                            },
                             onAddToCart: () {},
                           );
                         },
