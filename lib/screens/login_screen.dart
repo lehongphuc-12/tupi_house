@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (auth.isAdmin) {
       destination = const AdminDashboardScreen();
     } else {
-      destination = const ProductListScreen();
+      destination = const OptimizedProductListScreen();
     }
 
     Navigator.of(context).pushAndRemoveUntil(
@@ -85,8 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
             auth.errorMessage ?? 'Đăng nhập thất bại',
           ),
         ),
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const OptimizedProductListScreen()),
       );
     }
   }
