@@ -8,7 +8,8 @@ import '../../models/product.dart';
 import '../../models/wishlist.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/formatters.dart';
-import '../product_detail_screen.dart';
+
+import '../product/optimized_product_detail_screen.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
@@ -220,8 +221,8 @@ class WishlistScreen extends StatelessWidget {
         final product = Product.fromJson(data);
 
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ProductDetailScreen(product: product),
+          MaterialPageRoute(  
+            builder: (_) => OptimizedProductDetailScreen(product: product),
           ),
         );
       } else {

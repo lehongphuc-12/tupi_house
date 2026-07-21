@@ -4,9 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'admin/admin_dashboard_screen.dart';
-import 'product_list_screen.dart';
-import 'register_screen.dart';
 import 'product/optimized_product_list_screen.dart';
+import 'register_screen.dart';  
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
