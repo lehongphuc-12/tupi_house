@@ -253,10 +253,23 @@ class WishlistScreen extends StatelessWidget {
     try {
       await cartProvider.addToCart(cartItem);
       if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã thêm vào giỏ hàng! 🎉'),
+          SnackBar(
             behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Đã thêm vào giỏ hàng! 🎉'),
+                TextButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                  child: const Text('Đóng', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
           ),
         );
       }

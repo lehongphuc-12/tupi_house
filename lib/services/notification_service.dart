@@ -391,13 +391,21 @@ class NotificationService {
     required String body,
     String? status,
   }) {
+    messengerKey?.currentState?.hideCurrentSnackBar();
     messengerKey?.currentState?.showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 5),
+        duration: const Duration(seconds: 4),
         backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        action: SnackBarAction(
+          label: 'Đóng',
+          textColor: Colors.white70,
+          onPressed: () {
+            messengerKey?.currentState?.hideCurrentSnackBar();
+          },
+        ),
         content: Row(
           children: [
             Container(
