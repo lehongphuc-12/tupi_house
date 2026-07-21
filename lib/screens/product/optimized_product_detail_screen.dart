@@ -6,9 +6,11 @@ import '../../models/cart.dart';
 import '../../models/product.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/product_provider.dart';
 import '../../providers/review_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/optimized_product_card.dart';
 import '../../widgets/review_card.dart';
 import '../../widgets/star_rating_bar.dart';
 import '../cart/cart_screen.dart';
@@ -99,6 +101,15 @@ class _OptimizedProductDetailScreenState
     final isFavorite = wishlist.isFavorite(widget.product.id);
     final reviewProvider = context.watch<ReviewProvider>();
     final reviews = reviewProvider.reviews;
+    
+    final productProvider = context.watch<ProductProvider>();
+    final similarProducts = productProvider.products
+        .where((p) =>
+            p.categoryId == widget.product.categoryId &&
+            p.id != widget.product.id)
+        .take(10)
+        .toList();
+
     final displayPrice = widget.product.salePrice ?? widget.product.price;
     final totalAmount = displayPrice * _quantity;
 
@@ -498,6 +509,49 @@ class _OptimizedProductDetailScreenState
                     )
                   else
                     ...reviews.map((r) => ReviewCard(review: r)),
+                  
+                  const SizedBox(height: 28),
+                  if (similarProducts.isNotEmpty) ...[
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Sản phẩm tương tự 🛍️',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 240,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: similarProducts.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final p = similarProducts[index];
+                          return SizedBox(
+                            width: 160,
+                            child: OptimizedProductCard(
+                              product: p,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => OptimizedProductDetailScreen(
+                                      product: p,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 100),
                 ],
               ),
