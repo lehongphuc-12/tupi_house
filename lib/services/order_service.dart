@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 import '../models/order.dart';
+import 'notification_service.dart';
 
 class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -79,6 +80,16 @@ class OrderService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
+      // In-app + push (via Cloud Function on notifications create)
+      try {
+        await NotificationService.notifyOrderCreated(
+          userId: order.userId,
+          orderId: order.id,
+        );
+      } catch (_) {
+        // Don't fail checkout if notification write fails
+      }
+
       return order.id;
     } catch (e) {
       rethrow;
@@ -87,9 +98,23 @@ class OrderService {
 
   /// Hủy đơn hàng
   Future<void> cancelOrder(String orderId) async {
-    await _firestore.collection('orders').doc(orderId).update({
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    final snapshot = await orderRef.get();
+    final userId = snapshot.data()?['userId']?.toString() ?? '';
+
+    await orderRef.update({
       'status': 'cancelled',
       'updatedAt': FieldValue.serverTimestamp(),
     });
+
+    if (userId.isNotEmpty) {
+      try {
+        await NotificationService.notifyOrderStatusChanged(
+          userId: userId,
+          orderId: orderId,
+          newStatus: 'cancelled',
+        );
+      } catch (_) {}
+    }
   }
 }

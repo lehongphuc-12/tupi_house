@@ -6,6 +6,7 @@ import '../models/order.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 import '../models/voucher.dart';
+import '../services/notification_service.dart';
 
 class AdminProvider extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -219,6 +220,8 @@ class AdminProvider extends ChangeNotifier {
       throw Exception('Trạng thái đơn hàng không hợp lệ.');
     }
 
+    String? notifyUserId;
+
     await _db.runTransaction((transaction) async {
       final snapshot = await transaction.get(orderRef);
 
@@ -257,7 +260,22 @@ class AdminProvider extends ChangeNotifier {
         'status': normalizedNewStatus,
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      notifyUserId = data['userId']?.toString();
     });
+
+    // Notify customer only when status actually changed
+    if (notifyUserId != null && notifyUserId!.isNotEmpty) {
+      try {
+        await NotificationService.notifyOrderStatusChanged(
+          userId: notifyUserId!,
+          orderId: orderId,
+          newStatus: normalizedNewStatus,
+        );
+      } catch (_) {
+        // Order update already succeeded; notification is best-effort.
+      }
+    }
 
     await loadOrders();
   }

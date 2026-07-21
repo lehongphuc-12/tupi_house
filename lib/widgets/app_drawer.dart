@@ -9,6 +9,8 @@ import '../screens/profile/profile_screen.dart';
 import '../screens/wishlist/wishlist_screen.dart';
 import '../screens/product/optimized_product_list_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
+import '../screens/notifications/notifications_screen.dart';
+import '../providers/notification_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -157,6 +159,26 @@ class AppDrawer extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (_) => const OrderHistoryScreen(),
                   ),
+                );
+              },
+            ),
+            Builder(
+              builder: (context) {
+                final unread = auth.isLoggedIn
+                    ? context.watch<NotificationProvider>().unreadCount
+                    : 0;
+                return _DrawerItem(
+                  icon: Icons.notifications_none_rounded,
+                  title: unread > 0 ? 'Thông báo ($unread)' : 'Thông báo',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    );
+                  },
                 );
               },
             ),
