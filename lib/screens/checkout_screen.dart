@@ -104,7 +104,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const SizedBox(width: 8),
               const Text("Địa chỉ giao hàng", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const Spacer(),
-              TextButton(onPressed: () {}, child: const Text("Thay đổi")),
+              TextButton(
+                onPressed: _showEditAddressDialog, 
+                child: const Text("Thay đổi")
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -115,6 +118,99 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Text("${_shippingAddress['ward']}, ${_shippingAddress['district']}, ${_shippingAddress['city']}"),
         ],
       ),
+    );
+  }
+
+  void _showEditAddressDialog() {
+    final nameController = TextEditingController(text: _shippingAddress['fullName']);
+    final phoneController = TextEditingController(text: _shippingAddress['phone']);
+    final addressController = TextEditingController(text: _shippingAddress['address']);
+    final wardController = TextEditingController(text: _shippingAddress['ward']);
+    final districtController = TextEditingController(text: _shippingAddress['district']);
+    final cityController = TextEditingController(text: _shippingAddress['city']);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        // Styling chung cho input để tái sử dụng ngắn gọn
+        InputDecoration inputStyle(String label, [IconData? icon]) => InputDecoration(
+          labelText: label,
+          prefixIcon: icon != null ? Icon(icon, size: 20) : null,
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        );
+
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+          title: Row(
+            children: [
+              Icon(Icons.location_on_rounded, color: Theme.of(context).primaryColor),
+              const SizedBox(width: 8),
+              const Text('Thay đổi địa chỉ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                TextField(controller: nameController, textInputAction: TextInputAction.next, decoration: inputStyle('Họ và tên', Icons.person_outline)),
+                const SizedBox(height: 10),
+                TextField(controller: phoneController, keyboardType: TextInputType.phone, textInputAction: TextInputAction.next, decoration: inputStyle('Số điện thoại', Icons.phone_outlined)),
+                const SizedBox(height: 10),
+                TextField(controller: addressController, textInputAction: TextInputAction.next, decoration: inputStyle('Địa chỉ (Số nhà, đường)', Icons.home_outlined)),
+                const SizedBox(height: 10),
+                TextField(controller: cityController, textInputAction: TextInputAction.next, decoration: inputStyle('Tỉnh/Thành phố', Icons.location_city_outlined)),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(child: TextField(controller: districtController, textInputAction: TextInputAction.next, decoration: inputStyle('Quận/Huyện'))),
+                    const SizedBox(width: 8),
+                    Expanded(child: TextField(controller: wardController, textInputAction: TextInputAction.done, decoration: inputStyle('Phường/Xã'))),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                    child: const Text('Hủy'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _shippingAddress = {
+                          'fullName': nameController.text,
+                          'phone': phoneController.text,
+                          'address': addressController.text,
+                          'ward': wardController.text,
+                          'district': districtController.text,
+                          'city': cityController.text,
+                        };
+                      });
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                    child: const Text('Lưu'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
