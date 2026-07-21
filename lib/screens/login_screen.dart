@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'register_screen.dart';
-import 'product_list_screen.dart';
+import 'product/optimized_product_list_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const ProductListScreen()),
+        MaterialPageRoute(builder: (_) => const OptimizedProductListScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (!mounted) return;
                     if (ok) {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (_) => const ProductListScreen()));
+                          builder: (_) => const OptimizedProductListScreen()));
                     } else if (auth.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(auth.errorMessage!)));
