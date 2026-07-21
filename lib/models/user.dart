@@ -6,6 +6,8 @@ class AppUser {
   final String avatar;
   final String gender;
   final String birthday;
+  final String role;
+  final bool isActive;
 
   AppUser({
     required this.id,
@@ -15,6 +17,8 @@ class AppUser {
     this.avatar = '',
     this.gender = '',
     this.birthday = '',
+    this.role = 'user',
+    this.isActive = true,
   });
 
   AppUser copyWith({
@@ -25,6 +29,8 @@ class AppUser {
     String? avatar,
     String? gender,
     String? birthday,
+    String? role,
+    bool? isActive,
   }) {
     return AppUser(
       id: id ?? this.id,
@@ -34,6 +40,8 @@ class AppUser {
       avatar: avatar ?? this.avatar,
       gender: gender ?? this.gender,
       birthday: birthday ?? this.birthday,
+      role: role ?? this.role,
+      isActive: isActive ?? this.isActive,
     );
   }
 
@@ -46,19 +54,23 @@ class AppUser {
       avatar: json['avatar'] ?? '',
       gender: json['gender'] ?? '',
       birthday: json['birthday'] ?? '',
+      role: json['role']?.toString().toLowerCase() ?? 'user',
+      isActive: json['isActive'] is bool ? json['isActive'] as bool : true,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'uid': id, // Save both to be safe
+      'uid': id,
       'email': email,
       'fullName': fullName,
       'phone': phone,
       'avatar': avatar,
       'gender': gender,
       'birthday': birthday,
+      'role': role,
+      'isActive': isActive,
     };
   }
 }
