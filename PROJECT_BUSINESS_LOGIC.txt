@@ -1,0 +1,209 @@
+================================================================================
+         TÀI LIỆU TỔNG HỢP NGHIỆP VỤ & VẬN HÀNH HỆ THỐNG
+                Dự án: Tupi House (Flutter + Firebase)
+    Tích hợp: Người 2 (Product) & Người 4 (Order)
+    Ngày cập nhật: 18/07/2026
+================================================================================
+
+Tài liệu này mô tả chi tiết nghiệp vụ (business logic) và cách thức hoạt động của 
+toàn bộ các tính năng đã được tối ưu hóa cho Người 2 (Product) và Người 4 (Order).
+Tất cả các tính năng được phát triển dưới dạng các file mã nguồn mới độc lập 
+để bảo vệ, không làm ảnh hưởng đến mã nguồn cũ của dự án.
+
+================================================================================
+                    PHẦN 1: NGƯỜI 2 – TÍNH NĂNG PRODUCT
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1.1 Tối ưu Danh sách Sản phẩm (Optimized Product List) & Phân trang (Pagination)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Hiển thị danh sách sản phẩm đẹp mắt, tối ưu hiệu năng cuộn và tải dữ liệu.
+  * Card sản phẩm mới (OptimizedProductCard) hiển thị rating dạng glassmorphic, 
+    nhãn SALE nổi bật, giá gốc gạch ngang khi có salePrice và nút yêu thích tròn.
+  * Phân trang (Lazy Loading/Load More): Ban đầu tải tối đa 4 sản phẩm. Khi cuộn 
+    đến gần cuối danh sách (cách đáy 200px), ứng dụng tự động tải tiếp 4 sản phẩm.
+    (Thiết lập trang gồm 4 sản phẩm giúp kiểm thử tính năng phân trang cực kỳ dễ dàng).
+  * Category chips dạng cuộn ngang, lấy dữ liệu danh mục động trực tiếp từ Firestore.
+- Cách thức hoạt động:
+  * File chính: lib/screens/product/optimized_product_list_screen.dart
+  * Lắng nghe sự kiện cuộn thông qua ScrollController. Khi chạm ngưỡng đáy, 
+    gọi hàm productProvider.loadMore() tăng biến đếm hiển thị thêm 4 sản phẩm.
+  * Trả về displayedProducts là một lát cắt (slice) của danh sách sản phẩm gốc 
+    đã được lọc để render lên GridView.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1.2 Tìm kiếm có Debounce (Search)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Người dùng nhập từ khóa tìm kiếm theo tên hoặc danh mục sản phẩm.
+  * Tự động lọc kết quả mà không spam truy vấn liên tục lên Firestore mỗi khi gõ.
+- Cách thức hoạt động:
+  * Khi người dùng gõ ký tự, Timer cũ bị hủy: _debounce?.cancel()
+  * Thiết lập một Timer mới chờ 300ms. Khi người dùng dừng gõ đủ 300ms, ứng dụng 
+    mới chính thức kích hoạt truy vấn lọc: productProvider.setSearchQuery(query).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1.3 Bộ lọc đa tiêu chí (Filter) & Sắp xếp (Sort)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Bộ lọc song song 4 tiêu chí: Danh mục, khoảng giá (từ 0đ đến 2.000.000đ+), 
+    đánh giá tối thiểu (3★, 4★, 5★), và lọc trạng thái chỉ hiện sản phẩm còn hàng.
+  * Sắp xếp theo 5 tùy chọn: Mặc định, Giá tăng, Giá giảm, Rating cao, Bán chạy nhất.
+- Cách thức hoạt động:
+  * Bộ lọc hiển thị thông qua BottomSheet: lib/widgets/product_filter_sheet.dart
+  * Trạng thái bộ lọc được lưu trữ bởi class FilterState.
+  * Toàn bộ pipeline lọc được xử lý tuần tự trong ProductProvider:
+    Dữ liệu thô ──> Lọc từ khóa ──> Lọc danh mục ──> Lọc khoảng giá ──> Lọc sao 
+                ──> Lọc hàng tồn ──> Sắp xếp ──> Trả về danh sách kết quả cuối.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1.4 Tối ưu Chi tiết Sản phẩm (Optimized Product Detail)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Giao diện chi tiết sản phẩm cao cấp, hỗ trợ trượt xem nhiều ảnh sản phẩm.
+  * Thống kê xếp hạng sao thực tế từ Firestore, phân tích tỉ lệ phần trăm rating.
+  * Mô tả định dạng HTML phong phú (Html Widget) và chọn số lượng tính tiền tự động.
+- Cách thức hoạt động:
+  * File chính: lib/screens/product/optimized_product_detail_screen.dart
+  * Dùng PageView hiển thị gallery ảnh cùng chấm tròn định vị tự động co giãn bằng 
+    AnimatedContainer.
+  * Tích hợp Hero animation truyền ảnh mượt mà từ danh sách sang chi tiết sản phẩm.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1.5 Hệ thống Đánh giá & Nhận xét (Review & Rating)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Khách hàng gửi nhận xét, số sao đánh giá. Mỗi khách hàng chỉ được đánh giá 
+    mỗi sản phẩm 1 lần để chống spam.
+  * Đồng bộ trực tiếp 100% từ Firestore, không sử dụng dữ liệu giả (no seed).
+  * Tự động tính toán lại điểm rating trung bình của sản phẩm khi có đánh giá mới.
+- Cách thức hoạt động:
+  * File logic: lib/services/review_service.dart và lib/providers/review_provider.dart
+  * Khi gửi đánh giá:
+    1. Tạo bản ghi review mới trong collection `reviews` trên Firestore.
+    2. Kích hoạt hàm tính toán điểm trung bình: Lấy tổng điểm sao của các review 
+       chia cho số lượng review, cập nhật ghi đè giá trị `rating` và `reviewCount` 
+       thẳng vào document của sản phẩm đó trong collection `products`.
+
+
+================================================================================
+                     PHẦN 2: NGƯỜI 4 – TÍNH NĂNG ORDER
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2.1 Lịch sử Đơn hàng (Order History)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Quản lý và hiển thị toàn bộ lịch sử đơn hàng của tài khoản đang đăng nhập.
+  * Lọc đơn hàng nhanh chóng qua 5 Tab: Tất cả / Đang xử lý (Chờ xác nhận & Đã xác nhận)
+    / Đang giao / Đã giao / Đã hủy.
+- Cách thức hoạt động:
+  * File chính: lib/screens/orders/order_history_screen.dart
+  * Sử dụng Stream để lắng nghe thay đổi real-time từ Firestore collection `orders` 
+    theo userId. Mọi thay đổi dữ liệu trên database sẽ tự động cập nhật lên UI.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2.2 Chi tiết Đơn hàng & Tích hợp Đánh giá (Order Detail & Review Button)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Hiển thị chi tiết thông tin đơn hàng gồm: Mã đơn (8 ký tự đầu), ngày đặt, 
+    trạng thái, phương thức thanh toán, địa chỉ giao hàng và danh sách sản phẩm.
+  * [Đặc biệt]: Đối với các đơn hàng đã hoàn thành (trạng thái `delivered`), hiển 
+    thị thêm nút **"Đánh giá sản phẩm"** bên cạnh từng mặt hàng trong đơn hàng đó.
+  * [Ràng buộc 1 lần]: 
+    - Mỗi sản phẩm trong đơn hàng chỉ được phép đánh giá tối đa **1 lần duy nhất**.
+    - Nếu sản phẩm đã được đánh giá, nút bấm sẽ biến đổi thành nhãn **"Đã đánh giá"** 
+      (màu xanh lá pastel kèm icon check) và khóa tương tác để ngăn ngừa spam.
+- Cách thức hoạt động:
+  * File chính: lib/screens/orders/order_detail_screen.dart
+  * Widget `_OrderItemRow` được thiết kế dưới dạng `StatefulWidget`. Khi khởi tạo, 
+    widget gọi `ReviewService().hasUserReviewed()` kiểm tra trạng thái đánh giá 
+    của tài khoản hiện tại đối với sản phẩm trên Firestore.
+  * Nếu chưa đánh giá, khi người dùng click "Đánh giá sản phẩm" và gửi nhận xét 
+    thành công (bottom sheet trả về `true`), widget lập tức gọi `setState()` để 
+    chuyển trạng thái sang `_hasReviewed = true` ngay tức khắc mà không cần 
+    tải lại trang (Instant UI Refresh).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2.3 Theo dõi Trạng thái (Order Tracking Timeline)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Trực quan hóa tiến trình đơn hàng bằng timeline 4 bước: 
+    Chờ xác nhận (pending) -> Đã xác nhận (confirmed) -> Đang giao (shipping) -> Đã giao (delivered).
+  * Nếu đơn hàng bị hủy, hiển thị một banner thông báo màu đỏ đặc biệt.
+- Cách thức hoạt động:
+  * Widget: lib/screens/orders/order_tracking_widget.dart
+  * Dựa trên vị trí trạng thái hiện tại trong danh sách 4 bước để tô màu:
+    - Các bước đã hoàn thành: Chấm tròn xanh lá có tích v, đường nối xanh lá.
+    - Bước hiện tại: Chấm tròn hồng có icon đặc trưng, text hồng nổi bật.
+    - Các bước chưa đến: Chấm tròn xám mờ.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2.4 Hủy Đơn hàng (Cancel Order)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Cho phép người dùng chủ động hủy đơn hàng.
+  * Chỉ cho phép hủy khi đơn hàng đang ở trạng thái chờ duyệt (status = `pending`).
+- Cách thức hoạt động:
+  * Khi bấm "Hủy đơn hàng", ứng dụng hiển thị hộp thoại AlertDialog yêu cầu xác nhận.
+  * Nếu xác nhận, gọi orderProvider.cancelOrder(orderId), thực hiện update trường 
+    status thành `cancelled` trong Firestore document.
+  * Stream real-time tự động bắt sự kiện thay đổi này để cập nhật trạng thái đơn 
+    hàng sang tab "Đã hủy" trên giao diện ngay lập tức.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2.5 Thông báo Đơn hàng in-app (Order Notifications)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Nghiệp vụ:
+  * Tự động gửi thông báo SnackBar nổi toàn cục khi admin thay đổi trạng thái đơn 
+    hàng của người dùng (VD: duyệt đơn thành công hoặc đang giao hàng).
+- Cách thức hoạt động:
+  * File chính: lib/services/notification_service.dart
+  * Ứng dụng đăng ký scaffoldMessengerKey ở MaterialApp trong main.dart.
+  * Khi user đăng nhập, NotificationService.startListening() sẽ tạo một listener 
+    lắng nghe collection `orders` của user đó trên Firestore.
+  * Khi nhận được sự kiện sửa đổi (DocumentChangeType.modified), ứng dụng so sánh 
+    trạng thái mới với trạng thái trước đó được lưu trong bộ nhớ tạm (`_lastStatuses`).
+  * Nếu trạng thái thay đổi, hệ thống sẽ đẩy ra một SnackBar đẹp mắt với tiêu đề, 
+    mã đơn hàng rút gọn và mô tả trạng thái tiếng Việt tương ứng.
+
+
+================================================================================
+               PHẦN 3: SƠ ĐỒ ĐƯỜNG DẪN CÁC TÀI NGUYÊN (FILE MAP)
+================================================================================
+
+  lib/
+  ├── models/
+  │     ├── product.dart                      ← Model sản phẩm
+  │     ├── review.dart                       ← Model nhận xét khách hàng
+  │     └── order.dart                        ← Model đơn hàng
+  ├── services/
+  │     ├── order_service.dart                ← Xử lý dữ liệu đơn hàng với Firestore
+  │     ├── review_service.dart               ← Xử lý đánh giá sản phẩm với Firestore
+  │     └── notification_service.dart         ← Lắng nghe thay đổi trạng thái đơn hàng
+  ├── providers/
+  │     ├── product_provider.dart             ← Quản lý lọc, sắp xếp, phẩn trang
+  │     ├── review_provider.dart              ← Quản lý trạng thái đánh giá
+  │     └── order_provider.dart               ← Quản lý trạng thái đơn hàng
+  ├── screens/
+  │     ├── product/
+  │     │     ├── optimized_product_list_screen.dart   ← Danh sách tối ưu
+  │     │     ├── optimized_product_detail_screen.dart ← Chi tiết tối ưu + reviews
+  │     │     └── add_review_bottom_sheet.dart         ← Form viết đánh giá mới
+  │     └── orders/
+  │           ├── order_history_screen.dart   ← Lịch sử đơn hàng 5 tabs
+  │           ├── order_detail_screen.dart    ← Chi tiết đơn hàng + nút đánh giá
+  │           └── order_tracking_widget.dart  ← Stepper tiến trình đơn hàng
+  ├── widgets/
+  │     ├── optimized_product_card.dart       ← Card sản phẩm cao cấp mới
+  │     ├── product_filter_sheet.dart         ← BottomSheet lọc đa tiêu chí
+  │     ├── star_rating_bar.dart              ← Thanh hiển thị sao (chọn / xem)
+  │     ├── review_card.dart                  ← Khung hiển thị chi tiết nhận xét
+  │     └── order_status_badge.dart           ← Badge màu cho trạng thái đơn
+  └── utils/
+        └── seed_orders.dart                  ← Seed đơn mẫu & Tài khoản khách mẫu
+
+================================================================================
+                                 END OF DOCUMENT
+================================================================================

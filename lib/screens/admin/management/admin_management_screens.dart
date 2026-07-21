@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
+import '../../orders/order_detail_screen.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../models/category.dart';
 import '../../../models/product.dart';
 import '../../../models/user.dart';
@@ -354,150 +355,282 @@ class AdminOrderScreen extends StatefulWidget {
 
 class _AdminOrderScreenState extends State<AdminOrderScreen> {
   String status = '';
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<AdminProvider>().loadOrders());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final auth = context.read<AuthProvider>();
+
+      if (auth.isAdmin) {
+        context.read<AdminProvider>().loadOrders();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final p = context.watch<AdminProvider>();
-    final items =
-        p.orders.where((e) => status.isEmpty || e.status == status).toList();
+    final provider = context.watch<AdminProvider>();
+
+    final items = provider.orders
+        .where(
+          (order) => status.isEmpty || order.status == status,
+        )
+        .toList();
+
     return _AdminScaffold(
-        title: 'Quản lý đơn hàng',
-        onRefresh: p.loadOrders,
-        extraFilter: DropdownButtonFormField<String>(
-            value: status,
-            decoration: const InputDecoration(labelText: 'Trạng thái'),
-            items: const [
-              DropdownMenuItem(value: '', child: Text('Tất cả')),
-              DropdownMenuItem(value: 'pending', child: Text('Chờ xác nhận')),
-              DropdownMenuItem(value: 'confirmed', child: Text('Đã xác nhận')),
-              DropdownMenuItem(value: 'shipping', child: Text('Đang giao')),
-              DropdownMenuItem(value: 'delivered', child: Text('Đã giao')),
-              DropdownMenuItem(value: 'cancelled', child: Text('Đã hủy'))
-            ],
-            onChanged: (v) => setState(() => status = v ?? '')),
-        child: _loadingOrEmpty(
-            p,
-            items,
-            'Chưa có đơn hàng',
-            () => Column(
-                children: items
-                    .map((order) => Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: const CircleAvatar(
-                              child: Icon(Icons.receipt_long_outlined)),
-                          title: Text(
-                              'Đơn #${order.id.length > 8 ? order.id.substring(0, 8) : order.id}',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w800)),
-                          subtitle: Text(
-                              '${DateFormat('dd/MM/yyyy HH:mm').format(order.createdAt)} • ${order.items.length} sản phẩm\n${_money.format(order.totalAmount)}'),
-                          isThreeLine: true,
-                          trailing: SizedBox(
-                              width: 180,
-                              child: DropdownButtonFormField<String>(
-                                  value: order.status,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Trạng thái', isDense: true),
-                                  items: const [
-                                    DropdownMenuItem(
-                                        value: 'pending',
-                                        child: Text('Chờ xác nhận')),
-                                    DropdownMenuItem(
-                                        value: 'confirmed',
-                                        child: Text('Đã xác nhận')),
-                                    DropdownMenuItem(
-                                        value: 'shipping',
-                                        child: Text('Đang giao')),
-                                    DropdownMenuItem(
-                                        value: 'delivered',
-                                        child: Text('Đã giao')),
-                                    DropdownMenuItem(
-                                        value: 'cancelled',
-                                        child: Text('Đã hủy'))
-                                  ],
-                                  onChanged: (v) async {
-                                    if (v != null) {
-                                      await context
-                                          .read<AdminProvider>()
-                                          .updateOrderStatus(order.id, v);
-                                      if (context.mounted)
-                                        _message(
-                                            context, 'Đã cập nhật đơn hàng');
-                                    }
-                                  })),
-                        )))
-                    .toList())));
+      title: 'Quản lý đơn hàng',
+      onRefresh: provider.loadOrders,
+      extraFilter: DropdownButtonFormField<String>(
+        value: status,
+        decoration: const InputDecoration(
+          labelText: 'Trạng thái',
+        ),
+        items: const [
+          DropdownMenuItem(
+            value: '',
+            child: Text('Tất cả'),
+          ),
+          DropdownMenuItem(
+            value: 'pending',
+            child: Text('Chờ xác nhận'),
+          ),
+          DropdownMenuItem(
+            value: 'confirmed',
+            child: Text('Đã xác nhận'),
+          ),
+          DropdownMenuItem(
+            value: 'shipping',
+            child: Text('Đang giao'),
+          ),
+          DropdownMenuItem(
+            value: 'delivered',
+            child: Text('Đã giao'),
+          ),
+          DropdownMenuItem(
+            value: 'cancelled',
+            child: Text('Đã hủy'),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            status = value ?? '';
+          });
+        },
+      ),
+      child: _loadingOrEmpty(
+        provider,
+        items,
+        'Chưa có đơn hàng',
+        () => Column(
+          children: items.map((order) {
+            final currentStatus = provider.normalizeOrderStatus(order.status);
+
+            final allowedNextStatuses =
+                provider.getAllowedNextOrderStatuses(currentStatus);
+
+            final dropdownStatuses = [
+              currentStatus,
+              ...allowedNextStatuses,
+            ];
+
+            final canEditStatus = allowedNextStatuses.isNotEmpty;
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => OrderDetailScreen(
+                        order: order,
+                        adminMode: true,
+                      ),
+                    ),
+                  );
+
+                  if (!context.mounted) return;
+
+                  await context.read<AdminProvider>().loadOrders();
+                },
+                contentPadding: const EdgeInsets.all(16),
+                leading: const CircleAvatar(
+                  child: Icon(
+                    Icons.receipt_long_outlined,
+                  ),
+                ),
+                title: Text(
+                  'Đơn #${_shortOrderId(order.id)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    '${DateFormat('dd/MM/yyyy HH:mm').format(order.createdAt)}'
+                    '\n${order.items.length} sản phẩm'
+                    '\n${_money.format(order.totalAmount)}',
+                  ),
+                ),
+                isThreeLine: true,
+                trailing: SizedBox(
+                  width: 190,
+                  child: DropdownButtonFormField<String>(
+                    value: currentStatus,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: canEditStatus
+                          ? 'Cập nhật trạng thái'
+                          : 'Trạng thái cuối',
+                      isDense: true,
+                    ),
+                    items: dropdownStatuses.map((statusValue) {
+                      return DropdownMenuItem<String>(
+                        value: statusValue,
+                        child: Text(
+                          provider.orderStatusLabel(statusValue),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: canEditStatus
+                        ? (value) async {
+                            if (value == null || value == currentStatus) {
+                              return;
+                            }
+
+                            try {
+                              await context
+                                  .read<AdminProvider>()
+                                  .updateOrderStatus(order.id, value);
+
+                              if (!context.mounted) return;
+
+                              _message(
+                                context,
+                                'Đã chuyển đơn hàng sang '
+                                '"${provider.orderStatusLabel(value)}".',
+                              );
+                            } catch (e) {
+                              if (!context.mounted) return;
+
+                              _message(
+                                context,
+                                e.toString().replaceFirst('Exception: ', ''),
+                                error: true,
+                              );
+                            }
+                          }
+                        : null,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
+}
+
+String _shortOrderId(String id) {
+  if (id.isEmpty) return 'Không xác định';
+  return id.length > 8 ? id.substring(0, 8) : id;
 }
 
 class AdminUserScreen extends StatefulWidget {
   const AdminUserScreen({super.key});
+
   @override
   State<AdminUserScreen> createState() => _AdminUserScreenState();
 }
 
 class _AdminUserScreenState extends State<AdminUserScreen> {
   String query = '';
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => context.read<AdminProvider>().loadUsers());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final auth = context.read<AuthProvider>();
+
+      if (auth.isAdmin) {
+        context.read<AdminProvider>().loadUsers();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final p = context.watch<AdminProvider>();
-    final items = p.users
-        .where((e) => '${e.fullName} ${e.email} ${e.phone}'
-            .toLowerCase()
-            .contains(query.toLowerCase()))
-        .toList();
+    final provider = context.watch<AdminProvider>();
+
+    final items = provider.users.where((user) {
+      final searchValue =
+          '${user.fullName} ${user.email} ${user.phone}'.toLowerCase();
+
+      return searchValue.contains(query.toLowerCase());
+    }).toList();
+
     return _AdminScaffold(
-        title: 'Quản lý người dùng',
-        onRefresh: p.loadUsers,
-        searchHint: 'Tìm tên, email hoặc số điện thoại',
-        onSearch: (v) => setState(() => query = v),
-        child: _loadingOrEmpty(
-            p,
-            items,
-            'Chưa có người dùng',
-            () => Column(
-                children: items
-                    .map((user) => Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                            contentPadding: const EdgeInsets.all(16),
-                            leading: CircleAvatar(
-                                backgroundImage: user.avatar.isEmpty
-                                    ? null
-                                    : NetworkImage(user.avatar),
-                                child: user.avatar.isEmpty
-                                    ? const Icon(Icons.person_outline)
-                                    : null),
-                            title: Text(
-                                user.fullName.isEmpty
-                                    ? 'Chưa cập nhật tên'
-                                    : user.fullName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w800)),
-                            subtitle: Text(
-                                '${user.email}\n${user.phone.isEmpty ? 'Chưa có số điện thoại' : user.phone}'),
-                            isThreeLine: true,
-                            trailing: OutlinedButton.icon(
-                                onPressed: () => _showUserDialog(context, user),
-                                icon:
-                                    const Icon(Icons.manage_accounts_outlined),
-                                label: const Text('Quản lý')))))
-                    .toList())));
+      title: 'Quản lý người dùng',
+      onRefresh: provider.loadUsers,
+      searchHint: 'Tìm tên, email hoặc số điện thoại',
+      onSearch: (value) {
+        setState(() {
+          query = value;
+        });
+      },
+      child: _loadingOrEmpty(
+        provider,
+        items,
+        'Chưa có người dùng',
+        () => Column(
+          children: items.map((user) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: CircleAvatar(
+                  backgroundImage:
+                      user.avatar.isEmpty ? null : NetworkImage(user.avatar),
+                  child: user.avatar.isEmpty
+                      ? const Icon(Icons.person_outline)
+                      : null,
+                ),
+                title: Text(
+                  user.fullName.isEmpty ? 'Chưa cập nhật tên' : user.fullName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                subtitle: Text(
+                  '${user.email}\n'
+                  '${user.phone.isEmpty ? 'Chưa có số điện thoại' : user.phone}',
+                ),
+                isThreeLine: true,
+                trailing: OutlinedButton.icon(
+                  onPressed: () {
+                    _showUserDialog(context, user);
+                  },
+                  icon: const Icon(
+                    Icons.manage_accounts_outlined,
+                  ),
+                  label: const Text('Quản lý'),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 }
 
@@ -784,6 +917,27 @@ class _AdminScaffold extends StatelessWidget {
       required this.child});
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+
+    if (!auth.isAdmin) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Không có quyền truy cập')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Bạn không có quyền truy cập chức năng quản trị.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       floatingActionButton: onAdd == null

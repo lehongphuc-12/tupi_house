@@ -7,7 +7,7 @@ import '../screens/orders/order_history_screen.dart';
 import '../screens/cart/cart_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/wishlist/wishlist_screen.dart';
-
+import '../screens/product/optimized_product_list_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -86,6 +86,19 @@ class AppDrawer extends StatelessWidget {
 
             // Menu Items
             _DrawerItem(
+              icon: Icons.storefront_outlined,
+              title: 'Danh sách sản phẩm',
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const OptimizedProductListScreen(),
+                  ),
+                );
+              },
+            ),
+            _DrawerItem(
               icon: Icons.favorite_border,
               title: 'Yêu thích',
               onTap: () {
@@ -148,20 +161,21 @@ class AppDrawer extends StatelessWidget {
               },
             ),
 
-            _DrawerItem(
-              icon: Icons.admin_panel_settings_outlined,
-              title: 'Admin Dashboard',
-              onTap: () {
-                Navigator.pop(context);
+            if (auth.isAdmin)
+              _DrawerItem(
+                icon: Icons.admin_panel_settings_outlined,
+                title: 'Admin Dashboard',
+                onTap: () {
+                  Navigator.pop(context);
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AdminDashboardScreen(),
-                  ),
-                );
-              },
-            ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdminDashboardScreen(),
+                    ),
+                  );
+                },
+              ),
 
             const Spacer(),
             const Divider(height: 1),
