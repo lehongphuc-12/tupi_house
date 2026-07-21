@@ -106,9 +106,13 @@ class _OptimizedProductListScreenState
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune_rounded),
-            tooltip: 'Bộ lọc',
-            onPressed: _openFilterSheet,
+            icon: const Icon(Icons.notifications_none_rounded),
+            tooltip: 'Thông báo',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Không có thông báo mới')),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.favorite_border_rounded),
@@ -172,25 +176,47 @@ class _OptimizedProductListScreenState
                     ),
                     const SizedBox(height: 14),
 
-                    // Search TextField
-                    TextField(
-                      controller: _searchController,
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: 'Tìm theo tên hoặc loại sản phẩm...',
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear_rounded),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  context
-                                      .read<ProductProvider>()
-                                      .setSearchQuery('');
-                                },
-                              )
-                            : null,
-                      ),
+                    // Search & Filter Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: _onSearchChanged,
+                            decoration: InputDecoration(
+                              hintText: 'Tìm theo tên hoặc loại sản phẩm...',
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear_rounded),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        context
+                                            .read<ProductProvider>()
+                                            .setSearchQuery('');
+                                      },
+                                    )
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        InkWell(
+                          onTap: _openFilterSheet,
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.softPink,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.tune_rounded,
+                              color: AppColors.pastelPinkDark,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 14),
 
