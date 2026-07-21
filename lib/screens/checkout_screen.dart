@@ -373,18 +373,81 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         await cartProvider.removeItem(item.productId);
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Đặt hàng thành công! Cảm ơn bạn đã mua hàng 💖"),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      Navigator.popUntil(context, (route) => route.isFirst);
+      if (_selectedPaymentMethod == 'bank') {
+        _showVietQRDialog(order.id, _totalAmount + 30000);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Đặt hàng thành công! Cảm ơn bạn đã mua hàng 💖"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(orderProvider.errorMessage ?? "Đặt hàng thất bại")),
       );
     }
+  }
+
+  void _showVietQRDialog(String orderId, int amount) {
+    const bankId = "MB"; 
+    const accountNo = "0788580223"; 
+    const accountName = "LE HONG PHUC"; 
+    final qrUrl = "https://img.vietqr.io/image/$bankId-$accountNo-compact.png?amount=$amount&addInfo=$orderId&accountName=$accountName";
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Chuyển khoản thanh toán", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Quét mã QR dưới đây bằng ứng dụng ngân hàng của bạn để thanh toán.", textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                qrUrl,
+                height: 250,
+                width: 250,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text("Số tiền: ${formatVnd(amount.toDouble())}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.pastelPinkDark)),
+            const SizedBox(height: 8),
+            Text("Nội dung: $orderId", style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            const Text("Sau khi chuyển khoản thành công, vui lòng nhấn nút bên dưới.", style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.pastelPinkDark,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(vertical: 12)
+              ),
+              onPressed: () {
+                Navigator.pop(context); // Đóng dialog
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Đặt hàng thành công! Chúng tôi sẽ kiểm tra thanh toán và giao hàng."), backgroundColor: Colors.green),
+                );
+                Navigator.popUntil(context, (route) => route.isFirst); // Về trang chủ
+              },
+              child: const Text("TÔI ĐÃ THANH TOÁN", style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
