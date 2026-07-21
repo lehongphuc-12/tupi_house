@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/order.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../providers/review_provider.dart';
+import '../../services/review_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/order_status_badge.dart';
+import '../product/add_review_bottom_sheet.dart';
 import 'order_tracking_widget.dart';
 
 class OrderDetailScreen extends StatelessWidget {
@@ -13,8 +17,7 @@ class OrderDetailScreen extends StatelessWidget {
   const OrderDetailScreen({super.key, required this.order});
 
   String _formatPrice(int price) {
-    final fmt =
-        NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    final fmt = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
     return fmt.format(price);
   }
 
@@ -24,14 +27,10 @@ class OrderDetailScreen extends StatelessWidget {
 
   String _paymentLabel(String method) {
     switch (method) {
-      case 'cod':
-        return 'Thanh toán khi nhận hàng (COD)';
-      case 'bank':
-        return 'Chuyển khoản ngân hàng';
-      case 'momo':
-        return 'Ví MoMo';
-      default:
-        return method;
+      case 'cod': return 'Thanh toán khi nhận hàng (COD)';
+      case 'bank': return 'Chuyển khoản ngân hàng';
+      case 'momo': return 'Ví MoMo';
+      default: return method;
     }
   }
 
@@ -64,13 +63,13 @@ class OrderDetailScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      final success = await context.read<OrderProvider>().cancelOrder(order.id);
+      final success =
+          await context.read<OrderProvider>().cancelOrder(order.id);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success
-                ? '✅ Đã hủy đơn hàng thành công'
-                : '❌ Hủy đơn thất bại'),
+            content: Text(
+                success ? '✅ Đã hủy đơn hàng thành công' : '❌ Hủy đơn thất bại'),
           ),
         );
         if (success) Navigator.pop(context);
@@ -110,9 +109,11 @@ class OrderDetailScreen extends StatelessWidget {
               title: 'Thông tin đơn hàng',
               icon: Icons.receipt_long_outlined,
               children: [
-                _InfoRow(label: 'Mã đơn hàng', value: '#$shortId'),
                 _InfoRow(
-                    label: 'Ngày đặt', value: _formatDate(order.createdAt)),
+                    label: 'Mã đơn hàng', value: '#$shortId'),
+                _InfoRow(
+                    label: 'Ngày đặt',
+                    value: _formatDate(order.createdAt)),
                 _InfoRow(
                     label: 'Trạng thái',
                     value: OrderStatusBadge.label(order.status)),
@@ -146,13 +147,15 @@ class OrderDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // ── Sản phẩm đã đặt ────────────────────────────────
             _SectionCard(
               title: 'Sản phẩm đã đặt (${order.items.length})',
               icon: Icons.shopping_bag_outlined,
               children: order.items
-                  .map((item) =>
-                      _OrderItemRow(item: item, formatPrice: _formatPrice))
+                  .map((item) => _OrderItemRow(
+                        item: item,
+                        formatPrice: _formatPrice,
+                        orderStatus: order.status,
+                      ))
                   .toList(),
             ),
             const SizedBox(height: 12),
@@ -174,7 +177,8 @@ class OrderDetailScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Tổng thanh toán',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   Text(
                     _formatPrice(order.totalAmount),
@@ -285,7 +289,8 @@ class _InfoRow extends StatelessWidget {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              style: const TextStyle(
+                  fontSize: 13, color: AppColors.muted),
             ),
           ),
           Expanded(
@@ -305,72 +310,179 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _OrderItemRow extends StatelessWidget {
+class _OrderItemRow extends StatefulWidget {
   final OrderItem item;
   final String Function(int) formatPrice;
+  final String orderStatus;
 
-  const _OrderItemRow({required this.item, required this.formatPrice});
+  const _OrderItemRow({
+    required this.item,
+    required this.formatPrice,
+    required this.orderStatus,
+  });
+
+  @override
+  State<_OrderItemRow> createState() => _OrderItemRowState();
+}
+
+class _OrderItemRowState extends State<_OrderItemRow> {
+  bool _hasReviewed = false;
+  final _reviewService = ReviewService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkReviewStatus();
+  }
+
+  Future<void> _checkReviewStatus() async {
+    final auth = context.read<AuthProvider>();
+    if (auth.isLoggedIn && widget.orderStatus == 'delivered') {
+      try {
+        final reviewed = await _reviewService.hasUserReviewed(
+          widget.item.productId,
+          auth.currentUser!.id,
+        );
+        if (mounted) {
+          setState(() {
+            _hasReviewed = reviewed;
+          });
+        }
+      } catch (_) {}
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isDelivered = widget.orderStatus == 'delivered';
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: item.thumbnail.isNotEmpty
-                ? Image.network(
-                    item.thumbnail,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _PlaceholderThumb(),
-                  )
-                : _PlaceholderThumb(),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w700),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Wrap(
-                  spacing: 6,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Thumbnail
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: widget.item.thumbnail.isNotEmpty
+                    ? Image.network(
+                        widget.item.thumbnail,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _PlaceholderThumb(),
+                      )
+                    : _PlaceholderThumb(),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (item.color != null && item.color!.isNotEmpty)
-                      _Tag('Màu: ${item.color}'),
-                    if (item.size != null && item.size!.isNotEmpty)
-                      _Tag('Size: ${item.size}'),
-                    _Tag('x${item.quantity}'),
+                    Text(
+                      widget.item.title,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w700),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6,
+                      children: [
+                        if (widget.item.color != null && widget.item.color!.isNotEmpty)
+                          _Tag('Màu: ${widget.item.color}'),
+                        if (widget.item.size != null && widget.item.size!.isNotEmpty)
+                          _Tag('Size: ${widget.item.size}'),
+                        _Tag('x${widget.item.quantity}'),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.formatPrice(widget.item.price * widget.item.quantity),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.pastelPinkDark,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Text(
-            formatPrice(item.price * item.quantity),
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: AppColors.pastelPinkDark,
+          if (isDelivered) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: _hasReviewed
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.softGreen,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.pastelGreen),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.check_circle_rounded, size: 14, color: AppColors.pastelGreenDark),
+                          SizedBox(width: 6),
+                          Text(
+                            'Đã đánh giá',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.pastelGreenDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.pastelPinkDark,
+                        side: const BorderSide(color: AppColors.pastelPink),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      icon: const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+                      label: const Text(
+                        'Đánh giá sản phẩm',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                      ),
+                      onPressed: () async {
+                        final result = await showModalBottomSheet<bool>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (sheetContext) => ChangeNotifierProvider<ReviewProvider>(
+                            create: (_) => ReviewProvider(),
+                            child: AddReviewBottomSheet(productId: widget.item.productId),
+                          ),
+                        );
+                        if (result == true && mounted) {
+                          setState(() {
+                            _hasReviewed = true;
+                          });
+                        }
+                      },
+                    ),
             ),
-          ),
+          ],
         ],
       ),
     );
   }
 }
+
 
 class _Tag extends StatelessWidget {
   final String text;
@@ -386,8 +498,8 @@ class _Tag extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(text,
-          style:
-              const TextStyle(fontSize: 11, color: AppColors.pastelPinkDark)),
+          style: const TextStyle(
+              fontSize: 11, color: AppColors.pastelPinkDark)),
     );
   }
 }

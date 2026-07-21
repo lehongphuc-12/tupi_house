@@ -64,8 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '777696090287',
     projectId: 'tubi-home',
     storageBucket: 'tubi-home.firebasestorage.app',
-    iosClientId:
-        '777696090287-q7o7b4amq79msap9ed7jth8i0afbhm7a.apps.googleusercontent.com',
+    iosClientId: '777696090287-q7o7b4amq79msap9ed7jth8i0afbhm7a.apps.googleusercontent.com',
     iosBundleId: 'com.example.tubiHome',
   );
 
@@ -75,8 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '777696090287',
     projectId: 'tubi-home',
     storageBucket: 'tubi-home.firebasestorage.app',
-    iosClientId:
-        '777696090287-q7o7b4amq79msap9ed7jth8i0afbhm7a.apps.googleusercontent.com',
+    iosClientId: '777696090287-q7o7b4amq79msap9ed7jth8i0afbhm7a.apps.googleusercontent.com',
     iosBundleId: 'com.example.tubiHome',
   );
 

@@ -40,7 +40,9 @@ class OrderService {
           .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .get();
-      return snapshot.docs.map((doc) => _fromDoc(doc.data(), doc.id)).toList();
+      return snapshot.docs
+          .map((doc) => _fromDoc(doc.data(), doc.id))
+          .toList();
     } catch (e) {
       // Nếu index chưa tạo, fallback không orderBy
       final snapshot = await _firestore
@@ -61,18 +63,19 @@ class OrderService {
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map((snapshot) {
-      final orders =
-          snapshot.docs.map((doc) => _fromDoc(doc.data(), doc.id)).toList();
+      final orders = snapshot.docs
+          .map((doc) => _fromDoc(doc.data(), doc.id))
+          .toList();
       orders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return orders;
     });
   }
 
-  /// Tạo đơn hàng mới
+    /// Tạo đơn hàng mới
   Future<String> createOrder(Order order) async {
     try {
       final docRef = _firestore.collection('orders').doc(order.id);
-
+      
       await docRef.set({
         ...order.toJson(),
         'createdAt': FieldValue.serverTimestamp(),
@@ -81,6 +84,7 @@ class OrderService {
 
       return order.id;
     } catch (e) {
+      print("❌ Lỗi tạo đơn hàng: $e");
       rethrow;
     }
   }

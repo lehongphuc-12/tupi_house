@@ -9,7 +9,7 @@ class CartProvider with ChangeNotifier {
   Cart get cart => _cart;
 
   CartProvider() {
-    _initCart();
+    _initCart();    
   }
 
   Future<void> _initCart() async {

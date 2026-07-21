@@ -166,7 +166,8 @@ class _StepRow extends StatelessWidget {
           // Right: label + sublabel
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(top: 8, bottom: isLast ? 0 : 20),
+              padding: EdgeInsets.only(
+                  top: 8, bottom: isLast ? 0 : 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -182,8 +183,8 @@ class _StepRow extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       step.sublabel,
-                      style:
-                          const TextStyle(fontSize: 12, color: AppColors.muted),
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.muted),
                     ),
                   ],
                 ],
@@ -213,8 +214,7 @@ class _CancelledTracker extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
-              border:
-                  Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+              border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
             ),
             child: const Icon(Icons.cancel_outlined,
                 color: Colors.redAccent, size: 26),

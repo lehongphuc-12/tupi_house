@@ -6,11 +6,7 @@ import '../widgets/product_card.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/responsive_frame.dart';
 import 'product_detail_screen.dart';
-import 'cart/cart_screen.dart';
-import '../providers/auth_provider.dart';
-import '../providers/wishlist_provider.dart';
-import 'wishlist/wishlist_screen.dart';
-import 'login_screen.dart';
+import 'cart/cart_screen.dart'; 
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -54,27 +50,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite_border),
-            onPressed: () {
-              final auth = context.read<AuthProvider>();
-              if (auth.isLoggedIn) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const WishlistScreen()),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              }
-            },
+            onPressed: () {}, // Không làm gì
           ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const CartScreen()));
-            },
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
+            }, 
           ),
           const SizedBox(width: 8),
         ],
@@ -90,10 +72,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               // Header
               const Text(
                 'Khám phá sản phẩm 🌸',
-                style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.pastelPinkDark),
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.pastelPinkDark),
               ),
               const SizedBox(height: 6),
               const Text(
@@ -211,50 +190,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio:
-                              0.65, // Tăng tỷ lệ để card đủ không gian, tránh overflow
+                          childAspectRatio: 0.65, // Tăng tỷ lệ để card đủ không gian, tránh overflow
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),
                         itemCount: products.length,
                         itemBuilder: (context, index) {
                           final product = products[index];
-                          final wishlistProvider =
-                              context.watch<WishlistProvider>();
-                          final isFavorite =
-                              wishlistProvider.isFavorite(product.id);
-
                           return ProductCard(
                             product: product,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProductDetailScreen(product: product),
+                                  builder: (context) => ProductDetailScreen(product: product),
                                 ),
                               );
                             },
-                            isFavorite: isFavorite,
-                            onToggleFavorite: () async {
-                              final auth = context.read<AuthProvider>();
-                              if (!auth.isLoggedIn) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const LoginScreen()),
-                                );
-                                return;
-                              }
-                              try {
-                                await wishlistProvider.toggleWishlist(product);
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Lỗi: $e')),
-                                );
-                              }
-                            },
+                            isFavorite: false,
+                            onToggleFavorite: () {},
                             onAddToCart: () {},
                           );
                         },

@@ -1,0 +1,146 @@
+================================================================================
+         LOGIC LUỒNG XỬ LÝ – PRODUCT OPTIMIZATION FEATURE
+         Dự án: Tupi House – Flutter + Firebase
+         Ngày viết: 18/07/2026
+================================================================================
+
+Tài liệu này tổng hợp toàn bộ nghiệp vụ (business logic) và cách thức hoạt động 
+của các tính năng Tối ưu Danh sách, Chi tiết sản phẩm, Tìm kiếm, Lọc, Sắp xếp, 
+Phân trang và Đánh giá (Review & Rating) đã được thiết kế mới dưới dạng các file 
+độc lập, không làm ảnh hưởng đến code gốc của dự án.
+
+LƯU Ý QUAN TRỌNG:
+  - Toàn bộ tính năng Review & Rating được kết nối trực tiếp với Firebase Firestore.
+  - Không sử dụng dữ liệu mẫu hoặc cơ chế tạo dữ liệu đánh giá giả (no seed data 
+    for reviews).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. TỐI ƯU DANH SÁCH SẢN PHẨM (Optimized Product List) & PHÂN TRANG (Pagination)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. NGHIỆP VỤ (Business Logic):
+  - Hiển thị danh sách sản phẩm đẹp mắt, trực quan và tối ưu hiệu năng tải trang.
+  - Giao diện được tối ưu cao cấp:
+    * Thẻ sản phẩm mới OptimizedProductCard hiển thị điểm đánh giá (Rating) dạng 
+      nổi trên hình ảnh với nền bán trong suốt (glassmorphism).
+    * Hiển thị danh mục phụ (Category Name) và thẻ "SALE" nổi bật khi sản phẩm 
+      đang được giảm giá.
+    * Giá cũ gạch ngang khi có chương trình khuyến mãi.
+    * Nút yêu thích dạng bo tròn tích hợp ngay trên card.
+  - Phân trang (Pagination) theo dạng Lazy Loading (Load More): Ban đầu chỉ tải 
+    12 sản phẩm. Khi người dùng cuộn gần tới cuối trang, ứng dụng tự động tải 
+    thêm 12 sản phẩm tiếp theo cho tới khi hết danh sách. Việc này giúp tránh 
+    tải hàng trăm sản phẩm cùng một lúc làm đơ lag UI.
+  - Hiển thị thanh cuộn ngang danh mục (Category Chips) lấy động từ Firestore.
+  - Hiển thị số lượng kết quả tìm thấy thực tế sau khi áp dụng bộ lọc hoặc từ khóa.
+
+B. CÁCH THỨC HOẠT ĐỘNG (How it works):
+  - File chính: lib/screens/product/optimized_product_list_screen.dart
+  - ScrollController: Lắng nghe sự kiện cuộn trang.
+    Công thức: if (pixels >= maxScrollExtent - 200) -> gọi loadMore()
+  - _displayedCount: Biến đếm nội bộ trong ProductProvider quản lý số lượng sản 
+    phẩm hiển thị. Mỗi lần loadMore(), giá trị này cộng thêm 12 (kích thước trang).
+  - GridView.builder: Render số lượng phần tử bằng displayedProducts.length. 
+    Nếu hasMore = true, cộng thêm 1 item cuối cùng làm Loading Indicator (vòng xoay).
+  - Category Chips: Tự động load danh sách category từ Firestore thông qua 
+    fetchCategories(). Khi nhấn vào một category chip, bộ lọc categoryId tương ứng 
+    sẽ được áp dụng và tự động reset phân trang về trang đầu tiên.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. TÌM KIẾM CÓ DEBOUNCE (Debounced Search)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. NGHIỆP VỤ (Business Logic):
+  - Người dùng có thể tìm kiếm sản phẩm theo tên hoặc danh mục.
+  - Tìm kiếm phải hoạt động tức thời nhưng không được liên tục gửi truy vấn mỗi 
+    khi người dùng gõ một ký tự (tránh lãng phí băng thông và quá tải xử lý).
+
+B. CÁCH THỨC HOẠT ĐỘNG (How it works):
+  - Áp dụng kỹ thuật Debounce với thời gian chờ là 300ms.
+  - Khi người dùng gõ vào thanh tìm kiếm:
+    1. Timer cũ (nếu có) bị hủy bỏ ngay lập tức: _debounce?.cancel()
+    2. Một Timer mới được khởi tạo để chờ 300ms:
+       _debounce = Timer(const Duration(milliseconds: 300), () { ... })
+    3. Khi hết 300ms mà người dùng không gõ thêm gì, luồng xử lý mới gọi 
+       productProvider.setSearchQuery(value) để thực hiện lọc dữ liệu.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. BỘ LỌC ĐA TIÊU CHÍ (Advanced Filter) & SẮP XẾP (Sorting)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. NGHIỆP VỤ (Business Logic):
+  - Lọc sản phẩm nâng cao theo 4 tiêu chí song song:
+    * Danh mục sản phẩm (Category)
+    * Khoảng giá (Price Range từ 0đ đến 2.000.000đ+)
+    * Đánh giá tối thiểu (từ 3★, 4★, 5★)
+    * Chỉ hiển thị các sản phẩm còn hàng (stock > 0)
+  - Sắp xếp (Sorting) linh hoạt theo 5 tiêu chí:
+    * Mặc định (Alphabet theo tên)
+    * Giá tăng dần
+    * Giá giảm dần
+    * Điểm đánh giá cao nhất (Rating)
+    * Số lượng đã bán nhiều nhất (Best Seller)
+
+B. CÁCH THỨC HOẠT ĐỘNG (How it works):
+  - Bộ lọc: lib/widgets/product_filter_sheet.dart (BottomSheet)
+  - Mô hình FilterState:
+    * Chứa 5 thuộc tính: categoryId, minPrice, maxPrice, minRating, inStockOnly.
+    * Thuộc tính activeCount trả về số lượng tiêu chí đang được bật để hiển thị 
+      badge số trên nút lọc ở màn hình chính.
+  - Pipeline lọc trong ProductProvider:
+    * Dữ liệu gốc (_allProducts) đi qua chuỗi xử lý liên tiếp:
+      Dữ liệu gốc ──> [1. Search] ──> [2. Category Filter] ──> [3. Price Filter]
+                  ──> [4. Rating Filter] ──> [5. Stock Filter] ──> [6. Sort Option]
+                  ──> Trả về danh sách kết quả cuối cùng.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. TỐI ƯU CHI TIẾT SẢN PHẨM (Optimized Product Detail)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. NGHIỆP VỤ (Business Logic):
+  - Hiển thị đầy đủ thông tin chi tiết của sản phẩm.
+  - Hỗ trợ xem nhiều hình ảnh sản phẩm dưới dạng thư viện vuốt (Image Gallery).
+  - Tích hợp nhãn giảm giá (Sale Badge) nếu sản phẩm có salePrice nhỏ hơn price.
+  - Hiển thị mô tả sản phẩm bằng định dạng HTML phong phú (Html Widget).
+  - Chọn số lượng và tự động tính tổng tiền tức thì ở thanh bottom bar.
+
+B. CÁCH THỨC HOẠT ĐỘNG (How it works):
+  - File chính: lib/screens/product/optimized_product_detail_screen.dart
+  - Image Gallery: Sử dụng PageView.builder cuộn ngang. Các chấm tròn chỉ số 
+    (Indicators) được vẽ động bên dưới. Dấu chấm tương ứng với trang hiện tại 
+    sẽ tự co giãn rộng ra (18px thay vì 8px) bằng AnimatedContainer.
+  - Html Parser: Phân giải thẻ HTML thô từ trường description của database thành 
+    giao diện văn bản có phong cách đẹp mắt, màu sắc pastel hài hòa với ứng dụng.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. HỆ THỐNG ĐÁNH GIÁ VÀ NHẬN XÉT (Review & Rating System)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. NGHIỆP VỤ (Business Logic):
+  - Khách hàng đã đăng nhập có thể gửi đánh giá (chọn số sao từ 1 đến 5 và viết 
+    nhận xét) cho sản phẩm.
+  - Mỗi khách hàng chỉ được đánh giá một sản phẩm một lần duy nhất (chống spam).
+  - Hiển thị biểu đồ phân phối sao (Rating Summary) trực quan (VD: có bao nhiêu 
+    đánh giá 5 sao, 4 sao,... tương ứng với thanh phần trăm LinearProgressIndicator).
+  - Tự động cập nhật lại điểm đánh giá trung bình (rating) và tổng số lượng đánh 
+    giá (reviewCount) của sản phẩm trong database ngay khi có review mới được gửi.
+
+B. CÁCH THỨC HOẠT ĐỘNG (How it works):
+  - File logic: lib/services/review_service.dart & lib/providers/review_provider.dart
+  - Gửi đánh giá:
+    1. Ghi nhận thông tin đánh giá mới vào collection `reviews` trên Firestore.
+    2. Gọi hàm đồng bộ hóa điểm số trung bình _updateProductRating():
+       - Truy vấn toàn bộ tài liệu review có trùng `productId`.
+       - Tính tổng điểm sao và chia cho số lượng đánh giá để lấy điểm trung bình.
+       - Cập nhật ghi đè hai trường `rating` và `reviewCount` vào document sản phẩm 
+         tương ứng trong collection `products`.
+  - Phân phối sao (Rating Distribution):
+    * Provider sử dụng hàm getter ratingDistribution để duyệt danh sách review 
+      và gom nhóm tần suất: {5: count5, 4: count4, 3: count3, 2: count2, 1: count1}.
+  - Ràng buộc trùng lặp:
+    * Gọi hasUserReviewed() trước khi hiển thị nút "Viết đánh giá". Nếu user đã 
+      từng đánh giá sản phẩm này, nút "Viết đánh giá" sẽ được ẩn đi.
+
+================================================================================
+                                 END OF DOCUMENT
+================================================================================

@@ -5,6 +5,28 @@ class SeedOrders {
   static final _db = FirebaseFirestore.instance;
 
   static Future<void> seed(String userId) async {
+    // 0. Tạo các tài khoản khách mẫu trong collection users
+    final guestUsers = [
+      {
+        'id': 'guest_user_01',
+        'email': 'khachhang1@gmail.com',
+        'fullName': 'Nguyễn Văn Khách Một',
+        'phone': '0901111111',
+        'avatar': '',
+      },
+      {
+        'id': 'guest_user_02',
+        'email': 'khachhang2@gmail.com',
+        'fullName': 'Trần Thị Khách Hai',
+        'phone': '0902222222',
+        'avatar': '',
+      }
+    ];
+
+    for (final gu in guestUsers) {
+      await _db.collection('users').doc(gu['id']).set(gu, SetOptions(merge: true));
+    }
+
     final now = DateTime.now();
 
     final orders = [
@@ -54,7 +76,8 @@ class SeedOrders {
         'paymentMethod': 'cod',
         'totalAmount': 320000,
         'createdAt': now.subtract(const Duration(days: 1)).toIso8601String(),
-        'updatedAt': now.subtract(const Duration(hours: 20)).toIso8601String(),
+        'updatedAt':
+            now.subtract(const Duration(hours: 20)).toIso8601String(),
         'shippingAddress': {
           'name': 'Trần Thị B',
           'phone': '0912345678',
@@ -157,8 +180,10 @@ class SeedOrders {
         'paymentStatus': 'paid',
         'paymentMethod': 'cod',
         'totalAmount': 320000,
-        'createdAt': now.subtract(const Duration(days: 14)).toIso8601String(),
-        'updatedAt': now.subtract(const Duration(days: 11)).toIso8601String(),
+        'createdAt':
+            now.subtract(const Duration(days: 14)).toIso8601String(),
+        'updatedAt':
+            now.subtract(const Duration(days: 11)).toIso8601String(),
         'shippingAddress': {
           'name': 'Nguyễn Văn A',
           'phone': '0901234567',
@@ -217,8 +242,10 @@ class SeedOrders {
 
   /// Xóa toàn bộ đơn hàng mẫu của user (để seed lại)
   static Future<void> clearUserOrders(String userId) async {
-    final snapshot =
-        await _db.collection('orders').where('userId', isEqualTo: userId).get();
+    final snapshot = await _db
+        .collection('orders')
+        .where('userId', isEqualTo: userId)
+        .get();
 
     final batch = _db.batch();
     for (final doc in snapshot.docs) {

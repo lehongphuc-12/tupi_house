@@ -4,11 +4,6 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../screens/login_screen.dart';
 import '../screens/orders/order_history_screen.dart';
-import '../screens/cart/cart_screen.dart';
-import '../screens/profile/profile_screen.dart';
-import '../screens/wishlist/wishlist_screen.dart';
-
-import '../screens/admin/admin_dashboard_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -23,64 +18,41 @@ class AppDrawer extends StatelessWidget {
         child: Column(
           children: [
             // Header User
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-                if (auth.isLoggedIn) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                }
-              },
-              child: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.softPink, AppColors.softGreen],
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.softPink, AppColors.softGreen],
+                ),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Colors.white,
+                    child: Image.asset('assets/logo.png', width: 36),
                   ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white,
-                      backgroundImage: (auth.currentUser?.avatar != null &&
-                              auth.currentUser!.avatar.isNotEmpty)
-                          ? NetworkImage(auth.currentUser!.avatar)
-                          : null,
-                      child: (auth.currentUser?.avatar == null ||
-                              auth.currentUser!.avatar.isEmpty)
-                          ? Image.asset('assets/logo.png', width: 36)
-                          : null,
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      auth.currentUser?.fullName ?? 'Khách',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 17),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      auth.currentUser?.email ?? '',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          const TextStyle(color: AppColors.muted, fontSize: 13),
-                    ),
-                  ],
-                ),
+                  const SizedBox(height: 14),
+                  Text(
+                    auth.currentUser?.fullName ?? 'Khách',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 17),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    auth.currentUser?.email ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        const TextStyle(color: AppColors.muted, fontSize: 13),
+                  ),
+                ],
               ),
             ),
 
@@ -88,51 +60,12 @@ class AppDrawer extends StatelessWidget {
             _DrawerItem(
               icon: Icons.favorite_border,
               title: 'Yêu thích',
-              onTap: () {
-                Navigator.pop(context);
-                if (auth.isLoggedIn) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const WishlistScreen()),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                }
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.person_outline_rounded,
-              title: 'Trang cá nhân',
-              onTap: () {
-                Navigator.pop(context);
-                if (auth.isLoggedIn) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                }
-              },
+              onTap: () {},
             ),
             _DrawerItem(
               icon: Icons.shopping_cart_outlined,
               title: 'Giỏ hàng',
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CartScreen(),
-                  ),
-                );
-              },
+              onTap: () {},
             ),
             _DrawerItem(
               icon: Icons.receipt_long_outlined,
@@ -147,20 +80,10 @@ class AppDrawer extends StatelessWidget {
                 );
               },
             ),
-
             _DrawerItem(
-              icon: Icons.admin_panel_settings_outlined,
-              title: 'Admin Dashboard',
-              onTap: () {
-                Navigator.pop(context);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AdminDashboardScreen(),
-                  ),
-                );
-              },
+              icon: Icons.bar_chart_outlined,
+              title: 'Thống kê doanh thu',
+              onTap: () {},
             ),
 
             const Spacer(),

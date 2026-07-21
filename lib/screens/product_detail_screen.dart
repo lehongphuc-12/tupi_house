@@ -9,9 +9,6 @@ import '../widgets/product_image.dart';
 import '../widgets/product_card.dart';
 import '../models/cart.dart';
 import '../providers/cart_provider.dart';
-import '../providers/wishlist_provider.dart';
-import '../providers/auth_provider.dart';
-import 'login_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -32,17 +29,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   void _addToCart() async {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+  final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
-    final cartItem = CartItem(
-      productId: _product.id,
-      title: _product.title,
-      price: _product.price,
-      thumbnail: _product.thumbnail,
-      quantity: _quantity,
-    );
+  final cartItem = CartItem(
+    productId: _product.id,
+    title: _product.title,
+    price: _product.price,
+    thumbnail: _product.thumbnail,
+    quantity: _quantity,
+  );
 
-    try {
+  try {
       await cartProvider.addToCart(cartItem);
 
       if (mounted) {
@@ -60,15 +57,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         );
       }
     }
-  }
+}
 
   Widget _buildSuggestedProducts() {
     return Consumer<ProductProvider>(
       builder: (context, provider, child) {
-        final products = provider.products
-            .where((p) => p.id != _product.id)
-            .take(4)
-            .toList();
+        final products = provider.products.where((p) => p.id != _product.id).take(4).toList();
         if (products.isEmpty) return const SizedBox.shrink();
 
         return Column(
@@ -78,10 +72,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Text(
                 'Sản phẩm gợi ý 🌸',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.pastelPinkDark),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.pastelPinkDark),
               ),
             ),
             SizedBox(
@@ -97,11 +88,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: ProductCard(
                       product: products[index],
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => ProductDetailScreen(
-                                    product: products[index])));
+                         Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: products[index])));
                       },
                       isFavorite: false,
                     ),
@@ -126,10 +113,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             children: [
               const Text(
                 'Đánh giá & Nhận xét',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.pastelPinkDark),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.pastelPinkDark),
               ),
               TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
             ],
@@ -140,8 +124,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           shrinkWrap: true,
           padding: const EdgeInsets.symmetric(horizontal: 24),
           itemCount: 3,
-          separatorBuilder: (_, __) =>
-              const Divider(height: 32, color: Color(0xFFF0E8EB)),
+          separatorBuilder: (_, __) => const Divider(height: 32, color: Color(0xFFF0E8EB)),
           itemBuilder: (context, index) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,32 +133,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   children: [
                     CircleAvatar(
                       backgroundColor: AppColors.softPink,
-                      child: Text('K${index + 1}',
-                          style: const TextStyle(
-                              color: AppColors.pastelPinkDark,
-                              fontWeight: FontWeight.bold)),
+                      child: Text('K${index + 1}', style: const TextStyle(color: AppColors.pastelPinkDark, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Khách hàng ${index + 1}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 15)),
+                        Text('Khách hàng ${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                         Row(
-                          children: List.generate(
-                              5,
-                              (i) => Icon(Icons.star,
-                                  size: 14,
-                                  color:
-                                      i < 4 ? Colors.amber : Colors.grey[300])),
+                          children: List.generate(5, (i) => Icon(Icons.star, size: 14, color: i < 4 ? Colors.amber : Colors.grey[300])),
                         ),
                       ],
                     ),
                     const Spacer(),
-                    Text('${index + 2} ngày trước',
-                        style:
-                            TextStyle(color: Colors.grey[500], fontSize: 12)),
+                    Text('${index + 2} ngày trước', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -196,17 +167,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: isWide
-            ? BorderRadius.circular(24)
-            : const BorderRadius.vertical(top: Radius.circular(36)),
-        boxShadow: isWide
-            ? [
-                BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4))
-              ]
-            : null,
+        borderRadius: isWide ? BorderRadius.circular(24) : const BorderRadius.vertical(top: Radius.circular(36)),
+        boxShadow: isWide ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 4))] : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,8 +180,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               children: [
                 Text(
                   _product.title,
-                  style: const TextStyle(
-                      fontSize: 26, fontWeight: FontWeight.w900, height: 1.25),
+                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, height: 1.25),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -227,42 +188,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   children: [
                     Text(
                       formatVnd(_product.price.toDouble()),
-                      style: const TextStyle(
-                          fontSize: 24,
-                          color: AppColors.pastelPinkDark,
-                          fontWeight: FontWeight.w900),
+                      style: const TextStyle(fontSize: 24, color: AppColors.pastelPinkDark, fontWeight: FontWeight.w900),
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.amber.withValues(alpha: 0.12),
+                        color: Colors.amber.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.star_rounded,
-                              color: Colors.amber, size: 20),
+                          Icon(Icons.star_rounded, color: Colors.amber, size: 20),
                           SizedBox(width: 4),
-                          Text('4.8',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.amber)),
+                          Text('4.8', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber)),
                           SizedBox(width: 4),
-                          Text('(120)',
-                              style: TextStyle(
-                                  color: Colors.black54, fontSize: 12)),
+                          Text('(120)', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         ],
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 28),
-                const Text('Mô tả sản phẩm',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                const Text('Mô tả sản phẩm', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
                 const SizedBox(height: 8),
                 Html(
                   data: _product.description,
@@ -279,16 +228,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Số lượng:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16)),
+                    const Text('Số lượng:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.softGreen,
                         borderRadius: BorderRadius.circular(100),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -298,24 +244,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             }),
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.remove,
-                                  size: 20, color: AppColors.pastelGreenDark),
+                              child: Icon(Icons.remove, size: 20, color: AppColors.pastelGreenDark),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text('$_quantity',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 17,
-                                    color: AppColors.pastelGreenDark)),
+                            child: Text('$_quantity', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.pastelGreenDark)),
                           ),
                           InkWell(
                             onTap: () => setState(() => _quantity++),
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.add,
-                                  size: 20, color: AppColors.pastelGreenDark),
+                              child: Icon(Icons.add, size: 20, color: AppColors.pastelGreenDark),
                             ),
                           ),
                         ],
@@ -341,12 +281,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final wishlistProvider = context.watch<WishlistProvider>();
-    final isFavorite = wishlistProvider.isFavorite(_product.id);
-
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFFAF9F9), // Light background to contrast with the card
+      backgroundColor: const Color(0xFFFAF9F9), // Light background to contrast with the card
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -354,10 +290,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withValues(alpha: 0.9),
+            backgroundColor: Colors.white.withOpacity(0.9),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.black87, size: 20),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 20),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -366,32 +301,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: CircleAvatar(
-              backgroundColor: Colors.white.withValues(alpha: 0.9),
+              backgroundColor: Colors.white.withOpacity(0.9),
               child: IconButton(
-                icon: Icon(
-                  isFavorite
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border_rounded,
-                  color: AppColors.pastelPinkDark,
-                  size: 22,
-                ),
-                onPressed: () async {
-                  final auth = context.read<AuthProvider>();
-                  if (!auth.isLoggedIn) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
-                    return;
-                  }
-                  try {
-                    await wishlistProvider.toggleWishlist(_product);
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lỗi: $e')),
-                    );
-                  }
+                icon: const Icon(Icons.favorite_border_rounded, color: AppColors.pastelPinkDark, size: 22),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tính năng yêu thích đang phát triển')),
+                  );
                 },
               ),
             ),
@@ -453,7 +369,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 15,
                 offset: const Offset(0, -5),
               ),
@@ -466,17 +382,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Tổng cộng',
-                        style: TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600)),
+                    const Text('Tổng cộng', style: TextStyle(color: AppColors.muted, fontSize: 13, fontWeight: FontWeight.w600)),
                     Text(
                       formatVnd(_product.price.toDouble() * _quantity),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 22,
-                          color: AppColors.pastelPinkDark),
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: AppColors.pastelPinkDark),
                     ),
                   ],
                 ),
@@ -488,14 +397,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     backgroundColor: AppColors.pastelPinkDark,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                     elevation: 0,
                   ),
                   icon: const Icon(Icons.shopping_bag_outlined, size: 20),
-                  label: const Text('Thêm vào giỏ',
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  label: const Text('Thêm vào giỏ', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   onPressed: _addToCart,
                 ),
               ),

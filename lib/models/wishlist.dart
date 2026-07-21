@@ -45,7 +45,7 @@ class Wishlist {
   final List<WishlistItem> items;
 
   Wishlist({required this.userId, List<WishlistItem>? items})
-      : items = items ?? [];
+    : items = items ?? [];
 
   int get totalItems => items.length;
 

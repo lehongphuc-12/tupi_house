@@ -84,17 +84,14 @@ class _LoginScreenState extends State<LoginScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Đăng nhập',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          const Text('Đăng nhập', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
-          const Text('Nhập thông tin tài khoản đã đăng ký.',
-              style: TextStyle(color: AppColors.muted)),
+          const Text('Nhập thông tin tài khoản đã đăng ký.', style: TextStyle(color: AppColors.muted)),
           const SizedBox(height: 22),
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-                labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
+            decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
             validator: (v) {
               if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
               final regex = RegExp(r'^[\w\.\-]+@[\w\-]+\.[\w\.\-]+$');
@@ -110,14 +107,11 @@ class _LoginScreenState extends State<LoginScreen> {
               labelText: 'Mật khẩu',
               prefixIcon: const Icon(Icons.lock_outline),
               suffixIcon: IconButton(
-                icon: Icon(_obscure
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined),
+                icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined),
                 onPressed: () => setState(() => _obscure = !_obscure),
               ),
             ),
-            validator: (v) =>
-                (v == null || v.isEmpty) ? 'Vui lòng nhập mật khẩu' : null,
+            validator: (v) => (v == null || v.isEmpty) ? 'Vui lòng nhập mật khẩu' : null,
           ),
           const SizedBox(height: 4),
           Row(
@@ -137,16 +131,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                   )
                 : const Text('Đăng nhập'),
           ),
           const SizedBox(height: 12),
           TextButton(
             onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const RegisterScreen()));
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
             },
             child: const Text('Chưa có tài khoản? Đăng ký ngay'),
           ),
@@ -156,11 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Expanded(child: Divider(color: Color(0xFFE0E0E0))),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('HOẶC',
-                    style: TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold)),
+                child: Text('HOẶC', style: TextStyle(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.bold)),
               ),
               Expanded(child: Divider(color: Color(0xFFE0E0E0))),
             ],
@@ -170,37 +158,23 @@ class _LoginScreenState extends State<LoginScreen> {
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
               side: const BorderSide(color: Color(0xFFE0E0E0)),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            onPressed: auth.isLoading
-                ? null
-                : () async {
-                    final ok = await auth.loginWithGoogle();
-                    if (!mounted) return;
-                    if (ok) {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (_) => const ProductListScreen()));
-                    } else if (auth.errorMessage != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(auth.errorMessage!)));
-                    }
-                  },
+            onPressed: auth.isLoading ? null : () async {
+              // final ok = await auth.loginWithGoogle();
+              // if (!mounted) return;
+              // if (ok) {
+              //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const ProductListScreen()));
+              // } else if (auth.errorMessage != null) {
+              //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
+              // }
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.network(
-                    'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-                    width: 22,
-                    height: 22,
-                    errorBuilder: (c, e, s) =>
-                        const Icon(Icons.g_mobiledata, color: Colors.blue)),
+                Image.network('https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', width: 22, height: 22, errorBuilder: (c,e,s) => const Icon(Icons.g_mobiledata, color: Colors.blue)),
                 const SizedBox(width: 10),
-                const Text('Đăng nhập bằng Google',
-                    style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15)),
+                const Text('Đăng nhập bằng Google', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 15)),
               ],
             ),
           ),
@@ -219,8 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
             final isWide = constraints.maxWidth >= 820;
             return Center(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                    horizontal: isWide ? 40 : 18, vertical: 24),
+                padding: EdgeInsets.symmetric(horizontal: isWide ? 40 : 18, vertical: 24),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: isWide ? 920 : 460),
                   child: Card(

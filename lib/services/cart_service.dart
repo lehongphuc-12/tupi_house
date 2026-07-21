@@ -9,9 +9,11 @@ class CartService {
   String get _userId {
     final user = _auth.currentUser;
     if (user != null) {
+      print("✅ CartService - User logged in: ${user.uid}");
       return user.uid;
     } else {
-      throw Exception("Vui lòng đăng nhập để sử dụng giỏ hàng");
+      print("⚠️ CartService - No user, using guest mode");
+      return "guest_user";
     }
   }
 
@@ -20,18 +22,18 @@ class CartService {
 
   Future<void> addToCart(CartItem item) async {
     try {
-      final user = _auth.currentUser;
+        final user = _auth.currentUser;
 
-      if (user == null) {
-        throw Exception("User chưa đăng nhập");
-      }
+        if (user == null) {
+            throw Exception("User chưa đăng nhập");
+        }
 
-      final docRef = _firestore
-          .collection('users')
-          .doc(user.uid)
-          .collection('cart')
-          .doc(item.productId);
-      final doc = await docRef.get();
+        final docRef = _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('cart')
+            .doc(item.productId);
+        final doc = await docRef.get();
 
       if (doc.exists) {
         final currentQty = (doc.data()?['quantity'] as int?) ?? 1;
@@ -46,7 +48,9 @@ class CartService {
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
+      print("✅ Added to cart: ${item.title}");
     } catch (e) {
+      print("❌ Error addToCart: $e");
       rethrow;
     }
   }
@@ -64,14 +68,11 @@ class CartService {
   }
 
   Stream<Cart> getCartStream() {
-    final user = _auth.currentUser;
-    if (user == null) {
-      return Stream.value(Cart(userId: '', items: []));
-    }
     return _cartRef.snapshots().map((snapshot) {
-      final items =
-          snapshot.docs.map((doc) => CartItem.fromJson(doc.data())).toList();
-      return Cart(userId: user.uid, items: items);
+      final items = snapshot.docs
+          .map((doc) => CartItem.fromJson(doc.data()))
+          .toList();
+      return Cart(userId: _userId, items: items);
     });
   }
 
