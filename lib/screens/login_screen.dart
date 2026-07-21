@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import 'admin/admin_dashboard_screen.dart';
 import 'product_list_screen.dart';
 import 'register_screen.dart';
+import 'product/optimized_product_list_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -84,6 +85,8 @@ class _LoginScreenState extends State<LoginScreen> {
             auth.errorMessage ?? 'Đăng nhập thất bại',
           ),
         ),
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const OptimizedProductListScreen()),
       );
     }
   }
@@ -312,7 +315,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: auth.isLoading ? null : _loginWithGoogle,
+            onPressed: auth.isLoading
+                ? null
+                : () async {
+                    final ok = await auth.loginWithGoogle();
+                    if (!mounted) return;
+                    if (ok) {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (_) => const OptimizedProductListScreen()));
+                    } else if (auth.errorMessage != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(auth.errorMessage!)));
+                    }
+                  },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

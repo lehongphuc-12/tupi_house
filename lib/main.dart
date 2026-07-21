@@ -10,7 +10,8 @@ import 'providers/cart_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/admin_provider.dart';
 import 'providers/wishlist_provider.dart';
-import 'screens/product_list_screen.dart';
+import 'providers/review_provider.dart';
+import 'screens/product/optimized_product_list_screen.dart';
 import 'theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'package:flutter/services.dart';
@@ -89,13 +90,14 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: MaterialApp(
         title: 'Tupi House',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
         scaffoldMessengerKey: scaffoldMessengerKey,
-        home: const ProductListScreen(),
+        home: const OptimizedProductListScreen(),
       ),
     );
   }
