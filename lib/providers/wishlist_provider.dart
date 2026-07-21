@@ -9,7 +9,7 @@ import '../services/wishlist_service.dart';
 class WishlistProvider extends ChangeNotifier {
   final WishlistService _service = WishlistService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   List<WishlistItem> _items = [];
   bool isLoading = false;
   String? errorMessage;
@@ -55,7 +55,8 @@ class WishlistProvider extends ChangeNotifier {
             }
 
             // Fetch product details from the products collection in Firestore
-            final productDoc = await _firestore.collection('products').doc(productId).get();
+            final productDoc =
+                await _firestore.collection('products').doc(productId).get();
             if (productDoc.exists) {
               final data = productDoc.data()!;
               data['id'] = productDoc.id;

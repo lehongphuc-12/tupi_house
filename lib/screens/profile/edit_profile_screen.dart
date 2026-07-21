@@ -137,13 +137,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() {
       _selectedPresetAvatar =
-          DefaultAvatars.avatars.contains(trimmedUrl)
-              ? trimmedUrl
-              : null;
+          DefaultAvatars.avatars.contains(trimmedUrl) ? trimmedUrl : null;
 
       _avatarLoadFailed = false;
-      _avatarIsLoading =
-          trimmedUrl.isNotEmpty && validUrl;
+      _avatarIsLoading = trimmedUrl.isNotEmpty && validUrl;
     });
   }
 
@@ -290,8 +287,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            authProvider.errorMessage ??
-                'Cập nhật hồ sơ thất bại.',
+            authProvider.errorMessage ?? 'Cập nhật hồ sơ thất bại.',
           ),
         ),
       );
@@ -341,9 +337,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildAvatarSection(),
-
                 const SizedBox(height: 24),
-
                 TextFormField(
                   controller: _nameController,
                   textInputAction: TextInputAction.next,
@@ -361,9 +355,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return null;
                   },
                 ),
-
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
@@ -388,9 +380,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return null;
                   },
                 ),
-
                 const SizedBox(height: 16),
-
                 DropdownButtonFormField<String>(
                   value: _selectedGender,
                   decoration: const InputDecoration(
@@ -423,9 +413,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     });
                   },
                 ),
-
                 const SizedBox(height: 16),
-
                 InkWell(
                   onTap: _selectBirthday,
                   borderRadius: BorderRadius.circular(16),
@@ -457,9 +445,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 32),
-
                 ElevatedButton(
                   onPressed: isBusy ? null : _save,
                   child: isBusy
@@ -473,7 +459,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         )
                       : const Text('Lưu thay đổi'),
                 ),
-
                 const SizedBox(height: 20),
               ],
             ),
@@ -499,9 +484,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 validUrl: validUrl,
               ),
             ),
-
             const SizedBox(height: 20),
-
             TextFormField(
               controller: _avatarController,
               focusNode: _avatarFocusNode,
@@ -529,7 +512,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 return null;
               },
             ),
-
             if (_avatarLoadFailed) ...[
               const SizedBox(height: 8),
               const Text(
@@ -540,7 +522,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
             ],
-
             if (_avatarIsLoading && avatarUrl.isNotEmpty && validUrl) ...[
               const SizedBox(height: 8),
               const Text(
@@ -551,9 +532,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
             ],
-
             const SizedBox(height: 18),
-
             const Row(
               children: [
                 Expanded(
@@ -577,9 +556,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
             const Text(
               'Choose a preset avatar',
               style: TextStyle(
@@ -588,9 +565,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 fontWeight: FontWeight.w800,
               ),
             ),
-
             const SizedBox(height: 12),
-
             SizedBox(
               height: 78,
               child: ListView.separated(
@@ -601,8 +576,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
                 itemBuilder: (context, index) {
                   final presetUrl = DefaultAvatars.avatars[index];
-                  final isSelected =
-                      presetUrl == _selectedPresetAvatar;
+                  final isSelected = presetUrl == _selectedPresetAvatar;
 
                   return Semantics(
                     button: true,

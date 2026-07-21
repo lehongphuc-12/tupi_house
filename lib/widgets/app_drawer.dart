@@ -8,6 +8,8 @@ import '../screens/cart/cart_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/wishlist/wishlist_screen.dart';
 
+import '../screens/admin/admin_dashboard_screen.dart';
+
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
@@ -52,10 +54,12 @@ class AppDrawer extends StatelessWidget {
                     CircleAvatar(
                       radius: 28,
                       backgroundColor: Colors.white,
-                      backgroundImage: (auth.currentUser?.avatar != null && auth.currentUser!.avatar.isNotEmpty)
+                      backgroundImage: (auth.currentUser?.avatar != null &&
+                              auth.currentUser!.avatar.isNotEmpty)
                           ? NetworkImage(auth.currentUser!.avatar)
                           : null,
-                      child: (auth.currentUser?.avatar == null || auth.currentUser!.avatar.isEmpty)
+                      child: (auth.currentUser?.avatar == null ||
+                              auth.currentUser!.avatar.isEmpty)
                           ? Image.asset('assets/logo.png', width: 36)
                           : null,
                     ),
@@ -127,7 +131,7 @@ class AppDrawer extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (_) => const CartScreen(),
                   ),
-                );  
+                );
               },
             ),
             _DrawerItem(
@@ -139,6 +143,21 @@ class AppDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const OrderHistoryScreen(),
+                  ),
+                );
+              },
+            ),
+
+            _DrawerItem(
+              icon: Icons.admin_panel_settings_outlined,
+              title: 'Admin Dashboard',
+              onTap: () {
+                Navigator.pop(context);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminDashboardScreen(),
                   ),
                 );
               },

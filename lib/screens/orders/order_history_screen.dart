@@ -52,13 +52,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     switch (filter) {
       case 'active':
         return provider.orders
-            .where((o) =>
-                o.status == 'pending' || o.status == 'confirmed')
+            .where((o) => o.status == 'pending' || o.status == 'confirmed')
             .toList();
       case 'shipping':
-        return provider.orders
-            .where((o) => o.status == 'shipping')
-            .toList();
+        return provider.orders.where((o) => o.status == 'shipping').toList();
       case 'delivered':
         return provider.deliveredOrders;
       case 'cancelled':
@@ -74,8 +71,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       builder: (ctx) => AlertDialog(
         title: const Text('Tạo đơn hàng mẫu?',
             style: TextStyle(fontWeight: FontWeight.w800)),
-        content: const Text(
-            'Sẽ tạo 6 đơn hàng mẫu gồm đủ các trạng thái:\n'
+        content: const Text('Sẽ tạo 6 đơn hàng mẫu gồm đủ các trạng thái:\n'
             '• 1 Chờ xác nhận\n'
             '• 1 Đã xác nhận\n'
             '• 1 Đang giao hàng\n'
@@ -105,8 +101,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       await SeedOrders.seed(uid);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('✅ Đã tạo 6 đơn hàng mẫu thành công!')),
+          const SnackBar(content: Text('✅ Đã tạo 6 đơn hàng mẫu thành công!')),
         );
       }
     } catch (e) {
@@ -149,8 +144,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       await SeedOrders.clearUserOrders(uid);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('🗑️ Đã xóa tất cả đơn hàng')),
+          const SnackBar(content: Text('🗑️ Đã xóa tất cả đơn hàng')),
         );
       }
     } catch (e) {
@@ -163,23 +157,23 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   }
 
   @override
-Widget build(BuildContext context) {
-  final auth = context.watch<AuthProvider>();
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
 
-  // Kiểm tra đăng nhập chặt chẽ hơn
-  if (!auth.isLoggedIn || auth.firebaseUser == null) {
+    // Kiểm tra đăng nhập chặt chẽ hơn
+    if (!auth.isLoggedIn || auth.firebaseUser == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Đơn hàng của tôi')),
+        body: _NotLoggedIn(),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Đơn hàng của tôi')),
-      body: _NotLoggedIn(),
-    );
-  }
-
-  return Scaffold(
-    backgroundColor: AppColors.background,
-    appBar: AppBar(
-      title: const Text('Đơn hàng của tôi'),
-      actions: [
-        PopupMenuButton<String>(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Đơn hàng của tôi'),
+        actions: [
+          PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'Công cụ test',
             onSelected: (value) async {
@@ -195,8 +189,8 @@ Widget build(BuildContext context) {
                 value: 'seed',
                 child: Row(
                   children: [
-                    Icon(Icons.add_shopping_cart, size: 18,
-                        color: AppColors.pastelGreenDark),
+                    Icon(Icons.add_shopping_cart,
+                        size: 18, color: AppColors.pastelGreenDark),
                     SizedBox(width: 10),
                     Text('Tạo đơn mẫu (6 đơn)'),
                   ],
@@ -206,8 +200,8 @@ Widget build(BuildContext context) {
                 value: 'clear',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline, size: 18,
-                        color: Colors.redAccent),
+                    Icon(Icons.delete_outline,
+                        size: 18, color: Colors.redAccent),
                     SizedBox(width: 10),
                     Text('Xóa tất cả đơn hàng',
                         style: TextStyle(color: Colors.redAccent)),
@@ -216,58 +210,62 @@ Widget build(BuildContext context) {
               ),
             ],
           ),
-      ],
-      bottom: TabBar(
-        controller: _tabController,
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        labelColor: AppColors.pastelPinkDark,
-        unselectedLabelColor: AppColors.muted,
-        indicatorColor: AppColors.pastelPinkDark,
-        indicatorWeight: 2.5,
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-        unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-        tabs: _tabs.map((t) => Tab(text: t.label)).toList(),
-      ),
-    ),
-    body: Consumer<OrderProvider>(
-      builder: (context, provider, _) {
-        if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (provider.errorMessage != null) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 56, color: Colors.redAccent),
-                  const SizedBox(height: 16),
-                  Text(provider.errorMessage!, textAlign: TextAlign.center),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => provider.listenToOrders(auth.firebaseUser!.uid),
-                    child: const Text('Thử lại'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return TabBarView(
+        ],
+        bottom: TabBar(
           controller: _tabController,
-          children: _tabs.map((tab) {
-            final orders = _filteredOrders(provider, tab.filter);
-            return _OrderList(orders: orders);
-          }).toList(),
-        );
-      },
-    ),
-  );
-}
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          labelColor: AppColors.pastelPinkDark,
+          unselectedLabelColor: AppColors.muted,
+          indicatorColor: AppColors.pastelPinkDark,
+          indicatorWeight: 2.5,
+          labelStyle:
+              const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          unselectedLabelStyle:
+              const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          tabs: _tabs.map((t) => Tab(text: t.label)).toList(),
+        ),
+      ),
+      body: Consumer<OrderProvider>(
+        builder: (context, provider, _) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (provider.errorMessage != null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 56, color: Colors.redAccent),
+                    const SizedBox(height: 16),
+                    Text(provider.errorMessage!, textAlign: TextAlign.center),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () =>
+                          provider.listenToOrders(auth.firebaseUser!.uid),
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return TabBarView(
+            controller: _tabController,
+            children: _tabs.map((tab) {
+              final orders = _filteredOrders(provider, tab.filter);
+              return _OrderList(orders: orders);
+            }).toList(),
+          );
+        },
+      ),
+    );
+  }
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -322,8 +320,7 @@ class _OrderList extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       itemCount: orders.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) =>
-          _OrderCard(order: orders[index]),
+      itemBuilder: (context, index) => _OrderCard(order: orders[index]),
     );
   }
 }
@@ -338,8 +335,7 @@ class _OrderCard extends StatelessWidget {
   const _OrderCard({required this.order});
 
   String _formatPrice(int price) {
-    return NumberFormat.currency(
-            locale: 'vi_VN', symbol: '₫', decimalDigits: 0)
+    return NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0)
         .format(price);
   }
 
@@ -352,8 +348,7 @@ class _OrderCard extends StatelessWidget {
     final shortId = order.id.length >= 8
         ? order.id.substring(0, 8).toUpperCase()
         : order.id.toUpperCase();
-    final firstItem =
-        order.items.isNotEmpty ? order.items.first : null;
+    final firstItem = order.items.isNotEmpty ? order.items.first : null;
 
     return GestureDetector(
       onTap: () {
@@ -382,8 +377,7 @@ class _OrderCard extends StatelessWidget {
           children: [
             // Header: mã đơn + badge
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(16, 14, 16, 10),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
               child: Row(
                 children: [
                   const Icon(Icons.receipt_outlined,
@@ -419,22 +413,19 @@ class _OrderCard extends StatelessWidget {
                               width: 56,
                               height: 56,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  _thumbPlaceholder(),
+                              errorBuilder: (_, __, ___) => _thumbPlaceholder(),
                             )
                           : _thumbPlaceholder(),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             firstItem.title,
                             style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600),
+                                fontSize: 13, fontWeight: FontWeight.w600),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -443,8 +434,7 @@ class _OrderCard extends StatelessWidget {
                             Text(
                               '+${order.items.length - 1} sản phẩm khác',
                               style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.muted),
+                                  fontSize: 12, color: AppColors.muted),
                             ),
                           ],
                         ],
@@ -456,8 +446,7 @@ class _OrderCard extends StatelessWidget {
 
             // Footer: ngày đặt + tổng tiền
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 color: Color(0xFFFFFAFB),
                 borderRadius: BorderRadius.only(
@@ -472,8 +461,8 @@ class _OrderCard extends StatelessWidget {
                   const SizedBox(width: 5),
                   Text(
                     _formatDate(order.createdAt),
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.muted),
+                    style:
+                        const TextStyle(fontSize: 12, color: AppColors.muted),
                   ),
                   const Spacer(),
                   Text(

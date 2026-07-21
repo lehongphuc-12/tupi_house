@@ -31,7 +31,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     'city': 'TP. Hồ Chí Minh',
   };
 
-  int get _totalAmount => widget.selectedItems.fold(0, (sum, item) => sum + (item.price * item.quantity));
+  int get _totalAmount => widget.selectedItems
+      .fold(0, (sum, item) => sum + (item.price * item.quantity));
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             // 2. Danh sách sản phẩm
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text("Sản phẩm (${widget.selectedItems.length})", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text("Sản phẩm (${widget.selectedItems.length})",
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             _buildSelectedProducts(),
 
@@ -68,14 +71,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Ghi chú cho người bán", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Ghi chú cho người bán",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _noteController,
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: "Ví dụ: Gọi trước khi giao hàng...",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ],
@@ -102,7 +107,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               const Icon(Icons.location_on, color: AppColors.pastelPinkDark),
               const SizedBox(width: 8),
-              const Text("Địa chỉ giao hàng", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text("Địa chỉ giao hàng",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const Spacer(),
               TextButton(
                 onPressed: _showEditAddressDialog, 
@@ -111,11 +117,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          Text(_shippingAddress['fullName'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(_shippingAddress['fullName'] ?? '',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           Text(_shippingAddress['phone'] ?? ''),
           const SizedBox(height: 4),
           Text(_shippingAddress['address'] ?? ''),
-          Text("${_shippingAddress['ward']}, ${_shippingAddress['district']}, ${_shippingAddress['city']}"),
+          Text(
+              "${_shippingAddress['ward']}, ${_shippingAddress['district']}, ${_shippingAddress['city']}"),
         ],
       ),
     );
@@ -224,7 +232,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         return ListTile(
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(item.thumbnail, width: 60, height: 60, fit: BoxFit.cover),
+            child: Image.network(item.thumbnail,
+                width: 60, height: 60, fit: BoxFit.cover),
           ),
           title: Text(item.title, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: Text(
@@ -234,7 +243,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(formatVnd(item.price.toDouble()), style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(formatVnd(item.price.toDouble()),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               Text("x${item.quantity}"),
             ],
           ),
@@ -250,10 +260,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Phương thức thanh toán", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text("Phương thức thanh toán",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 12),
-          _paymentOption("Thanh toán khi nhận hàng (COD)", "cod", Icons.delivery_dining),
-          _paymentOption("Chuyển khoản ngân hàng", "bank", Icons.account_balance),
+          _paymentOption(
+              "Thanh toán khi nhận hàng (COD)", "cod", Icons.delivery_dining),
+          _paymentOption(
+              "Chuyển khoản ngân hàng", "bank", Icons.account_balance),
           _paymentOption("Ví MoMo", "momo", Icons.wallet),
           _paymentOption("ZaloPay / VNPay", "vnpay", Icons.payment),
         ],
@@ -281,12 +294,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Chi tiết thanh toán", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text("Chi tiết thanh toán",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 12),
           _detailRow("Tổng tiền hàng", formatVnd(_totalAmount.toDouble())),
           _detailRow("Phí vận chuyển", "30.000đ"),
           const Divider(),
-          _detailRow("Tổng thanh toán", formatVnd((_totalAmount + 30000).toDouble()), isBold: true),
+          _detailRow(
+              "Tổng thanh toán", formatVnd((_totalAmount + 30000).toDouble()),
+              isBold: true),
         ],
       ),
     );
@@ -298,8 +314,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 15, color: isBold ? Colors.black : Colors.grey[700])),
-          Text(value, style: TextStyle(fontSize: 15, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 15,
+                  color: isBold ? Colors.black : Colors.grey[700])),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
         ],
       ),
     );
@@ -310,14 +332,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, -2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2))
+        ],
       ),
       child: SafeArea(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.pastelPinkDark,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
           onPressed: _placeOrder,
           child: const Text(
@@ -335,7 +363,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
     // Kiểm tra theo 2 cách
-    final firebaseUser = authProvider.firebaseUser;           // User từ FirebaseAuth
+    final firebaseUser = authProvider.firebaseUser; // User từ FirebaseAuth
     final appUser = authProvider.currentUser;
 
     if (firebaseUser == null) {
@@ -351,15 +379,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final order = Order(
       id: 'ORDER_${DateTime.now().millisecondsSinceEpoch}',
       userId: userId,
-      items: widget.selectedItems.map((item) => OrderItem(
-        productId: item.productId,
-        title: item.title,
-        price: item.price,
-        quantity: item.quantity,
-        color: item.color,
-        size: item.size,
-        thumbnail: item.thumbnail,
-      )).toList(),
+      items: widget.selectedItems
+          .map((item) => OrderItem(
+                productId: item.productId,
+                title: item.title,
+                price: item.price,
+                quantity: item.quantity,
+                color: item.color,
+                size: item.size,
+                thumbnail: item.thumbnail,
+              ))
+          .toList(),
       totalAmount: _totalAmount + 30000,
       paymentMethod: _selectedPaymentMethod,
       shippingAddress: _shippingAddress,
@@ -386,7 +416,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(orderProvider.errorMessage ?? "Đặt hàng thất bại")),
+        SnackBar(
+            content: Text(orderProvider.errorMessage ?? "Đặt hàng thất bại")),
       );
     }
   }

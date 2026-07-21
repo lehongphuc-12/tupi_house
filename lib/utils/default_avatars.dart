@@ -3,8 +3,7 @@ class DefaultAvatars {
 
   static const List<String> avatars = [
     'https://api.dicebear.com/9.x/lorelei/png?seed=Tulip',
-   
-  'https://api.dicebear.com/9.x/lorelei/png?seed=Lily',
+    'https://api.dicebear.com/9.x/lorelei/png?seed=Lily',
     'https://api.dicebear.com/9.x/avataaars/png?seed=Mai',
     'https://api.dicebear.com/9.x/avataaars/png?seed=Lan',
     'https://api.dicebear.com/9.x/avataaars/png?seed=Minh',

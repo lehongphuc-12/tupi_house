@@ -23,14 +23,14 @@ class AuthProvider extends ChangeNotifier {
 
   bool get isPasswordAccount =>
       _auth.currentUser?.providerData.any(
-            (info) => info.providerId == EmailAuthProvider.PROVIDER_ID,
-          ) ??
+        (info) => info.providerId == EmailAuthProvider.PROVIDER_ID,
+      ) ??
       false;
 
   bool get isGoogleAccount =>
       _auth.currentUser?.providerData.any(
-            (info) => info.providerId == GoogleAuthProvider.PROVIDER_ID,
-          ) ??
+        (info) => info.providerId == GoogleAuthProvider.PROVIDER_ID,
+      ) ??
       false;
 
   bool get canChangePassword => isPasswordAccount;
