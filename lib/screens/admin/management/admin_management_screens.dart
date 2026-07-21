@@ -427,6 +427,18 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
         'Chưa có đơn hàng',
         () => Column(
           children: items.map((order) {
+            final currentStatus = provider.normalizeOrderStatus(order.status);
+
+            final allowedNextStatuses =
+                provider.getAllowedNextOrderStatuses(currentStatus);
+
+            final dropdownStatuses = [
+              currentStatus,
+              ...allowedNextStatuses,
+            ];
+
+            final canEditStatus = allowedNextStatuses.isNotEmpty;
+
             return Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
@@ -467,62 +479,54 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
                 ),
                 isThreeLine: true,
                 trailing: SizedBox(
-                  width: 180,
+                  width: 190,
                   child: DropdownButtonFormField<String>(
-                    value: _validOrderStatus(order.status),
+                    value: currentStatus,
                     isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Trạng thái',
+                    decoration: InputDecoration(
+                      labelText: canEditStatus
+                          ? 'Cập nhật trạng thái'
+                          : 'Trạng thái cuối',
                       isDense: true,
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'pending',
-                        child: Text('Chờ xác nhận'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'confirmed',
-                        child: Text('Đã xác nhận'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'shipping',
-                        child: Text('Đang giao'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'delivered',
-                        child: Text('Đã giao'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'cancelled',
-                        child: Text('Đã hủy'),
-                      ),
-                    ],
-                    onChanged: (value) async {
-                      if (value == null || value == order.status) {
-                        return;
-                      }
+                    items: dropdownStatuses.map((statusValue) {
+                      return DropdownMenuItem<String>(
+                        value: statusValue,
+                        child: Text(
+                          provider.orderStatusLabel(statusValue),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: canEditStatus
+                        ? (value) async {
+                            if (value == null || value == currentStatus) {
+                              return;
+                            }
 
-                      try {
-                        await context
-                            .read<AdminProvider>()
-                            .updateOrderStatus(order.id, value);
+                            try {
+                              await context
+                                  .read<AdminProvider>()
+                                  .updateOrderStatus(order.id, value);
 
-                        if (!context.mounted) return;
+                              if (!context.mounted) return;
 
-                        _message(
-                          context,
-                          'Đã cập nhật đơn hàng',
-                        );
-                      } catch (e) {
-                        if (!context.mounted) return;
+                              _message(
+                                context,
+                                'Đã chuyển đơn hàng sang '
+                                '"${provider.orderStatusLabel(value)}".',
+                              );
+                            } catch (e) {
+                              if (!context.mounted) return;
 
-                        _message(
-                          context,
-                          'Không thể cập nhật đơn hàng: $e',
-                          error: true,
-                        );
-                      }
-                    },
+                              _message(
+                                context,
+                                e.toString().replaceFirst('Exception: ', ''),
+                                error: true,
+                              );
+                            }
+                          }
+                        : null,
                   ),
                 ),
               ),
@@ -537,18 +541,6 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
 String _shortOrderId(String id) {
   if (id.isEmpty) return 'Không xác định';
   return id.length > 8 ? id.substring(0, 8) : id;
-}
-
-String _validOrderStatus(String value) {
-  const validStatuses = {
-    'pending',
-    'confirmed',
-    'shipping',
-    'delivered',
-    'cancelled',
-  };
-
-  return validStatuses.contains(value) ? value : 'pending';
 }
 
 class AdminUserScreen extends StatefulWidget {

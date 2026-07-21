@@ -22,6 +22,76 @@ class AdminProvider extends ChangeNotifier {
       .where((order) => order.status == 'delivered')
       .fold(0, (sum, order) => sum + order.totalAmount);
 
+  static const List<String> validOrderStatuses = [
+    'pending',
+    'confirmed',
+    'shipping',
+    'delivered',
+    'cancelled',
+  ];
+
+  String normalizeOrderStatus(String status) {
+    final normalized = status.trim().toLowerCase();
+
+    if (validOrderStatuses.contains(normalized)) {
+      return normalized;
+    }
+
+    return 'pending';
+  }
+
+  List<String> getAllowedNextOrderStatuses(String currentStatus) {
+    switch (normalizeOrderStatus(currentStatus)) {
+      case 'pending':
+        return ['confirmed', 'cancelled'];
+
+      case 'confirmed':
+        return ['shipping', 'cancelled'];
+
+      case 'shipping':
+        return ['delivered'];
+
+      case 'delivered':
+      case 'cancelled':
+        return [];
+
+      default:
+        return [];
+    }
+  }
+
+  bool canUpdateOrderStatus({
+    required String currentStatus,
+    required String newStatus,
+  }) {
+    final current = normalizeOrderStatus(currentStatus);
+    final next = normalizeOrderStatus(newStatus);
+
+    return getAllowedNextOrderStatuses(current).contains(next);
+  }
+
+  String orderStatusLabel(String status) {
+    switch (normalizeOrderStatus(status)) {
+      case 'pending':
+        return 'Chờ xác nhận';
+
+      case 'confirmed':
+        return 'Đã xác nhận';
+
+      case 'shipping':
+        return 'Đang giao';
+
+      case 'delivered':
+        return 'Đã giao';
+
+      case 'cancelled':
+        return 'Đã hủy';
+
+      default:
+        return 'Không xác định';
+    }
+  }
+
   Future<void> loadAll() async {
     isLoading = true;
     errorMessage = null;
@@ -138,11 +208,57 @@ class AdminProvider extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  Future<void> updateOrderStatus(String id, String status) async {
-    await _db.collection('orders').doc(id).update({
-      'status': status,
-      'updatedAt': FieldValue.serverTimestamp(),
+  Future<void> updateOrderStatus(
+    String orderId,
+    String newStatus,
+  ) async {
+    final orderRef = _db.collection('orders').doc(orderId);
+    final normalizedNewStatus = newStatus.trim().toLowerCase();
+
+    if (!validOrderStatuses.contains(normalizedNewStatus)) {
+      throw Exception('Trạng thái đơn hàng không hợp lệ.');
+    }
+
+    await _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+
+      if (!snapshot.exists) {
+        throw Exception('Không tìm thấy đơn hàng.');
+      }
+
+      final data = snapshot.data();
+
+      if (data == null) {
+        throw Exception('Dữ liệu đơn hàng không hợp lệ.');
+      }
+
+      final currentStatus = normalizeOrderStatus(
+        data['status']?.toString() ?? 'pending',
+      );
+
+      if (currentStatus == normalizedNewStatus) {
+        return;
+      }
+
+      final isAllowed = canUpdateOrderStatus(
+        currentStatus: currentStatus,
+        newStatus: normalizedNewStatus,
+      );
+
+      if (!isAllowed) {
+        throw Exception(
+          'Không thể chuyển đơn hàng từ '
+          '"${orderStatusLabel(currentStatus)}" sang '
+          '"${orderStatusLabel(normalizedNewStatus)}".',
+        );
+      }
+
+      transaction.update(orderRef, {
+        'status': normalizedNewStatus,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
     });
+
     await loadOrders();
   }
 
