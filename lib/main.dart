@@ -11,10 +11,16 @@ import 'providers/category_provider.dart';
 import 'providers/admin_provider.dart';
 import 'providers/wishlist_provider.dart';
 import 'providers/review_provider.dart';
+import 'providers/notification_provider.dart';
 import 'screens/product/optimized_product_list_screen.dart';
+import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'package:flutter/services.dart';
+
+/// GlobalKey cho ScaffoldMessenger – thông báo đơn hàng toàn cục
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +31,10 @@ void main() async {
   // ==================== SEED DATA (Chạy 1 lần) ====================
   await seedInitialData();
   // ============================================================
+
+  await NotificationService.initialize(
+    scaffoldMessengerKey: scaffoldMessengerKey,
+  );
 
   runApp(const MyApp());
 }
@@ -72,10 +82,6 @@ Future<void> seedInitialData() async {
   }
 }
 
-/// GlobalKey cho ScaffoldMessenger – dùng để hiển thị thông báo đơn hàng toàn cục
-final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
-    GlobalKey<ScaffoldMessengerState>();
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -91,14 +97,69 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         title: 'Tupi House',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
         scaffoldMessengerKey: scaffoldMessengerKey,
-        home: const OptimizedProductListScreen(),
+        home: const _AuthBootstrap(child: OptimizedProductListScreen()),
       ),
     );
+  }
+}
+
+/// Restores session and starts/stops notification listening with auth state.
+class _AuthBootstrap extends StatefulWidget {
+  final Widget child;
+
+  const _AuthBootstrap({required this.child});
+
+  @override
+  State<_AuthBootstrap> createState() => _AuthBootstrapState();
+}
+
+class _AuthBootstrapState extends State<_AuthBootstrap> {
+  String? _boundUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final auth = context.read<AuthProvider>();
+      await auth.tryAutoLogin();
+      if (!mounted) return;
+      _syncNotifications(auth);
+    });
+  }
+
+  void _syncNotifications(AuthProvider auth) {
+    final notif = context.read<NotificationProvider>();
+    final userId = auth.currentUser?.id;
+
+    if (userId == null) {
+      if (_boundUserId != null) {
+        notif.stopListening();
+        _boundUserId = null;
+      }
+      return;
+    }
+
+    if (_boundUserId != userId) {
+      notif.startListening(userId);
+      _boundUserId = userId;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    // Keep notification stream in sync when login/logout changes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncNotifications(auth);
+    });
+    return widget.child;
   }
 }

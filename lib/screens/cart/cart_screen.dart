@@ -168,6 +168,7 @@ class _CartScreenState extends State<CartScreen> {
                               item.productId, item.quantity - 1);
                         } catch (e) {
                           if (context.mounted) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text(e
                                     .toString()
@@ -190,6 +191,7 @@ class _CartScreenState extends State<CartScreen> {
                               item.productId, item.quantity + 1);
                         } catch (e) {
                           if (context.mounted) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text(e
                                     .toString()
@@ -206,6 +208,7 @@ class _CartScreenState extends State<CartScreen> {
                     try {
                       await cartProvider.removeItem(item.productId);
                       if (context.mounted) {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content:
@@ -213,6 +216,7 @@ class _CartScreenState extends State<CartScreen> {
                       }
                     } catch (e) {
                       if (context.mounted) {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text(
                                 e.toString().replaceAll('Exception: ', ''))));
@@ -331,12 +335,14 @@ class _CartScreenState extends State<CartScreen> {
       }
       _selectedItems.clear();
       if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Đã xóa các sản phẩm đã chọn")),
         );
       }
     } catch (e) {
       if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
         );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_drawer.dart';
@@ -10,6 +11,7 @@ import '../../widgets/optimized_product_card.dart';
 import '../../widgets/product_filter_sheet.dart';
 import '../cart/cart_screen.dart';
 import '../login_screen.dart';
+import '../notifications/notifications_screen.dart';
 import '../wishlist/wishlist_screen.dart';
 import 'optimized_product_detail_screen.dart';
 
@@ -105,10 +107,34 @@ class _OptimizedProductListScreenState
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.tune_rounded),
-            tooltip: 'Bộ lọc',
-            onPressed: _openFilterSheet,
+          Consumer<NotificationProvider>(
+            builder: (context, notif, _) {
+              final count = notif.unreadCount;
+              return IconButton(
+                tooltip: 'Thông báo',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen(),
+                    ),
+                  );
+                },
+                icon: Badge(
+                  isLabelVisible: count > 0,
+                  label: Text(
+                    count > 99 ? '99+' : '$count',
+                    style: const TextStyle(fontSize: 10, color: Colors.white),
+                  ),
+                  backgroundColor: AppColors.pastelPinkDark,
+                  child: Icon(
+                    count > 0
+                        ? Icons.notifications_rounded
+                        : Icons.notifications_none_rounded,
+                  ),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.favorite_border_rounded),
@@ -172,25 +198,48 @@ class _OptimizedProductListScreenState
                     ),
                     const SizedBox(height: 14),
 
-                    // Search TextField
-                    TextField(
-                      controller: _searchController,
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: 'Tìm theo tên hoặc loại sản phẩm...',
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear_rounded),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  context
-                                      .read<ProductProvider>()
-                                      .setSearchQuery('');
-                                },
-                              )
-                            : null,
-                      ),
+                    
+                    // Search & Filter Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: _onSearchChanged,
+                            decoration: InputDecoration(
+                              hintText: 'Tìm theo tên hoặc loại sản phẩm...',
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear_rounded),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        context
+                                            .read<ProductProvider>()
+                                            .setSearchQuery('');
+                                      },
+                                    )
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        InkWell(
+                          onTap: _openFilterSheet,
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.softPink,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.tune_rounded,
+                              color: AppColors.pastelPinkDark,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 14),
 
