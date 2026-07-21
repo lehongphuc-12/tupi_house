@@ -13,7 +13,8 @@ class OrderDetailScreen extends StatelessWidget {
   const OrderDetailScreen({super.key, required this.order});
 
   String _formatPrice(int price) {
-    final fmt = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    final fmt =
+        NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
     return fmt.format(price);
   }
 
@@ -23,10 +24,14 @@ class OrderDetailScreen extends StatelessWidget {
 
   String _paymentLabel(String method) {
     switch (method) {
-      case 'cod': return 'Thanh toán khi nhận hàng (COD)';
-      case 'bank': return 'Chuyển khoản ngân hàng';
-      case 'momo': return 'Ví MoMo';
-      default: return method;
+      case 'cod':
+        return 'Thanh toán khi nhận hàng (COD)';
+      case 'bank':
+        return 'Chuyển khoản ngân hàng';
+      case 'momo':
+        return 'Ví MoMo';
+      default:
+        return method;
     }
   }
 
@@ -59,13 +64,13 @@ class OrderDetailScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      final success =
-          await context.read<OrderProvider>().cancelOrder(order.id);
+      final success = await context.read<OrderProvider>().cancelOrder(order.id);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                success ? '✅ Đã hủy đơn hàng thành công' : '❌ Hủy đơn thất bại'),
+            content: Text(success
+                ? '✅ Đã hủy đơn hàng thành công'
+                : '❌ Hủy đơn thất bại'),
           ),
         );
         if (success) Navigator.pop(context);
@@ -105,11 +110,9 @@ class OrderDetailScreen extends StatelessWidget {
               title: 'Thông tin đơn hàng',
               icon: Icons.receipt_long_outlined,
               children: [
+                _InfoRow(label: 'Mã đơn hàng', value: '#$shortId'),
                 _InfoRow(
-                    label: 'Mã đơn hàng', value: '#$shortId'),
-                _InfoRow(
-                    label: 'Ngày đặt',
-                    value: _formatDate(order.createdAt)),
+                    label: 'Ngày đặt', value: _formatDate(order.createdAt)),
                 _InfoRow(
                     label: 'Trạng thái',
                     value: OrderStatusBadge.label(order.status)),
@@ -148,8 +151,8 @@ class OrderDetailScreen extends StatelessWidget {
               title: 'Sản phẩm đã đặt (${order.items.length})',
               icon: Icons.shopping_bag_outlined,
               children: order.items
-                  .map((item) => _OrderItemRow(item: item,
-                      formatPrice: _formatPrice))
+                  .map((item) =>
+                      _OrderItemRow(item: item, formatPrice: _formatPrice))
                   .toList(),
             ),
             const SizedBox(height: 12),
@@ -171,8 +174,7 @@ class OrderDetailScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Tổng thanh toán',
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   Text(
                     _formatPrice(order.totalAmount),
@@ -283,8 +285,7 @@ class _InfoRow extends StatelessWidget {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.muted),
+              style: const TextStyle(fontSize: 13, color: AppColors.muted),
             ),
           ),
           Expanded(
@@ -385,8 +386,8 @@ class _Tag extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(text,
-          style: const TextStyle(
-              fontSize: 11, color: AppColors.pastelPinkDark)),
+          style:
+              const TextStyle(fontSize: 11, color: AppColors.pastelPinkDark)),
     );
   }
 }

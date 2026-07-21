@@ -4,7 +4,7 @@ import '../../models/cart.dart';
 import '../../providers/cart_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/formatters.dart';
-import '../checkout_screen.dart'; 
+import '../checkout_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -33,8 +33,8 @@ class _CartScreenState extends State<CartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedItems.isEmpty 
-            ? "Giỏ hàng của bạn" 
+        title: Text(_selectedItems.isEmpty
+            ? "Giỏ hàng của bạn"
             : "${_selectedItems.length} đã chọn"),
         backgroundColor: AppColors.pastelPinkDark,
         foregroundColor: Colors.white,
@@ -44,10 +44,10 @@ class _CartScreenState extends State<CartScreen> {
               icon: const Icon(Icons.delete),
               onPressed: () => _deleteSelectedItems(cartProvider),
             ),
-        //   IconButton(
-        //     icon: const Icon(Icons.delete_outline),
-        //     onPressed: cart.items.isEmpty ? null : () => _showClearDialog(context, cartProvider),
-        //   ),
+          //   IconButton(
+          //     icon: const Icon(Icons.delete_outline),
+          //     onPressed: cart.items.isEmpty ? null : () => _showClearDialog(context, cartProvider),
+          //   ),
         ],
       ),
       body: cart.items.isEmpty
@@ -56,7 +56,8 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 // Header chọn tất cả
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   color: Colors.white,
                   child: Row(
                     children: [
@@ -131,7 +132,8 @@ class _CartScreenState extends State<CartScreen> {
                 children: [
                   Text(
                     item.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -143,7 +145,9 @@ class _CartScreenState extends State<CartScreen> {
                   const SizedBox(height: 8),
                   Text(
                     formatVnd(item.price.toDouble()),
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.pastelPinkDark),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.pastelPinkDark),
                   ),
                 ],
               ),
@@ -155,29 +159,41 @@ class _CartScreenState extends State<CartScreen> {
                   children: [
                     IconButton(
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      constraints:
+                          const BoxConstraints(minWidth: 32, minHeight: 32),
                       icon: const Icon(Icons.remove, size: 20),
                       onPressed: () async {
                         try {
-                          await cartProvider.updateQuantity(item.productId, item.quantity - 1);
+                          await cartProvider.updateQuantity(
+                              item.productId, item.quantity - 1);
                         } catch (e) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(e
+                                    .toString()
+                                    .replaceAll('Exception: ', ''))));
                           }
                         }
                       },
                     ),
-                    Text("${item.quantity}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text("${item.quantity}",
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     IconButton(
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      constraints:
+                          const BoxConstraints(minWidth: 32, minHeight: 32),
                       icon: const Icon(Icons.add, size: 20),
                       onPressed: () async {
                         try {
-                          await cartProvider.updateQuantity(item.productId, item.quantity + 1);
+                          await cartProvider.updateQuantity(
+                              item.productId, item.quantity + 1);
                         } catch (e) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(e
+                                    .toString()
+                                    .replaceAll('Exception: ', ''))));
                           }
                         }
                       },
@@ -190,11 +206,16 @@ class _CartScreenState extends State<CartScreen> {
                     try {
                       await cartProvider.removeItem(item.productId);
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Đã xóa sản phẩm khỏi giỏ hàng")));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text("Đã xóa sản phẩm khỏi giỏ hàng")));
                       }
                     } catch (e) {
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                e.toString().replaceAll('Exception: ', ''))));
                       }
                     }
                   },
@@ -228,7 +249,10 @@ class _CartScreenState extends State<CartScreen> {
               const Text("Tổng thanh toán:", style: TextStyle(fontSize: 18)),
               Text(
                 formatVnd(selectedTotal.toDouble()),
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.pastelPinkDark),
+                style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.pastelPinkDark),
               ),
             ],
           ),
@@ -239,16 +263,20 @@ class _CartScreenState extends State<CartScreen> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.pastelPinkDark,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
               ),
-              onPressed: _selectedItems.isEmpty 
-                  ? null 
+              onPressed: _selectedItems.isEmpty
+                  ? null
                   : () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => CheckoutScreen(
-                            selectedItems: cart.items.where((item) => _selectedItems.contains(item.productId)).toList(),
+                            selectedItems: cart.items
+                                .where((item) =>
+                                    _selectedItems.contains(item.productId))
+                                .toList(),
                           ),
                         ),
                       );
@@ -269,9 +297,11 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_cart_outlined, size: 100, color: Colors.grey[300]),
+          Icon(Icons.shopping_cart_outlined,
+              size: 100, color: Colors.grey[300]),
           const SizedBox(height: 20),
-          const Text("Giỏ hàng trống", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text("Giỏ hàng trống",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           const Text("Hãy thêm một số sản phẩm yêu thích của bạn"),
           const SizedBox(height: 30),
@@ -321,7 +351,9 @@ class _CartScreenState extends State<CartScreen> {
         title: const Text("Xóa giỏ hàng"),
         content: const Text("Bạn có chắc muốn xóa toàn bộ giỏ hàng không?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy")),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Hủy")),
           TextButton(
             onPressed: () {
               cartProvider.clearCart();

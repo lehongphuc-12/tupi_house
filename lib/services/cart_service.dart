@@ -20,18 +20,18 @@ class CartService {
 
   Future<void> addToCart(CartItem item) async {
     try {
-        final user = _auth.currentUser;
+      final user = _auth.currentUser;
 
-        if (user == null) {
-            throw Exception("User chưa đăng nhập");
-        }
+      if (user == null) {
+        throw Exception("User chưa đăng nhập");
+      }
 
-        final docRef = _firestore
-            .collection('users')
-            .doc(user.uid)
-            .collection('cart')
-            .doc(item.productId);
-        final doc = await docRef.get();
+      final docRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('cart')
+          .doc(item.productId);
+      final doc = await docRef.get();
 
       if (doc.exists) {
         final currentQty = (doc.data()?['quantity'] as int?) ?? 1;
@@ -69,9 +69,8 @@ class CartService {
       return Stream.value(Cart(userId: '', items: []));
     }
     return _cartRef.snapshots().map((snapshot) {
-      final items = snapshot.docs
-          .map((doc) => CartItem.fromJson(doc.data()))
-          .toList();
+      final items =
+          snapshot.docs.map((doc) => CartItem.fromJson(doc.data())).toList();
       return Cart(userId: user.uid, items: items);
     });
   }

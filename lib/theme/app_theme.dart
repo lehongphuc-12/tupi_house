@@ -56,7 +56,8 @@ class AppTheme {
           minimumSize: const Size.fromHeight(50),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -64,7 +65,8 @@ class AppTheme {
           foregroundColor: AppColors.pastelGreenDark,
           side: const BorderSide(color: AppColors.pastelGreen),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -87,13 +89,15 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.pastelPinkDark, width: 1.6),
+          borderSide:
+              const BorderSide(color: AppColors.pastelPinkDark, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.pastelGreenDark,
@@ -103,7 +107,8 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: Colors.white,
         selectedColor: AppColors.softGreen,
-        labelStyle: const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+        labelStyle:
+            const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
         side: const BorderSide(color: Color(0xFFE7ECE3)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),

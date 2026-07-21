@@ -59,7 +59,10 @@ class WishlistScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   const Text(
                     'Chưa có sản phẩm yêu thích',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.ink),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.ink),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -101,14 +104,16 @@ class WishlistScreen extends StatelessWidget {
                                   width: 80,
                                   height: 80,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => _fallbackImage(),
+                                  errorBuilder: (_, __, ___) =>
+                                      _fallbackImage(),
                                 )
                               : Image.asset(
                                   item.thumbnail,
                                   width: 80,
                                   height: 80,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => _fallbackImage(),
+                                  errorBuilder: (_, __, ___) =>
+                                      _fallbackImage(),
                                 ),
                         ),
                         const SizedBox(width: 14),
@@ -122,12 +127,14 @@ class WishlistScreen extends StatelessWidget {
                                 item.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 15),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 item.categoryName,
-                                style: const TextStyle(color: AppColors.muted, fontSize: 12),
+                                style: const TextStyle(
+                                    color: AppColors.muted, fontSize: 12),
                               ),
                               const SizedBox(height: 6),
                               Text(
@@ -147,7 +154,8 @@ class WishlistScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                              icon: const Icon(Icons.delete_outline,
+                                  color: Colors.redAccent),
                               onPressed: () async {
                                 final product = Product(
                                   id: item.productId,
@@ -163,7 +171,8 @@ class WishlistScreen extends StatelessWidget {
                               },
                             ),
                             IconButton(
-                              icon: const Icon(Icons.add_shopping_cart_rounded, color: AppColors.pastelGreenDark),
+                              icon: const Icon(Icons.add_shopping_cart_rounded,
+                                  color: AppColors.pastelGreenDark),
                               onPressed: () => _addToCart(context, item),
                             ),
                           ],
@@ -185,7 +194,8 @@ class WishlistScreen extends StatelessWidget {
       width: 80,
       height: 80,
       color: AppColors.softPink,
-      child: const Icon(Icons.image_not_supported_outlined, color: AppColors.pastelPinkDark),
+      child: const Icon(Icons.image_not_supported_outlined,
+          color: AppColors.pastelPinkDark),
     );
   }
 
@@ -197,7 +207,10 @@ class WishlistScreen extends StatelessWidget {
     );
 
     try {
-      final doc = await FirebaseFirestore.instance.collection('products').doc(productId).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)
+          .get();
       if (!context.mounted) return;
       Navigator.of(context).pop(); // Close dialog
 

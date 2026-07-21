@@ -79,9 +79,8 @@ class Order {
       paymentMethod: json['paymentMethod'] ?? 'cod',
       shippingAddress: json['shippingAddress'] ?? {},
       createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 

@@ -12,19 +12,16 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() =>
-      _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState
-    extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authProvider =
-          context.read<AuthProvider>();
+      final authProvider = context.read<AuthProvider>();
 
       if (!authProvider.isLoggedIn) {
         Navigator.of(context).pushReplacement(
@@ -38,8 +35,7 @@ class _ProfileScreenState
 
   @override
   Widget build(BuildContext context) {
-    final authProvider =
-        context.watch<AuthProvider>();
+    final authProvider = context.watch<AuthProvider>();
 
     final user = authProvider.currentUser;
 
@@ -63,8 +59,7 @@ class _ProfileScreenState
             Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(24),
                 side: const BorderSide(
                   color: Color(0xFFF0E8EB),
                 ),
@@ -76,9 +71,7 @@ class _ProfileScreenState
                     _buildProfileAvatar(
                       user.avatar,
                     ),
-
                     const SizedBox(height: 16),
-
                     Text(
                       user.fullName,
                       style: const TextStyle(
@@ -87,9 +80,7 @@ class _ProfileScreenState
                         color: AppColors.ink,
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
                     Text(
                       user.email,
                       style: const TextStyle(
@@ -101,21 +92,17 @@ class _ProfileScreenState
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(24),
                 side: const BorderSide(
                   color: Color(0xFFF0E8EB),
                 ),
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
                 ),
@@ -124,29 +111,21 @@ class _ProfileScreenState
                     _buildDetailRow(
                       Icons.phone_outlined,
                       'Số điện thoại',
-                      user.phone.isNotEmpty
-                          ? user.phone
-                          : 'Chưa cập nhật',
+                      user.phone.isNotEmpty ? user.phone : 'Chưa cập nhật',
                     ),
-
                     const Divider(
                       height: 1,
                       color: Color(0xFFF6EFF1),
                     ),
-
                     _buildDetailRow(
                       Icons.face_outlined,
                       'Giới tính',
-                      user.gender.isNotEmpty
-                          ? user.gender
-                          : 'Chưa cập nhật',
+                      user.gender.isNotEmpty ? user.gender : 'Chưa cập nhật',
                     ),
-
                     const Divider(
                       height: 1,
                       color: Color(0xFFF6EFF1),
                     ),
-
                     _buildDetailRow(
                       Icons.cake_outlined,
                       'Ngày sinh',
@@ -158,53 +137,42 @@ class _ProfileScreenState
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
-
             _buildActionItem(
               icon: Icons.edit_outlined,
               title: 'Chỉnh sửa hồ sơ',
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) =>
-                        const EditProfileScreen(),
+                    builder: (_) => const EditProfileScreen(),
                   ),
                 );
               },
             ),
-
             _buildActionItem(
-              icon:
-                  Icons.favorite_border_rounded,
+              icon: Icons.favorite_border_rounded,
               title: 'Danh sách yêu thích',
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) =>
-                        const WishlistScreen(),
+                    builder: (_) => const WishlistScreen(),
                   ),
                 );
               },
             ),
-
             if (authProvider.canChangePassword)
               _buildActionItem(
-                icon:
-                    Icons.lock_outline_rounded,
+                icon: Icons.lock_outline_rounded,
                 title: 'Đổi mật khẩu',
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) =>
-                          const ChangePasswordScreen(),
+                      builder: (_) => const ChangePasswordScreen(),
                     ),
                   );
                 },
               ),
-
             const SizedBox(height: 12),
-
             _buildActionItem(
               icon: Icons.logout_rounded,
               title: 'Đăng xuất',
@@ -216,18 +184,15 @@ class _ProfileScreenState
                   return;
                 }
 
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Đã đăng xuất'),
                   ),
                 );
 
-                Navigator.of(context)
-                    .pushAndRemoveUntil(
+                Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                    builder: (_) =>
-                        const LoginScreen(),
+                    builder: (_) => const LoginScreen(),
                   ),
                   (route) => false,
                 );
@@ -266,8 +231,7 @@ class _ProfileScreenState
                 }
 
                 return const Center(
-                  child:
-                      CircularProgressIndicator(),
+                  child: CircularProgressIndicator(),
                 );
               },
               errorBuilder: (_, __, ___) {
@@ -307,9 +271,7 @@ class _ProfileScreenState
             color: AppColors.pastelGreenDark,
             size: 22,
           ),
-
           const SizedBox(width: 14),
-
           Text(
             label,
             style: const TextStyle(
@@ -318,9 +280,7 @@ class _ProfileScreenState
               fontSize: 15,
             ),
           ),
-
           const Spacer(),
-
           Flexible(
             child: Text(
               value,
@@ -344,19 +304,16 @@ class _ProfileScreenState
     required VoidCallback onTap,
     bool danger = false,
   }) {
-    final textColor =
-        danger ? Colors.redAccent : AppColors.ink;
+    final textColor = danger ? Colors.redAccent : AppColors.ink;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         onTap: onTap,
-        tileColor: danger
-            ? Colors.red.withValues(alpha: 0.04)
-            : AppColors.surface,
+        tileColor:
+            danger ? Colors.red.withValues(alpha: 0.04) : AppColors.surface,
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16),
           side: BorderSide(
             color: danger
                 ? Colors.red.withValues(
@@ -367,9 +324,7 @@ class _ProfileScreenState
         ),
         leading: Icon(
           icon,
-          color: danger
-              ? Colors.redAccent
-              : AppColors.pastelPinkDark,
+          color: danger ? Colors.redAccent : AppColors.pastelPinkDark,
         ),
         title: Text(
           title,

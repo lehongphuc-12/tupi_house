@@ -54,8 +54,7 @@ class SeedOrders {
         'paymentMethod': 'cod',
         'totalAmount': 320000,
         'createdAt': now.subtract(const Duration(days: 1)).toIso8601String(),
-        'updatedAt':
-            now.subtract(const Duration(hours: 20)).toIso8601String(),
+        'updatedAt': now.subtract(const Duration(hours: 20)).toIso8601String(),
         'shippingAddress': {
           'name': 'Trần Thị B',
           'phone': '0912345678',
@@ -158,10 +157,8 @@ class SeedOrders {
         'paymentStatus': 'paid',
         'paymentMethod': 'cod',
         'totalAmount': 320000,
-        'createdAt':
-            now.subtract(const Duration(days: 14)).toIso8601String(),
-        'updatedAt':
-            now.subtract(const Duration(days: 11)).toIso8601String(),
+        'createdAt': now.subtract(const Duration(days: 14)).toIso8601String(),
+        'updatedAt': now.subtract(const Duration(days: 11)).toIso8601String(),
         'shippingAddress': {
           'name': 'Nguyễn Văn A',
           'phone': '0901234567',
@@ -220,10 +217,8 @@ class SeedOrders {
 
   /// Xóa toàn bộ đơn hàng mẫu của user (để seed lại)
   static Future<void> clearUserOrders(String userId) async {
-    final snapshot = await _db
-        .collection('orders')
-        .where('userId', isEqualTo: userId)
-        .get();
+    final snapshot =
+        await _db.collection('orders').where('userId', isEqualTo: userId).get();
 
     final batch = _db.batch();
     for (final doc in snapshot.docs) {
