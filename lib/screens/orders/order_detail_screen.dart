@@ -9,8 +9,13 @@ import 'order_tracking_widget.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final Order order;
+  final bool adminMode;
 
-  const OrderDetailScreen({super.key, required this.order});
+  const OrderDetailScreen({
+    super.key,
+    required this.order,
+    this.adminMode = false,
+  });
 
   String _formatPrice(int price) {
     final fmt =

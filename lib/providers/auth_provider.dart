@@ -19,6 +19,12 @@ class AuthProvider extends ChangeNotifier {
 
   AppUser? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
+  bool get isAdmin =>
+      _currentUser != null &&
+      _currentUser!.isActive &&
+      _currentUser!.role.toLowerCase() == 'admin';
+
+  bool get isAccountActive => _currentUser?.isActive ?? false;
   User? get firebaseUser => _auth.currentUser;
 
   bool get isPasswordAccount =>
@@ -255,6 +261,8 @@ class AuthProvider extends ChangeNotifier {
           'phone': '',
           'gender': '',
           'birthday': '',
+          'role': 'user',
+          'isActive': true,
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
           'lastLoginAt': FieldValue.serverTimestamp(),

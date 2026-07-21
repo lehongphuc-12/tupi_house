@@ -148,20 +148,21 @@ class AppDrawer extends StatelessWidget {
               },
             ),
 
-            _DrawerItem(
-              icon: Icons.admin_panel_settings_outlined,
-              title: 'Admin Dashboard',
-              onTap: () {
-                Navigator.pop(context);
+            if (auth.isAdmin)
+              _DrawerItem(
+                icon: Icons.admin_panel_settings_outlined,
+                title: 'Admin Dashboard',
+                onTap: () {
+                  Navigator.pop(context);
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AdminDashboardScreen(),
-                  ),
-                );
-              },
-            ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdminDashboardScreen(),
+                    ),
+                  );
+                },
+              ),
 
             const Spacer(),
             const Divider(height: 1),
