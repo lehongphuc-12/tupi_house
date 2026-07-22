@@ -581,7 +581,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 16),
 
             const Text(
-              'Choose a preset avatar',
+              'Chọn ảnh đại diện có sẵn',
               style: TextStyle(
                 color: AppColors.ink,
                 fontSize: 16,
@@ -688,12 +688,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 width: 114,
                 height: 114,
                 fit: BoxFit.cover,
+                // Sử dụng cacheWidth và cacheHeight để tối ưu hiệu năng trên Web
+                cacheWidth: 228,
+                cacheHeight: 228,
                 frameBuilder: (
                   context,
                   child,
                   frame,
                   wasSynchronouslyLoaded,
                 ) {
+                  // Nếu tải đồng bộ hoặc đã có frame -> thành công
                   if (wasSynchronouslyLoaded || frame != null) {
                     _reportAvatarLoadSuccess(avatarUrl);
                   }
@@ -705,24 +709,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child,
                   loadingProgress,
                 ) {
+                  // Nếu chưa bắt đầu tải hoặc đã tải xong -> hiển thị ảnh
                   if (loadingProgress == null) {
                     return child;
                   }
 
-                  return const SizedBox(
+                  // Đang tải -> hiển thị progress
+                  return SizedBox(
                     width: 114,
                     height: 114,
                     child: ColoredBox(
                       color: AppColors.softPink,
                       child: Center(
                         child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
                           strokeWidth: 2,
                         ),
                       ),
                     ),
                   );
                 },
-                errorBuilder: (_, __, ___) {
+                errorBuilder: (context, error, stackTrace) {
+                  // Báo lỗi khi tải ảnh thất bại
                   _reportAvatarLoadFailure(avatarUrl);
 
                   return const SizedBox(

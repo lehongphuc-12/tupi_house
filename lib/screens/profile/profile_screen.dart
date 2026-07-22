@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../login_screen.dart';
-import '../wishlist/wishlist_screen.dart';
 import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
 
@@ -174,34 +173,20 @@ class _ProfileScreenState
               },
             ),
 
+            // Hiển thị mục đổi mật khẩu cho cả Email/Password và Google Account
             _buildActionItem(
               icon:
-                  Icons.favorite_border_rounded,
-              title: 'Danh sách yêu thích',
+                  Icons.lock_outline_rounded,
+              title: 'Đổi mật khẩu',
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) =>
-                        const WishlistScreen(),
+                        const ChangePasswordScreen(),
                   ),
                 );
               },
             ),
-
-            if (authProvider.canChangePassword)
-              _buildActionItem(
-                icon:
-                    Icons.lock_outline_rounded,
-                title: 'Đổi mật khẩu',
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          const ChangePasswordScreen(),
-                    ),
-                  );
-                },
-              ),
 
             const SizedBox(height: 12),
 

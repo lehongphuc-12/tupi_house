@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'register_screen.dart';
 import 'product_list_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -113,7 +114,18 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             validator: (v) => (v == null || v.isEmpty) ? 'Vui lòng nhập mật khẩu' : null,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                );
+              },
+              child: const Text('Quên mật khẩu?'),
+            ),
+          ),
           Row(
             children: [
               Checkbox(
