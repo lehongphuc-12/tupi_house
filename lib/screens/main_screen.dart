@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../theme/app_theme.dart';
 import 'cart/cart_screen.dart';
+import 'orders/order_history_screen.dart';
 import 'product/optimized_product_list_screen.dart';
 import 'profile/profile_screen.dart';
 
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = const [
     OptimizedProductListScreen(),
     CartScreen(),
+    OrderHistoryScreen(),
     ProfileScreen(),
   ];
 
@@ -120,6 +122,11 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
               label: 'Giỏ hàng',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long_outlined),
+              activeIcon: Icon(Icons.receipt_long),
+              label: 'Đơn hàng',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
