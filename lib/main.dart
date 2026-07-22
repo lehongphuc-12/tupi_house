@@ -14,6 +14,7 @@ import 'providers/wishlist_provider.dart';
 import 'providers/review_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/voucher_provider.dart';
+import 'screens/main_screen.dart';
 import 'screens/product/optimized_product_list_screen.dart';
 import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
@@ -183,7 +184,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
         scaffoldMessengerKey: scaffoldMessengerKey,
-        home: const _AuthBootstrap(child: OptimizedProductListScreen()),
+        home: const _AuthBootstrap(child: MainScreen()),
       ),
     );
   }

@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../login_screen.dart';
 import '../wishlist/wishlist_screen.dart';
+import '../admin/admin_dashboard_screen.dart';
 import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
 
@@ -170,6 +171,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const ChangePasswordScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (user.role == 'admin')
+              _buildActionItem(
+                icon: Icons.admin_panel_settings_outlined,
+                title: 'Quản trị hệ thống',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => Theme(
+                        data: AppTheme.adminTheme,
+                        child: const AdminDashboardScreen(),
+                      ),
                     ),
                   );
                 },

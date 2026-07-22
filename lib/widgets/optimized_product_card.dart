@@ -184,7 +184,7 @@ class OptimizedProductCard extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const LoginScreen()),
+                                  builder: (_) => const LoginScreen(returnToPrevious: true)),
                             );
                             return;
                           }

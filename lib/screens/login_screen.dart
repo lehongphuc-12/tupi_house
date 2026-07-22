@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'admin/admin_dashboard_screen.dart';
-import 'product/optimized_product_list_screen.dart';
+import 'main_screen.dart';
 import 'register_screen.dart';  
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool returnToPrevious;
+  const LoginScreen({super.key, this.returnToPrevious = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -42,12 +43,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navigateAfterLogin(AuthProvider auth) {
+    if (widget.returnToPrevious && Navigator.canPop(context)) {
+      Navigator.pop(context);
+      return;
+    }
+
     final Widget destination;
 
     if (auth.isAdmin) {
       destination = const AdminDashboardScreen();
     } else {
-      destination = const OptimizedProductListScreen();
+      destination = const MainScreen();
     }
 
     Navigator.of(context).pushAndRemoveUntil(
@@ -319,7 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (!mounted) return;
                     if (ok) {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (_) => const OptimizedProductListScreen()));
+                          builder: (_) => const MainScreen()));
                     } else if (auth.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(auth.errorMessage!)));

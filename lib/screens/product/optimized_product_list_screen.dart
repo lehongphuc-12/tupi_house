@@ -165,7 +165,7 @@ class _OptimizedProductListScreenState
           const SizedBox(width: 4),
         ],
       ),
-      drawer: const AppDrawer(),
+      // drawer: const AppDrawer(),
       body: RefreshIndicator(
         onRefresh: () async {
           await context.read<ProductProvider>().fetchProducts();

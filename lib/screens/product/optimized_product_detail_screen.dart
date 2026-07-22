@@ -95,7 +95,7 @@ class _OptimizedProductDetailScreenState
     if (!auth.isLoggedIn) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen(returnToPrevious: true)),
       );
       return;
     }
@@ -245,7 +245,7 @@ class _OptimizedProductDetailScreenState
                     if (!auth.isLoggedIn) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        MaterialPageRoute(builder: (_) => const LoginScreen(returnToPrevious: true)),
                       );
                       return;
                     }
@@ -567,7 +567,7 @@ class _OptimizedProductDetailScreenState
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const LoginScreen()),
+                                  builder: (_) => const LoginScreen(returnToPrevious: true)),
                             );
                             return;
                           }
