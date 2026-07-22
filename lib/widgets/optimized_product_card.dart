@@ -61,14 +61,17 @@ class OptimizedProductCard extends StatelessWidget {
                       color: AppColors.softPink,
                       child: Hero(
                         tag: 'product-img-${product.id}',
-                        child: product.thumbnail.isNotEmpty
-                            ? Image.network(
-                                product.thumbnail,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    _imagePlaceholder(),
-                              )
-                            : _imagePlaceholder(),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: product.thumbnail.isNotEmpty
+                              ? Image.network(
+                                  product.thumbnail,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      _imagePlaceholder(),
+                                )
+                              : _imagePlaceholder(),
+                        ),
                       ),
                     ),
                   ),

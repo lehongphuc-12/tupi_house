@@ -33,6 +33,7 @@ class _OptimizedProductDetailScreenState
   int _currentImageIndex = 0;
   int _quantity = 1;
   final PageController _pageController = PageController();
+  bool _isDescriptionExpanded = false;
 
   @override
   void initState() {
@@ -97,7 +98,17 @@ class _OptimizedProductDetailScreenState
       );
       return;
     }
-    _addToCart();
+    
+    final cart = context.read<CartProvider>();
+    final cartItem = CartItem(
+      productId: widget.product.id,
+      title: widget.product.title,
+      price: widget.product.salePrice ?? widget.product.price,
+      thumbnail: widget.product.thumbnail,
+      quantity: _quantity,
+    );
+    cart.addToCart(cartItem);
+    
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const CartScreen()),
@@ -139,6 +150,16 @@ class _OptimizedProductDetailScreenState
             pinned: true,
             backgroundColor: Colors.white,
             elevation: 0,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                backgroundColor: Colors.white.withValues(alpha: 0.85),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.ink),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 children: [
@@ -153,15 +174,18 @@ class _OptimizedProductDetailScreenState
                         tag: index == 0
                             ? 'product-img-${widget.product.id}'
                             : 'product-img-${widget.product.id}-$index',
-                        child: images[index].isNotEmpty
-                            ? Image.network(
-                                images[index],
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                errorBuilder: (_, __, ___) =>
-                                    _imagePlaceholder(),
-                              )
-                            : _imagePlaceholder(),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: images[index].isNotEmpty
+                              ? Image.network(
+                                  images[index],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (_, __, ___) =>
+                                      _imagePlaceholder(),
+                                )
+                              : _imagePlaceholder(),
+                        ),
                       );
                     },
                   ),
@@ -195,6 +219,19 @@ class _OptimizedProductDetailScreenState
               ),
             ),
             actions: [
+              CircleAvatar(
+                backgroundColor: Colors.white.withValues(alpha: 0.85),
+                child: IconButton(
+                  icon: const Icon(Icons.share_outlined, color: AppColors.ink),
+                  onPressed: () {
+                    // Logic share
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Tính năng chia sẻ đang phát triển')),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
               CircleAvatar(
                 backgroundColor: Colors.white.withValues(alpha: 0.85),
                 child: IconButton(
@@ -448,31 +485,58 @@ class _OptimizedProductDetailScreenState
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (widget.product.description.contains('<') &&
-                      widget.product.description.contains('>'))
-                    Html(
-                      data: widget.product.description,
-                      style: {
-                        "body": Style(
-                          fontSize: FontSize(14),
-                          color: AppColors.ink,
-                          margin: Margins.zero,
-                          padding: HtmlPaddings.zero,
-                        ),
-                      },
-                    )
-                  else
-                    Text(
-                      widget.product.description.isNotEmpty
-                          ? widget.product.description
-                          : 'Chưa có mô tả chi tiết cho sản phẩm này.',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.ink,
-                        height: 1.5,
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: _isDescriptionExpanded ? double.infinity : 150,
+                      ),
+                      child: ClipRect(
+                        child: widget.product.description.contains('<') &&
+                                widget.product.description.contains('>')
+                            ? Html(
+                                data: widget.product.description,
+                                style: {
+                                  "body": Style(
+                                    fontSize: FontSize(14),
+                                    color: AppColors.ink,
+                                    margin: Margins.zero,
+                                    padding: HtmlPaddings.zero,
+                                  ),
+                                },
+                              )
+                            : Text(
+                                widget.product.description.isNotEmpty
+                                    ? widget.product.description
+                                    : 'Chưa có mô tả chi tiết cho sản phẩm này.',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.ink,
+                                  height: 1.5,
+                                ),
+                              ),
                       ),
                     ),
-                  const SizedBox(height: 28),
+                  ),
+                  if (widget.product.description.isNotEmpty)
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _isDescriptionExpanded = !_isDescriptionExpanded;
+                          });
+                        },
+                        icon: Icon(
+                          _isDescriptionExpanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          size: 18,
+                        ),
+                        label: Text(_isDescriptionExpanded ? 'Thu gọn' : 'Xem thêm'),
+                      ),
+                    ),
+                  const SizedBox(height: 12),
                   const Divider(),
                   const SizedBox(height: 16),
 
@@ -526,27 +590,28 @@ class _OptimizedProductDetailScreenState
                   else if (reviews.isEmpty)
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
                       decoration: BoxDecoration(
-                        color: AppColors.softPink,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFF2EAF0)),
                       ),
                       child: const Column(
                         children: [
-                          Icon(Icons.star_outline,
-                              size: 36, color: AppColors.pastelPinkDark),
-                          SizedBox(height: 8),
+                          Icon(Icons.rate_review_outlined,
+                              size: 42, color: AppColors.muted),
+                          SizedBox(height: 12),
                           Text(
                             'Chưa có đánh giá nào',
                             style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.ink),
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 6),
                           Text(
-                            'Hãy mua hàng và là người đầu tiên để lại nhận xét nhé!',
+                            'Hãy là người đầu tiên trải nghiệm và để lại nhận xét nhé!',
                             style: TextStyle(
-                                fontSize: 12, color: AppColors.muted),
+                                fontSize: 13, color: AppColors.muted),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -597,7 +662,7 @@ class _OptimizedProductDetailScreenState
                     ),
                   ],
 
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
