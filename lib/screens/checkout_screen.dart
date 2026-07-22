@@ -36,7 +36,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _shippingAddress = {
       'fullName': user?.fullName ?? '',
       'phone': user?.phone ?? '',
-      'address': user?.address ?? '',
+      'address': '',
       'ward': '',
       'district': '',
       'city': '',
