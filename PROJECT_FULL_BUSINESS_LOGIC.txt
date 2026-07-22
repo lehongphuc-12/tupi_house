@@ -1,0 +1,285 @@
+================================================================================
+          TÀI LIỆU NGHIỆP VỤ & LUỒNG VẬN HÀNH HỆ THỐNG HOÀN CHỈNH (MASTER SPEC)
+                 Dự án: Tupi House (Flutter + Firebase Firestore + FCM)
+     Tích hợp 4 Thành viên: Member 1 (Voucher & Loyalty) | Member 2 (Stock & Flash Sale)
+                           Member 3 (Admin Analytics & Chart) | Member 4 (Notifications & Recommendations)
+     Ngày cập nhật: 21/07/2026 - Phiên bản: 3.0 Master Release
+================================================================================
+
+Tài liệu này mô tả toàn bộ nghiệp vụ (Business Logic), Cấu trúc Cơ sở Dữ liệu (Database Schema), 
+Luồng xử lý (Data Flow), Quy tắc kiểm tra (Validation Rules) và Kiến trúc Mã nguồn của Hệ thống Tupi House.
+
+================================================================================
+                    PHẦN 1: CẤU TRÚC DỮ LIỆU CỐT LÕI (DATABASE SCHEMA)
+================================================================================
+
+1. Collection: `users`
+   - id: String (DocId = Auth UID)
+   - email: String
+   - fullName: String
+   - phone: String
+   - avatar: String (URL)
+   - gender: String
+   - birthday: String
+   - role: String ("user" | "admin")
+   - points: int (Điểm tích lũy, mặc định 0)
+   - tier: String ("Đồng" | "Bạc" | "Vàng" | "Kim Cương")
+   - fcmToken: String? (Device Token phục vụ FCM Push Notification)
+   - createdAt: Timestamp / String
+
+2. Collection: `products`
+   - id: String (DocId)
+   - title: String (Tên sản phẩm)
+   - price: int (Giá gốc - VND)
+   - salePrice: int? (Giá khuyến mãi - VND)
+   - flashSaleEndTime: Timestamp / String? (Thời hạn Flash Sale kết thúc)
+   - stock: int (Số lượng tồn kho thực tế)
+   - sold: int (Số lượng đã bán)
+   - rating: double (Điểm đánh giá trung bình 1.0 - 5.0)
+   - reviewCount: int (Tổng số lượt nhận xét)
+   - categoryId: String
+   - categoryName: String
+   - thumbnail: String (URL)
+   - images: List<String> (Danh sách URL ảnh)
+   - description: String (Mô tả dạng chữ hoặc HTML)
+   - tags: List<String> (Các nhãn bổ trợ: ["decor", "hoa_tulip", "den_ngu"])
+
+3. Collection: `vouchers`
+   - id: String (DocId)
+   - code: String (Mã giảm giá, viết hoa, VD: "TUPINAM2026")
+   - type: String ("percent" | "fixed") - Giảm theo % hoặc Giảm tiền mặt
+   - discountValue: int (Giá trị % hoặc số tiền giảm VND)
+   - minOrderValue: int (Giá trị đơn hàng tối thiểu để áp dụng)
+   - maxDiscountAmount: int? (Số tiền giảm tối đa nếu type = "percent")
+   - startDate: Timestamp / String
+   - endDate: Timestamp / String
+   - usageLimit: int (Tổng số lượt sử dụng tối đa)
+   - usedCount: int (Số lượt đã được áp dụng thành công)
+   - isActive: bool
+
+4. Collection: `orders`
+   - id: String (DocId, VD: "ORDER_1721558400000")
+   - userId: String
+   - items: List<OrderItemMap>
+     * productId: String
+     * title: String
+     * price: int
+     * quantity: int
+     * color: String?
+     * size: String?
+     * thumbnail: String
+   - subtotalAmount: int (Tổng tiền sản phẩm trước giảm giá)
+   - discountAmount: int (Số tiền được giảm từ Voucher / Điểm)
+   - shippingFee: int (Phí vận chuyển, mặc định 30.000đ)
+   - totalAmount: int (Tổng tiền thanh toán cuối cùng = subtotal - discount + shippingFee)
+   - voucherCode: String? (Mã giảm giá đã dùng)
+   - pointsUsed: int (Số điểm thưởng đã đổi)
+   - status: String ("pending" | "confirmed" | "shipping" | "delivered" | "cancelled")
+   - paymentStatus: String ("paid" | "unpaid")
+   - paymentMethod: String ("cod" | "bank" | "momo" | "vnpay")
+   - shippingAddress: Map<String, dynamic> {fullName, phone, address, ward, district, city}
+   - createdAt: Timestamp
+   - updatedAt: Timestamp?
+
+5. Collection: `reviews`
+   - id: String (DocId)
+   - productId: String
+   - userId: String
+   - userName: String
+   - rating: double (1.0 đến 5.0)
+   - comment: String
+   - images: List<String>
+   - createdAt: Timestamp / String
+
+6. Collection: `categories`
+   - id: String
+   - name: String
+   - image: String
+   - description: String
+   - order: int
+
+
+================================================================================
+             PHẦN 2: CHI TIẾT NGHIỆP VỤ & LUỒNG XỬ LÝ THEO 4 THÀNH VIÊN
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2.1 THÀNH VIÊN 1: KHUYẾN MÃI & KHÁCH HÀNG THÂN THIẾT (Vouchers, Loyalty & Tier)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. Luồng Hệ thống Voucher & Áp dụng Mã Giảm Giá:
+   1. Kiểm tra tính hợp lệ (Validation Pipeline):
+      Khi người dùng nhập mã tại màn hình Checkout:
+      - Kiểm tra mã tồn tại trong DB & `isActive == true`.
+      - Kiểm tra Thời gian: `now >= startDate` và `now <= endDate`.
+      - Kiểm tra Số lượt: `usedCount < usageLimit`.
+      - Kiểm tra Đơn hàng: `subtotalAmount >= minOrderValue`.
+   2. Tính toán Số tiền Giảm (Discount Calculation):
+      - Nếu `type == 'percent'`: `discount = subtotalAmount * (discountValue / 100)`.
+        Nếu `maxDiscountAmount != null` thì `discount = min(discount, maxDiscountAmount)`.
+      - Nếu `type == 'fixed'`: `discount = discountValue`.
+      - Đảm bảo `discount <= subtotalAmount`.
+   3. Khấu trừ lượt dùng:
+      Khi đơn hàng được đặt thành công, cập nhật `usedCount = usedCount + 1` trên Firestore doc voucher.
+
+B. Luồng Tích điểm & Thăng hạng Thành viên (Loyalty & Member Tier):
+   1. Quy tắc Tích điểm (Earning Points):
+      - Sau khi đơn hàng chuyển sang trạng thái `delivered` (Giao hàng thành công), hệ thống tự động tính điểm:
+        `pointsEarned = (totalAmount / 100.000).floor()` (Mỗi 100.000đ đơn hàng tích 1 điểm).
+      - Cộng `pointsEarned` vào thuộc tính `points` của người dùng.
+   2. Quy tắc Thăng hạng (Tier Upgrade):
+      - Dựa trên tổng `points` tích lũy:
+        * 0 - 49 điểm: Hạng **Đồng** (Bronze) - Quyền lợi gốc.
+        * 50 - 199 điểm: Hạng **Bạc** (Silver) - Giảm 2% tổng hóa đơn.
+        * 200 - 499 điểm: Hạng **Vàng** (Gold) - Giảm 5% tổng hóa đơn + Freeship.
+        * 500+ điểm: Hạng **Kim Cương** (Diamond) - Giảm 10% tổng hóa đơn + Quà sinh nhật.
+   3. Đổi điểm thưởng (Redeem Points):
+      - Người dùng có thể chọn dùng điểm ở màn Checkout: `1 điểm = 1.000đ`.
+      - Khi hoàn tất đặt hàng, trừ số điểm đã dùng khỏi `user.points`.
+
+C. Giao diện người dùng (UI):
+   - Màn hình **CheckoutScreen**: Ô nhập Voucher + Nút áp dụng + Công tắc sử dụng điểm thưởng + Dòng hiển thị tiền giảm rõ ràng.
+   - Màn hình **ProfileScreen**: Card hiển thị Tổng điểm tích lũy, Badge Hạng thành viên (màu đặc trưng từng hạng) và thanh Progress bar tiến trình thăng hạng tiếp theo.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2.2 THÀNH VIÊN 2: QUẢN LÝ TỒN KHO & FLASH SALE (Inventory & Flash Sale)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. Luồng Quản lý Tồn kho (Inventory Control):
+   1. Ràng buộc tại Giỏ hàng (Cart Control):
+      - Khi thêm sản phẩm hoặc tăng số lượng `quantity` trong giỏ/chi tiết sản phẩm, ứng dụng kiểm tra:
+        `if (currentQty + addQty > product.stock)` ──> Khóa nút tăng, thông báo "Số lượng vượt quá số lượng còn lại trong kho (Còn: X)".
+   2. Tự động Trừ kho khi Thanh toán (Stock Deduction):
+      - Khi đơn hàng được khởi tạo thành công (`OrderService.createOrder`):
+        Chạy Firestore Transaction hoặc Batch Write:
+        Với mỗi `OrderItem` trong đơn:
+        `newStock = product.stock - item.quantity`
+        `newSold = product.sold + item.quantity`
+        Cập nhật `stock` và `sold` của sản phẩm tương ứng.
+   3. Hoàn tồn kho khi Hủy đơn (Stock Restoration):
+      - Khi đơn hàng bị hủy (`cancelled`), hệ thống tự động hoàn lại số lượng sản phẩm vào kho:
+        `restoredStock = product.stock + item.quantity`
+        `restoredSold = product.sold - item.quantity`
+   4. UI Admin Cảnh báo Sắp hết hàng (Low Stock Alert):
+      - Trong Admin Dashboard, thêm Filter/Tab **"Cảnh báo tồn kho"**: Lọc danh sách các sản phẩm có `stock < 5`.
+      - Hiển thị badge màu đỏ "Sắp hết hàng (Còn: X)" để Admin kịp thời nhập thêm hàng.
+
+B. Luồng Flash Sale & Đồng hồ Đếm ngược (Countdown Timer):
+   1. Logic Kiểm tra Flash Sale:
+      - Sản phẩm được coi là đang Flash Sale khi: `salePrice != null` VÀ `flashSaleEndTime != null` VÀ `now < flashSaleEndTime`.
+   2. Đồng hồ Đếm ngược (Countdown Timer Widget):
+      - Widget `FlashSaleTimerWidget` chạy `Timer.periodic(Duration(seconds: 1))` tính toán:
+        `remaining = flashSaleEndTime.difference(now)`
+        Format ra HH : MM : SS (Giờ : Phút : Giây) hiển thị hộp đếm ngược số màu trắng trên nền hồng neon.
+      - Khi `remaining <= 0`, Timer tự hủy, UI tự động chuyển về hiển thị giá gốc và ẩn banner Flash Sale.
+   3. Giao diện hiển thị:
+      - Trang chủ & Chi tiết: Giá cũ bị gạch ngang màu xám, giá Flash Sale màu hồng đậm font to, kèm % giảm giá (VD: `-25%`).
+
+================================================================================
+               PHẦN 3: TỔNG HỢP LUỒNG DỮ LIỆU TOÀN DIỆN (END-TO-END FLOW)
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  USER CLIENT APP                                                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  [1] Trang chủ (OptimizedProductListScreen)                                  │
+│      ├── Header Search (Debounce 300ms)                                       │
+│      ├── Horizontal Category Chips (Firestore)                               │
+│      ├── Flash Sale Section (Countdown Timer HH:MM:SS)                        │
+│      ├── GridView Sản phẩm Tối ưu (OptimizedProductCard)                      │
+│      └── Lazy Loading Pagination (ScrollController cách đáy 200px -> Load +4) │
+│                                                                              │
+│  [2] Chi tiết Sản phẩm (OptimizedProductDetailScreen)                        │
+│      ├── PageView Ảnh + Dot Indicator (AnimatedContainer)                    │
+│      ├── Giá sale gạch ngang + Tag giảm giá %                                │
+│      ├── Html Description + Kiểm tra Stock kho                              │
+│      ├── Thanh trượt Sản phẩm tương tự (Related Products by Category)         │
+│      ├── Đánh giá & Nhận xét (Chỉ ĐỌC, xem thống kê sao 5★..1★)              │
+│      └── Thanh nút Mua ngay / Thêm vào giỏ                                   │
+│                                                                              │
+│  [3] Màn hình Giỏ hàng & Thanh toán (CheckoutScreen)                        │
+│      ├── Ô nhập Voucher (Kiểm tra minOrderValue, Hạn dùng, Trừ tiền)         │
+│      ├── Công tắc Đổi Điểm thưởng (1 điểm = 1.000đ)                           │
+│      ├── Chọn Phương thức Thanh toán (COD, VietQR, MoMo, VNPay)              │
+│      └── Bấm "ĐẶT HÀNG"                                                      │
+│           ├── Trừ stock sản phẩm trên Firestore                              │
+│           ├── Trừ lượt dùng voucher / trừ điểm thưởng                         │
+│           └── Khởi tạo đơn hàng status = 'pending'                           │
+│                                                                              │
+│  [4] Theo dõi & Lịch sử Đơn hàng (OrderHistoryScreen & OrderDetailScreen)    │
+│      ├── Real-time Stream nghe thay đổi đơn hàng                             │
+│      ├── Timeline Stepper 4 bước (pending -> confirmed -> shipping -> deliv)  │
+│      ├── Nút "Hủy đơn" (Chỉ hiện khi status == 'pending', tự hoàn stock)     │
+│      └── Nút "Đánh giá sản phẩm" (Chỉ hiện khi status == 'delivered')        │
+│           └── Ràng buộc 1 lần -> Đã đánh giá (Green badge) -> Tích điểm mới  │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                      ▲
+                                      │ Real-time Firebase Sync & FCM
+                                      ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  ADMIN DASHBOARD APP                                                         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  [1] Analytics Dashboard (fl_chart)                                          │
+│      ├── Biểu đồ Doanh thu (LineChart theo Ngày/Tháng)                       │
+│      ├── Card Tỷ lệ Hủy đơn (%) & Tổng Doanh thu (VND)                        │
+│      └── Bảng xếp hạng Top 5 - Top 10 Sản phẩm Bán chạy                      │
+│                                                                              │
+│  [2] Quản lý Kho & Flash Sale                                                │
+│      ├── Tab Cảnh báo Tồn kho (Lọc sản phẩm stock < 5)                        │
+│      └── Thiết lập Flash Sale (Sửa giá salePrice, đặt flashSaleEndTime)       │
+│                                                                              │
+│  [3] Quản lý Đơn hàng                                                        │
+│      └── Duyệt chuyển trạng thái (Cập nhật status -> Bắn FCM Push Notification)│
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+               PHẦN 4: SƠ ĐỒ ĐƯỜNG DẪN CÁC FILE MÃ NGUỒN (FILE MAP)
+================================================================================
+
+  lib/
+  ├── models/
+  │     ├── product.dart                      ← Product, Stock, SalePrice, FlashSaleTimer
+  │     ├── review.dart                       ← Rating, Comment, Review model
+  │     ├── order.dart                        ← Order & OrderItem model
+  │     ├── voucher.dart                      ← Voucher code, discountType, minOrder
+  │     └── user.dart                         ← AppUser, points, tier, fcmToken
+  ├── services/
+  │     ├── order_service.dart                ← CRUD Firestore Order & Stock deduction
+  │     ├── review_service.dart               ← Firestore Review & Recalculate Rating
+  │     ├── voucher_service.dart              ← Validate & Apply Voucher Logic
+  │     ├── notification_service.dart         ← In-app SnackBar & FCM Push Handler
+  │     └── analytics_service.dart            ← Query Group Order Revenue & Best Sellers
+  ├── providers/
+  │     ├── product_provider.dart             ← Multi-criteria Filter, Sort, Pagination
+  │     ├── review_provider.dart              ← State management Review & Star Stats
+  │     ├── order_provider.dart               ← Order State & Cancel Order
+  │     ├── voucher_provider.dart             ← Voucher validation state
+  │     ├── auth_provider.dart                ← User Auth, Points & Tier calculation
+  │     └── admin_provider.dart               ← Admin Analytics, Stock Alert, Chart Data
+  ├── screens/
+  │     ├── product/
+  │     │     ├── optimized_product_list_screen.dart   ← Main List, Lazy Loading 4 items, Debounce
+  │     │     ├── optimized_product_detail_screen.dart ← Detail, Gallery, Related Products
+  │     │     └── add_review_bottom_sheet.dart         ← Review Form (Only 1 time from Order)
+  │     ├── orders/
+  │     │     ├── order_history_screen.dart   ← 5 Tabs Order History
+  │     │     ├── order_detail_screen.dart    ← Order Detail & Review Button constraint
+  │     │     └── order_tracking_widget.dart  ← Status Stepper Timeline
+  │     └── admin/
+  │           ├── admin_dashboard_screen.dart ← General Admin View
+  │           └── management/
+  │                 ├── admin_management_screens.dart ← Stock Alert & Revenue fl_chart
+  │                 └── admin_analytics_screen.dart  ← Top Best Sellers & Cancel Rate
+  └── widgets/
+        ├── optimized_product_card.dart       ← Product Card (Glassmorphism, SALE tag)
+        ├── product_filter_sheet.dart         ← BottomSheet Filter 4 criteria & 5 sort options
+        ├── flash_sale_timer_widget.dart       Countdown Timer HH:MM:SS
+        ├── star_rating_bar.dart              ← Star Rating widget
+        ├── review_card.dart                  ← Review Card widget
+        └── order_status_badge.dart           ← Colored Order Status Badge
+
+================================================================================
+                                 END OF DOCUMENT
+================================================================================
