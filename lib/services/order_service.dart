@@ -20,9 +20,22 @@ class OrderService {
       items: itemsList
           .map((i) => OrderItem.fromJson(i as Map<String, dynamic>))
           .toList(),
+      subtotalAmount: (data['subtotalAmount'] ?? data['totalAmount'] ?? 0) is int
+          ? (data['subtotalAmount'] ?? data['totalAmount'] ?? 0)
+          : (data['subtotalAmount'] ?? data['totalAmount'] ?? 0 as num).toInt(),
+      discountAmount: (data['discountAmount'] ?? 0) is int
+          ? (data['discountAmount'] ?? 0)
+          : (data['discountAmount'] ?? 0 as num).toInt(),
+      shippingFee: (data['shippingFee'] ?? 30000) is int
+          ? (data['shippingFee'] ?? 30000)
+          : (data['shippingFee'] ?? 30000 as num).toInt(),
       totalAmount: (data['totalAmount'] ?? 0) is int
           ? data['totalAmount']
           : (data['totalAmount'] as num).toInt(),
+      voucherCode: data['voucherCode']?.toString(),
+      pointsUsed: (data['pointsUsed'] ?? 0) is int
+          ? (data['pointsUsed'] ?? 0)
+          : (data['pointsUsed'] ?? 0 as num).toInt(),
       status: data['status'] ?? 'pending',
       paymentStatus: data['paymentStatus'] ?? 'unpaid',
       paymentMethod: data['paymentMethod'] ?? 'cod',
@@ -72,13 +85,25 @@ class OrderService {
   /// Tạo đơn hàng mới
   Future<String> createOrder(Order order) async {
     try {
+      final batch = _firestore.batch();
       final docRef = _firestore.collection('orders').doc(order.id);
 
-      await docRef.set({
+      batch.set(docRef, {
         ...order.toJson(),
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      // Trừ kho hàng & tăng số lượng bán của từng sản phẩm
+      for (final item in order.items) {
+        final productRef = _firestore.collection('products').doc(item.productId);
+        batch.update(productRef, {
+          'stock': FieldValue.increment(-item.quantity),
+          'sold': FieldValue.increment(item.quantity),
+        });
+      }
+
+      await batch.commit();
 
       // In-app + push (via Cloud Function on notifications create)
       try {
@@ -99,13 +124,36 @@ class OrderService {
   /// Hủy đơn hàng
   Future<void> cancelOrder(String orderId) async {
     final orderRef = _firestore.collection('orders').doc(orderId);
-    final snapshot = await orderRef.get();
-    final userId = snapshot.data()?['userId']?.toString() ?? '';
+    
+    final doc = await orderRef.get();
+    if (!doc.exists) return;
+    
+    final data = doc.data() ?? {};
+    final userId = data['userId']?.toString() ?? '';
+    final currentStatus = data['status']?.toString() ?? 'pending';
+    if (currentStatus == 'cancelled') return;
 
-    await orderRef.update({
+    final batch = _firestore.batch();
+    batch.update(orderRef, {
       'status': 'cancelled',
       'updatedAt': FieldValue.serverTimestamp(),
     });
+
+    // Hoàn trả kho hàng
+    final itemsList = (data['items'] as List?) ?? [];
+    for (final item in itemsList) {
+      final productId = item['productId']?.toString() ?? '';
+      final quantity = (item['quantity'] ?? 0) as int;
+      if (productId.isNotEmpty && quantity > 0) {
+        final productRef = _firestore.collection('products').doc(productId);
+        batch.update(productRef, {
+          'stock': FieldValue.increment(quantity),
+          'sold': FieldValue.increment(-quantity),
+        });
+      }
+    }
+
+    await batch.commit();
 
     if (userId.isNotEmpty) {
       try {

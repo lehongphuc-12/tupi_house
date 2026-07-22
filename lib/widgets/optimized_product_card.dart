@@ -26,7 +26,8 @@ class OptimizedProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final wishlistProvider = context.watch<WishlistProvider>();
     final isFavorite = wishlistProvider.isFavorite(product.id);
-    final displayPrice = product.salePrice ?? product.price;
+    final isFlashSale = product.isCurrentlyFlashSale;
+    final displayPrice = isFlashSale ? product.flashSalePrice! : (product.salePrice ?? product.price);
 
     return GestureDetector(
       onTap: onTap,
@@ -110,8 +111,30 @@ class OptimizedProductCard extends StatelessWidget {
                     ),
                   ),
 
-                  // SALE Tag (Top Right)
-                  if (product.isOnSale)
+                  // FLASH or SALE Tag (Top Right)
+                  if (isFlashSale)
+                    Positioned(
+                      top: 8,
+                      right: 48,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          '⚡ FLASH',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (product.isOnSale)
                     Positioned(
                       top: 8,
                       right: 48,
@@ -202,7 +225,21 @@ class OptimizedProductCard extends StatelessWidget {
                           color: AppColors.pastelPinkDark,
                         ),
                       ),
-                      if (product.isOnSale) ...[
+                      if (isFlashSale) ...[
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            _formatPrice(product.price),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.muted,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ] else if (product.isOnSale) ...[
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(

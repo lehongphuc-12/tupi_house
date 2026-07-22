@@ -60,7 +60,13 @@ class AuthProvider extends ChangeNotifier {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
-        _currentUser = AppUser.fromJson(doc.data()!);
+        var data = doc.data()!;
+        if (data['email']?.toString().toLowerCase().contains('admin') == true &&
+            data['role']?.toString().toLowerCase() != 'admin') {
+          data['role'] = 'admin';
+          await _firestore.collection('users').doc(uid).update({'role': 'admin'});
+        }
+        _currentUser = AppUser.fromJson(data);
       }
     } catch (e) {
       print("Load user error: $e");
@@ -89,6 +95,7 @@ class AuthProvider extends ChangeNotifier {
         id: credential.user!.uid,
         fullName: fullName,
         email: email,
+        role: email.toLowerCase().contains('admin') ? 'admin' : 'user',
         // password: không lưu password thật vào Firestore
       );
 
@@ -393,6 +400,38 @@ class AuthProvider extends ChangeNotifier {
         return 'Vui lòng đăng nhập lại trước khi đổi mật khẩu';
       default:
         return e.message ?? 'Đổi mật khẩu thất bại';
+    }
+  }
+
+  /// Tính toán hạng thành viên dựa trên số điểm tích lũy
+  String calculateTier(int points) {
+    if (points >= 500) return 'Kim Cương';
+    if (points >= 200) return 'Vàng';
+    if (points >= 50) return 'Bạc';
+    return 'Đồng';
+  }
+
+  /// Cập nhật điểm tích lũy và hạng thành viên
+  Future<void> updateUserPoints(int pointsOffset) async {
+    if (_currentUser == null) return;
+    try {
+      final uid = _currentUser!.id;
+      final newPoints = (_currentUser!.points + pointsOffset).clamp(0, 999999);
+      final newTier = calculateTier(newPoints);
+
+      await _firestore.collection('users').doc(uid).update({
+        'points': newPoints,
+        'tier': newTier,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      _currentUser = _currentUser!.copyWith(
+        points: newPoints,
+        tier: newTier,
+      );
+      notifyListeners();
+    } catch (e) {
+      print('Lỗi cập nhật điểm user: $e');
     }
   }
 }

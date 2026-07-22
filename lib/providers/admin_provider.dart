@@ -220,49 +220,96 @@ class AdminProvider extends ChangeNotifier {
       throw Exception('Trạng thái đơn hàng không hợp lệ.');
     }
 
-    String? notifyUserId;
+    final snapshot = await orderRef.get();
+    if (!snapshot.exists) {
+      throw Exception('Không tìm thấy đơn hàng.');
+    }
 
-    await _db.runTransaction((transaction) async {
-      final snapshot = await transaction.get(orderRef);
+    final data = snapshot.data();
+    if (data == null) {
+      throw Exception('Dữ liệu đơn hàng không hợp lệ.');
+    }
 
-      if (!snapshot.exists) {
-        throw Exception('Không tìm thấy đơn hàng.');
-      }
+    final currentStatus = normalizeOrderStatus(
+      data['status']?.toString() ?? 'pending',
+    );
 
-      final data = snapshot.data();
+    if (currentStatus == normalizedNewStatus) {
+      return;
+    }
 
-      if (data == null) {
-        throw Exception('Dữ liệu đơn hàng không hợp lệ.');
-      }
+    final isAllowed = canUpdateOrderStatus(
+      currentStatus: currentStatus,
+      newStatus: normalizedNewStatus,
+    );
 
-      final currentStatus = normalizeOrderStatus(
-        data['status']?.toString() ?? 'pending',
+    if (!isAllowed) {
+      throw Exception(
+        'Không thể chuyển đơn hàng từ '
+        '"${orderStatusLabel(currentStatus)}" sang '
+        '"${orderStatusLabel(normalizedNewStatus)}".',
       );
+    }
 
-      if (currentStatus == normalizedNewStatus) {
-        return;
-      }
-
-      final isAllowed = canUpdateOrderStatus(
-        currentStatus: currentStatus,
-        newStatus: normalizedNewStatus,
-      );
-
-      if (!isAllowed) {
-        throw Exception(
-          'Không thể chuyển đơn hàng từ '
-          '"${orderStatusLabel(currentStatus)}" sang '
-          '"${orderStatusLabel(normalizedNewStatus)}".',
-        );
-      }
-
-      transaction.update(orderRef, {
-        'status': normalizedNewStatus,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      notifyUserId = data['userId']?.toString();
+    final batch = _db.batch();
+    batch.update(orderRef, {
+      'status': normalizedNewStatus,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
+
+    // Hoàn trả kho hàng nếu trạng thái là cancelled
+    if (normalizedNewStatus == 'cancelled') {
+      final itemsList = (data['items'] as List?) ?? [];
+      for (final item in itemsList) {
+        final productId = item['productId']?.toString() ?? '';
+        final quantity = (item['quantity'] ?? 0) as int;
+        if (productId.isNotEmpty && quantity > 0) {
+          final productRef = _db.collection('products').doc(productId);
+          batch.update(productRef, {
+            'stock': FieldValue.increment(quantity),
+            'sold': FieldValue.increment(-quantity),
+          });
+        }
+      }
+    }
+
+    // Tích điểm và thăng hạng thành viên nếu trạng thái là delivered
+    if (normalizedNewStatus == 'delivered') {
+      final userId = data['userId']?.toString() ?? '';
+      final totalAmount = (data['totalAmount'] ?? 0) is int
+          ? data['totalAmount'] as int
+          : (data['totalAmount'] as num).toInt();
+      final pointsEarned = (totalAmount / 100000).floor();
+
+      if (userId.isNotEmpty && pointsEarned > 0) {
+        final userRef = _db.collection('users').doc(userId);
+        final userSnap = await userRef.get();
+        if (userSnap.exists) {
+          final userData = userSnap.data() ?? {};
+          final currentPoints = (userData['points'] ?? 0) as int;
+          final newPoints = currentPoints + pointsEarned;
+
+          String newTier = 'Đồng';
+          if (newPoints >= 500) {
+            newTier = 'Kim Cương';
+          } else if (newPoints >= 200) {
+            newTier = 'Vàng';
+          } else if (newPoints >= 50) {
+            newTier = 'Bạc';
+          }
+
+          batch.update(userRef, {
+            'points': newPoints,
+            'tier': newTier,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+      }
+    }
+
+    await batch.commit();
+
+    final String? notifyUserId = data['userId']?.toString();
 
     // Notify customer only when status actually changed
     if (notifyUserId != null && notifyUserId!.isNotEmpty) {

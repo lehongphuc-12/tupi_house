@@ -8,6 +8,8 @@ class AppUser {
   final String birthday;
   final String role;
   final bool isActive;
+  final int points;
+  final String tier;
 
   AppUser({
     required this.id,
@@ -19,6 +21,8 @@ class AppUser {
     this.birthday = '',
     this.role = 'user',
     this.isActive = true,
+    this.points = 0,
+    this.tier = 'Đồng',
   });
 
   AppUser copyWith({
@@ -31,6 +35,8 @@ class AppUser {
     String? birthday,
     String? role,
     bool? isActive,
+    int? points,
+    String? tier,
   }) {
     return AppUser(
       id: id ?? this.id,
@@ -42,6 +48,8 @@ class AppUser {
       birthday: birthday ?? this.birthday,
       role: role ?? this.role,
       isActive: isActive ?? this.isActive,
+      points: points ?? this.points,
+      tier: tier ?? this.tier,
     );
   }
 
@@ -56,6 +64,8 @@ class AppUser {
       birthday: json['birthday'] ?? '',
       role: json['role']?.toString().toLowerCase() ?? 'user',
       isActive: json['isActive'] is bool ? json['isActive'] as bool : true,
+      points: int.tryParse(json['points']?.toString() ?? '') ?? 0,
+      tier: json['tier']?.toString() ?? 'Đồng',
     );
   }
 
@@ -71,6 +81,9 @@ class AppUser {
       'birthday': birthday,
       'role': role,
       'isActive': isActive,
+      'points': points,
+      'tier': tier,
     };
   }
 }
+
