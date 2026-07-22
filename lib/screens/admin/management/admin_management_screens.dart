@@ -150,6 +150,8 @@ class AdminProductScreen extends StatefulWidget {
 class _AdminProductScreenState extends State<AdminProductScreen> {
   String query = '';
   String categoryId = '';
+  bool _onlyLowStock = false;
+
   @override
   void initState() {
     super.initState();
@@ -166,7 +168,9 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
       final searchOk = '${e.title} ${e.categoryName}'
           .toLowerCase()
           .contains(query.toLowerCase());
-      return searchOk && (categoryId.isEmpty || e.categoryId == categoryId);
+      final categoryOk = categoryId.isEmpty || e.categoryId == categoryId;
+      final stockOk = !_onlyLowStock || e.stock < 5;
+      return searchOk && categoryOk && stockOk;
     }).toList();
     return _AdminScaffold(
       title: 'Quản lý sản phẩm',
@@ -175,15 +179,36 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
       onRefresh: provider.loadProducts,
       searchHint: 'Tìm tên hoặc danh mục sản phẩm',
       onSearch: (value) => setState(() => query = value),
-      extraFilter: DropdownButtonFormField<String>(
-        value: categoryId,
-        decoration: const InputDecoration(labelText: 'Danh mục'),
-        items: [
-          const DropdownMenuItem(value: '', child: Text('Tất cả danh mục')),
-          ...provider.categories
-              .map((e) => DropdownMenuItem(value: e.id, child: Text(e.name)))
+      extraFilter: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<String>(
+            value: categoryId,
+            decoration: const InputDecoration(labelText: 'Danh mục'),
+            items: [
+              const DropdownMenuItem(value: '', child: Text('Tất cả danh mục')),
+              ...provider.categories
+                  .map((e) => DropdownMenuItem(value: e.id, child: Text(e.name)))
+            ],
+            onChanged: (value) => setState(() => categoryId = value ?? ''),
+          ),
+          const SizedBox(height: 8),
+          FilterChip(
+            label: const Text('Cảnh báo tồn kho (Kho < 5)'),
+            selected: _onlyLowStock,
+            selectedColor: Colors.redAccent.withValues(alpha: 0.15),
+            checkmarkColor: Colors.redAccent,
+            labelStyle: TextStyle(
+              color: _onlyLowStock ? Colors.redAccent : Colors.black87,
+              fontWeight: _onlyLowStock ? FontWeight.bold : FontWeight.normal,
+            ),
+            onSelected: (selected) {
+              setState(() {
+                _onlyLowStock = selected;
+              });
+            },
+          ),
         ],
-        onChanged: (value) => setState(() => categoryId = value ?? ''),
       ),
       child: _loadingOrEmpty(
           provider,
@@ -200,10 +225,13 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                     mainAxisSpacing: 16),
                 itemBuilder: (_, index) {
                   final item = items[index];
+                  final isLowStock = item.stock < 5;
                   return _AdminCard(
                     icon: Icons.inventory_2_outlined,
                     title: item.title,
-                    subtitle: '${item.categoryName} • Kho ${item.stock}',
+                    subtitle: isLowStock
+                        ? '${item.categoryName} • ⚠️ Sắp hết hàng (${item.stock})'
+                        : '${item.categoryName} • Kho ${item.stock}',
                     badge: _money.format(item.salePrice ?? item.price),
                     imageUrl: item.thumbnail,
                     onEdit: () => _showProductDialog(context, item),

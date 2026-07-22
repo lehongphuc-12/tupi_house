@@ -87,6 +87,56 @@ class OrderDetailScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _confirmDelivery(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận đã nhận hàng?',
+            style: TextStyle(fontWeight: FontWeight.w800)),
+        content: const Text(
+          'Bạn xác nhận đã nhận được đầy đủ hàng và muốn tích lũy điểm thưởng?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xác nhận'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final success =
+          await context.read<OrderProvider>().confirmDelivery(order.id);
+      if (context.mounted) {
+        if (success) {
+          await context.read<AuthProvider>().refreshUser();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    '🎉 Xác nhận nhận hàng thành công! Đã cộng điểm tích lũy.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context);
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('❌ Không thể xác nhận nhận hàng'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final shortId = order.id.length >= 8
@@ -200,6 +250,29 @@ class OrderDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+
+            // ── Nút xác nhận đã nhận hàng ──────────────────────
+            if (order.status == 'shipping') ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.pastelPinkDark,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  onPressed: () => _confirmDelivery(context),
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text(
+                    'Đã nhận được hàng',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
 
             // ── Nút hủy đơn ───────────────────────────────────
             if (order.status == 'pending')

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -79,8 +80,11 @@ class NotificationService {
     if (_initialized) return;
     messengerKey = scaffoldMessengerKey;
 
+    final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+    final isFCMSupported = kIsWeb || isMobile;
+
     // Local notifications (mobile only)
-    if (!kIsWeb) {
+    if (isMobile) {
       const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosInit = DarwinInitializationSettings(
         requestAlertPermission: true,
@@ -103,30 +107,35 @@ class NotificationService {
           ?.requestPermissions(alert: true, badge: true, sound: true);
     }
 
-    // FCM permissions
-    await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
+    // FCM permissions & handlers
+    if (isFCMSupported) {
+      try {
+        await _messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
 
-    // iOS: show alert even in foreground
-    await _messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+        // iOS: show alert even in foreground
+        await _messaging.setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
 
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+        FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+        FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpened);
+        FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpened);
 
-    final initial = await _messaging.getInitialMessage();
-    if (initial != null) {
-      _handleMessageOpened(initial);
+        final initial = await _messaging.getInitialMessage();
+        if (initial != null) {
+          _handleMessageOpened(initial);
+        }
+      } catch (e) {
+        debugPrint('Failed to initialize Firebase Messaging: $e');
+      }
     }
 
     _initialized = true;
@@ -163,8 +172,8 @@ class NotificationService {
     _currentUserId = userId;
     _seenNotificationIds.clear();
 
-    if (kIsWeb) {
-      // Web FCM needs a VAPID key; in-app notifications still work via Firestore.
+    final isFCMSupported = kIsWeb || (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
+    if (!isFCMSupported) {
       return;
     }
 
@@ -199,7 +208,8 @@ class NotificationService {
     _currentUserId = null;
     _seenNotificationIds.clear();
 
-    if (userId == null || kIsWeb) return;
+    final isFCMSupported = kIsWeb || (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
+    if (userId == null || !isFCMSupported) return;
 
     try {
       final token = await _messaging.getToken();

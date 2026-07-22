@@ -13,6 +13,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/optimized_product_card.dart';
 import '../../widgets/review_card.dart';
 import '../../widgets/star_rating_bar.dart';
+import '../../widgets/flash_sale_timer_widget.dart';
 import '../cart/cart_screen.dart';
 import '../login_screen.dart';
 import 'add_review_bottom_sheet.dart';
@@ -118,7 +119,10 @@ class _OptimizedProductDetailScreenState
         .take(10)
         .toList();
 
-    final displayPrice = widget.product.salePrice ?? widget.product.price;
+    final isFlashSale = widget.product.isCurrentlyFlashSale;
+    final displayPrice = isFlashSale
+        ? widget.product.flashSalePrice!
+        : (widget.product.salePrice ?? widget.product.price);
     final totalAmount = displayPrice * _quantity;
 
     final images = widget.product.images.isNotEmpty
@@ -236,10 +240,33 @@ class _OptimizedProductDetailScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Flash sale countdown timer if active
+                  if (isFlashSale && widget.product.flashSaleEndTime != null) ...[
+                    FlashSaleTimerWidget(endTime: widget.product.flashSaleEndTime!),
+                    const SizedBox(height: 16),
+                  ],
                   // SALE Badge & Category Tag
                   Row(
                     children: [
-                      if (widget.product.isOnSale)
+                      if (isFlashSale)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            '⚡ FLASH SALE',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        )
+                      else if (widget.product.isOnSale)
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
@@ -341,7 +368,17 @@ class _OptimizedProductDetailScreenState
                           color: AppColors.pastelPinkDark,
                         ),
                       ),
-                      if (widget.product.isOnSale) ...[
+                      if (isFlashSale) ...[
+                        const SizedBox(width: 10),
+                        Text(
+                          _formatPrice(widget.product.price),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: AppColors.muted,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      ] else if (widget.product.isOnSale) ...[
                         const SizedBox(width: 10),
                         Text(
                           _formatPrice(widget.product.price),

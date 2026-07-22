@@ -92,7 +92,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            _buildLoyaltyCard(user.points, user.tier),
+            const SizedBox(height: 16),
             Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -338,6 +340,127 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Icons.arrow_forward_ios_rounded,
           size: 16,
           color: Colors.grey,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoyaltyCard(int points, String tier) {
+    Color tierColor;
+    String nextTier = '';
+    int nextTierPoints = 0;
+    double progress = 0.0;
+    String progressText = '';
+
+    if (points >= 500) {
+      tierColor = const Color(0xFF00E5FF); // Diamond Cyan
+      nextTier = 'Tối đa';
+      progress = 1.0;
+      progressText = 'Bạn đã đạt hạng cao nhất!';
+    } else if (points >= 200) {
+      tierColor = const Color(0xFFFFD54F); // Gold
+      nextTier = 'Kim Cương';
+      nextTierPoints = 500 - points;
+      progress = (points - 200) / 300.0;
+      progressText = 'Còn $nextTierPoints điểm để thăng hạng $nextTier';
+    } else if (points >= 50) {
+      tierColor = const Color(0xFFB0BEC5); // Silver
+      nextTier = 'Vàng';
+      nextTierPoints = 200 - points;
+      progress = (points - 50) / 150.0;
+      progressText = 'Còn $nextTierPoints điểm để thăng hạng $nextTier';
+    } else {
+      tierColor = const Color(0xFF8D6E63); // Bronze
+      nextTier = 'Bạc';
+      nextTierPoints = 50 - points;
+      progress = points / 50.0;
+      progressText = 'Còn $nextTierPoints điểm để thăng hạng $nextTier';
+    }
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: Color(0xFFF0E8EB)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.stars, color: AppColors.pastelPinkDark, size: 24),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Tupi Loyalty',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: tierColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: tierColor, width: 1.5),
+                  ),
+                  child: Text(
+                    'Hạng $tier',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: tierColor == const Color(0xFFB0BEC5)
+                          ? Colors.blueGrey[800]
+                          : (tierColor == const Color(0xFFFFD54F)
+                              ? Colors.orange[800]
+                              : tierColor),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Điểm tích lũy:',
+                  style: TextStyle(fontSize: 14, color: AppColors.muted),
+                ),
+                Text(
+                  '$points điểm',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.pastelPinkDark,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: AppColors.softPink,
+                valueColor: AlwaysStoppedAnimation<Color>(tierColor),
+                minHeight: 8,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              progressText,
+              style: const TextStyle(fontSize: 12, color: AppColors.muted, fontStyle: FontStyle.italic),
+            ),
+          ],
         ),
       ),
     );

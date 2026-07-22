@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import 'providers/admin_provider.dart';
 import 'providers/wishlist_provider.dart';
 import 'providers/review_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/voucher_provider.dart';
 import 'screens/product/optimized_product_list_screen.dart';
 import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
@@ -24,6 +26,21 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Log all errors to error_log.txt in the workspace root
+  FlutterError.onError = (details) {
+    try {
+      final file = File('error_log.txt');
+      file.writeAsStringSync(
+        '======================================================\n'
+        '${DateTime.now()}: EXCEPTION: ${details.exception}\n'
+        'STACK TRACE:\n${details.stack}\n'
+        '======================================================\n\n',
+        mode: FileMode.append,
+      );
+    } catch (_) {}
+    FlutterError.presentError(details);
+  };
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -44,6 +61,67 @@ Future<void> seedInitialData() async {
   final firestore = FirebaseFirestore.instance;
 
   try {
+    // Seed vouchers if TUPINEW doesn't exist (always checked)
+    final vouchersSnapshot = await firestore.collection('vouchers').where('code', isEqualTo: 'TUPINEW').limit(1).get();
+    if (vouchersSnapshot.docs.isEmpty) {
+      print("🌱 Đang seed vouchers...");
+      final testVouchers = [
+        {
+          'id': 'VOUCHER_10K',
+          'code': 'TUPI10K',
+          'description': 'Giảm ngay 10.000₫ cho đơn hàng từ 50.000₫',
+          'type': 'fixed',
+          'discountValue': 10000,
+          'minOrderValue': 50000,
+          'maxDiscountAmount': 10000,
+          'startDate': Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 1))),
+          'endDate': Timestamp.fromDate(DateTime.now().add(const Duration(days: 30))),
+          'isActive': true,
+          'usageLimit': 100,
+          'usedCount': 0,
+        },
+        {
+          'id': 'VOUCHER_PERCENT',
+          'code': 'TUPINEW',
+          'description': 'Giảm 20% cho đơn hàng bất kỳ, tối đa 50.000₫',
+          'type': 'percent',
+          'discountValue': 20,
+          'minOrderValue': 0,
+          'maxDiscountAmount': 50000,
+          'startDate': Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 1))),
+          'endDate': Timestamp.fromDate(DateTime.now().add(const Duration(days: 30))),
+          'isActive': true,
+          'usageLimit': 50,
+          'usedCount': 0,
+        }
+      ];
+      for (var v in testVouchers) {
+        await firestore.collection('vouchers').doc(v['id'] as String).set(v);
+      }
+      print("✅ Đã seed ${testVouchers.length} vouchers");
+    }
+
+    // Configure test products for Low Stock Alert (Scenario 9) & Flash Sale (Scenario 10)
+    final productsQuery = await firestore.collection('products').limit(2).get();
+    if (productsQuery.docs.length >= 2) {
+      final doc1 = productsQuery.docs[0];
+      final doc2 = productsQuery.docs[1];
+      
+      // Product 1: Set stock to 3 (Low stock < 5)
+      await doc1.reference.update({
+        'stock': 3,
+      });
+
+      // Product 2: Set Flash Sale
+      await doc2.reference.update({
+        'price': 50000,
+        'isFlashSale': true,
+        'flashSalePrice': 15000,
+        'flashSaleStartTime': Timestamp.fromDate(DateTime.now().subtract(const Duration(minutes: 30))),
+        'flashSaleEndTime': Timestamp.fromDate(DateTime.now().add(const Duration(hours: 1))),
+      });
+    }
+
     // Kiểm tra xem đã có dữ liệu chưa
     final productsSnapshot =
         await firestore.collection('products').limit(1).get();
@@ -98,6 +176,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => VoucherProvider()),
       ],
       child: MaterialApp(
         title: 'Tupi House',

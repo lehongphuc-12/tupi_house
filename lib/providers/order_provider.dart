@@ -89,6 +89,26 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Xác nhận đã nhận hàng
+  Future<bool> confirmDelivery(String orderId) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _service.confirmDelivery(orderId);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = 'Không thể xác nhận nhận hàng: $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();

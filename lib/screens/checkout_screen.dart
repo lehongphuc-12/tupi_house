@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/cart.dart';
 import '../../models/order.dart';
+import '../../models/voucher.dart';
 import '../../providers/cart_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../providers/voucher_provider.dart';
+import '../../services/voucher_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<CartItem> selectedItems;
@@ -20,6 +23,29 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   String _selectedPaymentMethod = 'cod'; // cod, bank, momo, vnpay
   final TextEditingController _noteController = TextEditingController();
+  bool _usePoints = false;
+  final TextEditingController _voucherController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<VoucherProvider>(context, listen: false).removeVoucher();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    _voucherController.dispose();
+    // Safely remove voucher on dispose to avoid residual discount states
+    try {
+      Provider.of<VoucherProvider>(context, listen: false).removeVoucher();
+    } catch (_) {}
+    super.dispose();
+  }
 
   // Địa chỉ giao hàng mẫu (sau này lấy từ user profile)
   Map<String, dynamic> _shippingAddress = {
@@ -31,69 +57,149 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     'city': 'TP. Hồ Chí Minh',
   };
 
-  int get _totalAmount => widget.selectedItems
+  int get _subtotalAmount => widget.selectedItems
       .fold(0, (sum, item) => sum + (item.price * item.quantity));
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Thanh toán"),
-        backgroundColor: AppColors.pastelPinkDark,
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Địa chỉ giao hàng
-            _buildShippingAddress(),
+    try {
+      final auth = context.watch<AuthProvider>();
+      final user = auth.currentUser;
+      final userTier = user?.tier ?? 'Đồng';
+      final userPoints = user?.points ?? 0;
 
-            const Divider(height: 8),
+      int subtotal = _subtotalAmount;
 
-            // 2. Danh sách sản phẩm
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text("Sản phẩm (${widget.selectedItems.length})",
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            _buildSelectedProducts(),
+      // Tính toán giảm giá theo hạng thành viên (Tier Discount)
+      double tierDiscountRate = 0.0;
+      bool isFreeship = false;
+      if (userTier == 'Bạc') {
+        tierDiscountRate = 0.02;
+      } else if (userTier == 'Vàng') {
+        tierDiscountRate = 0.05;
+        isFreeship = true;
+      } else if (userTier == 'Kim Cương') {
+        tierDiscountRate = 0.10;
+        isFreeship = true;
+      }
+      int tierDiscount = (subtotal * tierDiscountRate).floor();
+      int shippingFee = isFreeship ? 0 : 30000;
 
-            const Divider(height: 8),
+      // Giảm giá từ Voucher
+      final voucherProvider = context.watch<VoucherProvider>();
+      int voucherDiscount = voucherProvider.discountAmount;
 
-            // 3. Phương thức thanh toán
-            _buildPaymentMethod(),
+      // Giảm giá từ đổi điểm thưởng
+      int pointsDiscount = 0;
+      if (_usePoints && userPoints > 0) {
+        int maxPointsDiscount = subtotal + shippingFee - tierDiscount - voucherDiscount;
+        if (maxPointsDiscount < 0) maxPointsDiscount = 0;
+        int userPointsValue = userPoints * 1000;
+        if (userPointsValue > maxPointsDiscount) {
+          pointsDiscount = maxPointsDiscount;
+        } else {
+          pointsDiscount = userPointsValue;
+        }
+      }
 
-            // 4. Ghi chú
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Ghi chú cho người bán",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _noteController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: "Ví dụ: Gọi trước khi giao hàng...",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      int total = subtotal + shippingFee - tierDiscount - voucherDiscount - pointsDiscount;
+      if (total < 0) total = 0;
 
-            // 5. Chi tiết thanh toán
-            _buildPaymentDetails(),
-          ],
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Thanh toán"),
+          backgroundColor: AppColors.pastelPinkDark,
+          foregroundColor: Colors.white,
         ),
-      ),
-      bottomNavigationBar: _buildBottomBar(),
-    );
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Địa chỉ giao hàng
+              _buildShippingAddress(),
+
+              const Divider(height: 8),
+
+              // 2. Danh sách sản phẩm
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text("Sản phẩm (${widget.selectedItems.length})",
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              _buildSelectedProducts(),
+
+              const Divider(height: 8),
+
+              // 2b. Ưu đãi & Khách hàng thân thiết
+              _buildVoucherAndLoyaltySection(subtotal, userPoints, userTier, voucherProvider),
+
+              const Divider(height: 8),
+
+              // 3. Phương thức thanh toán
+              _buildPaymentMethod(),
+
+              // 4. Ghi chú
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Ghi chú cho người bán",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _noteController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: "Ví dụ: Gọi trước khi giao hàng...",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 5. Chi tiết thanh toán
+              _buildPaymentDetails(subtotal, tierDiscount, voucherDiscount, pointsDiscount, shippingFee, total),
+            ],
+          ),
+        ),
+        bottomNavigationBar: _buildBottomBar(total),
+      );
+    } catch (e, stack) {
+      debugPrint("CheckoutScreen build error: $e\n$stack");
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Lỗi thanh toán"),
+          backgroundColor: Colors.red,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Đã xảy ra lỗi khi tải trang thanh toán:\n$e",
+                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              const Text("Stack Trace:", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.grey[200],
+                child: Text(
+                  stack.toString(),
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildShippingAddress() {
@@ -223,17 +329,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildSelectedProducts() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.selectedItems.length,
-      itemBuilder: (context, index) {
-        final item = widget.selectedItems[index];
+    return Column(
+      children: widget.selectedItems.map((item) {
         return ListTile(
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(item.thumbnail,
-                width: 60, height: 60, fit: BoxFit.cover),
+            child: item.thumbnail.isNotEmpty
+                ? Image.network(item.thumbnail,
+                    width: 60, height: 60, fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 60))
+                : const Icon(Icons.image, size: 60),
           ),
           title: Text(item.title, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: Text(
@@ -249,7 +354,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ],
           ),
         );
-      },
+      }).toList(),
     );
   }
 
@@ -287,7 +392,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildPaymentDetails() {
+  Widget _buildPaymentDetails(int subtotal, int tierDiscount, int voucherDiscount, int pointsDiscount, int shippingFee, int total) {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
@@ -297,11 +402,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const Text("Chi tiết thanh toán",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 12),
-          _detailRow("Tổng tiền hàng", formatVnd(_totalAmount.toDouble())),
-          _detailRow("Phí vận chuyển", "30.000đ"),
+          _detailRow("Tổng tiền hàng", formatVnd(subtotal.toDouble())),
+          if (tierDiscount > 0)
+            _detailRow("Giảm giá thành viên", "-${formatVnd(tierDiscount.toDouble())}"),
+          if (voucherDiscount > 0)
+            _detailRow("Voucher giảm giá", "-${formatVnd(voucherDiscount.toDouble())}"),
+          if (pointsDiscount > 0)
+            _detailRow("Đổi điểm thưởng", "-${formatVnd(pointsDiscount.toDouble())}"),
+          _detailRow("Phí vận chuyển", shippingFee == 0 ? "Freeship" : formatVnd(shippingFee.toDouble())),
           const Divider(),
           _detailRow(
-              "Tổng thanh toán", formatVnd((_totalAmount + 30000).toDouble()),
+              "Tổng thanh toán", formatVnd(total.toDouble()),
               isBold: true),
         ],
       ),
@@ -327,9 +438,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(int totalAmount) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -339,42 +450,73 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               offset: const Offset(0, -2))
         ],
       ),
-      child: SafeArea(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.pastelPinkDark,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          ),
-          onPressed: _placeOrder,
-          child: const Text(
-            "ĐẶT HÀNG",
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-          ),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.pastelPinkDark,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        ),
+        onPressed: () => _placeOrder(totalAmount),
+        child: const Text(
+          "ĐẶT HÀNG",
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
-  Future<void> _placeOrder() async {
+  Future<void> _placeOrder(int totalAmount) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
 
-    // Kiểm tra theo 2 cách
-    final firebaseUser = authProvider.firebaseUser; // User từ FirebaseAuth
+    final firebaseUser = authProvider.firebaseUser;
     final appUser = authProvider.currentUser;
 
-    if (firebaseUser == null) {
+    if (firebaseUser == null || appUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Vui lòng đăng nhập lại để đặt hàng")),
       );
       return;
     }
 
-    // Ưu tiên dùng firebaseUser.uid
     final userId = firebaseUser.uid;
+    int subtotal = _subtotalAmount;
+
+    // Tính toán giảm giá theo hạng thành viên
+    double tierDiscountRate = 0.0;
+    bool isFreeship = false;
+    if (appUser.tier == 'Bạc') {
+      tierDiscountRate = 0.02;
+    } else if (appUser.tier == 'Vàng') {
+      tierDiscountRate = 0.05;
+      isFreeship = true;
+    } else if (appUser.tier == 'Kim Cương') {
+      tierDiscountRate = 0.10;
+      isFreeship = true;
+    }
+    int tierDiscount = (subtotal * tierDiscountRate).floor();
+    int shippingFee = isFreeship ? 0 : 30000;
+
+    int voucherDiscount = voucherProvider.discountAmount;
+
+    // Điểm sử dụng
+    int pointsToUse = 0;
+    int pointsDiscount = 0;
+    if (_usePoints && appUser.points > 0) {
+      int maxPointsDiscount = subtotal + shippingFee - tierDiscount - voucherDiscount;
+      if (maxPointsDiscount < 0) maxPointsDiscount = 0;
+      int userPointsValue = appUser.points * 1000;
+      if (userPointsValue > maxPointsDiscount) {
+        pointsDiscount = maxPointsDiscount;
+        pointsToUse = (pointsDiscount / 1000.0).ceil();
+      } else {
+        pointsDiscount = userPointsValue;
+        pointsToUse = appUser.points;
+      }
+    }
 
     final order = Order(
       id: 'ORDER_${DateTime.now().millisecondsSinceEpoch}',
@@ -390,7 +532,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 thumbnail: item.thumbnail,
               ))
           .toList(),
-      totalAmount: _totalAmount + 30000,
+      subtotalAmount: subtotal,
+      discountAmount: tierDiscount + voucherDiscount + pointsDiscount,
+      shippingFee: shippingFee,
+      totalAmount: totalAmount,
+      voucherCode: voucherProvider.appliedVoucher?.code,
+      pointsUsed: pointsToUse,
       paymentMethod: _selectedPaymentMethod,
       shippingAddress: _shippingAddress,
       createdAt: DateTime.now(),
@@ -399,12 +546,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     bool success = await orderProvider.createOrder(order);
 
     if (success && mounted) {
+      // 1. Trừ điểm người dùng
+      if (pointsToUse > 0) {
+        await authProvider.updateUserPoints(-pointsToUse);
+      }
+
+      // 2. Sử dụng voucher
+      if (voucherProvider.appliedVoucher != null) {
+        await voucherProvider.useAppliedVoucher();
+      }
+
+      // 3. Xóa sản phẩm khỏi giỏ hàng
       for (var item in widget.selectedItems) {
         await cartProvider.removeItem(item.productId);
       }
 
       if (_selectedPaymentMethod == 'bank') {
-        _showVietQRDialog(order.id, _totalAmount + 30000);
+        _showVietQRDialog(order.id, totalAmount);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -420,6 +578,133 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             content: Text(orderProvider.errorMessage ?? "Đặt hàng thất bại")),
       );
     }
+  }
+
+  Widget _buildVoucherAndLoyaltySection(int subtotal, int userPoints, String tier, VoucherProvider voucherProvider) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Ưu đãi & Khách hàng thân thiết 🎁",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 12),
+          
+          // Hạng thành viên hiện tại
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Hạng thành viên:", style: TextStyle(fontSize: 14)),
+              Text(
+                tier,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.pastelPinkDark),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Nhập voucher
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _voucherController,
+                  decoration: InputDecoration(
+                    hintText: "Nhập mã voucher...",
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    isDense: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 90,
+                height: 40,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () {
+                    voucherProvider.applyVoucher(_voucherController.text, subtotal);
+                  },
+                  child: const Text("Áp dụng"),
+                ),
+              ),
+            ],
+          ),
+          
+          if (voucherProvider.errorMessage != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              voucherProvider.errorMessage!,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+            ),
+          ],
+          
+          if (voucherProvider.appliedVoucher != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Đã áp dụng: ${voucherProvider.appliedVoucher!.code} (Giảm ${formatVnd(voucherDiscount(voucherProvider.appliedVoucher!, subtotal).toDouble())})",
+                    style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    _voucherController.clear();
+                    voucherProvider.removeVoucher();
+                  },
+                  child: const Text("Gỡ bỏ", style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+          ],
+          
+          const Divider(height: 24),
+
+          // Tích điểm & Dùng điểm
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Dùng điểm Tupi Loyalty (Còn: $userPoints)",
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const Text("Quy đổi: 1 điểm = 1.000đ",
+                        style: TextStyle(fontSize: 12, color: AppColors.muted)),
+                  ],
+                ),
+              ),
+              Switch(
+                value: _usePoints,
+                activeThumbColor: Colors.white,
+                activeTrackColor: AppColors.pastelPinkDark,
+                onChanged: userPoints > 0
+                    ? (val) {
+                        setState(() {
+                          _usePoints = val;
+                        });
+                      }
+                    : null,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  int voucherDiscount(Voucher voucher, int subtotal) {
+    return VoucherService().calculateDiscount(voucher, subtotal);
   }
 
   void _showVietQRDialog(String orderId, int amount) {

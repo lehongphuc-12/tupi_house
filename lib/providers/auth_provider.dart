@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +13,20 @@ class AuthProvider extends ChangeNotifier {
   static bool _googleSignInInitialized = false;
 
   AppUser? _currentUser;
+  StreamSubscription? _userSubscription;
+
+  AuthProvider() {
+    _auth.authStateChanges().listen((User? user) {
+      if (user != null) {
+        _startUserListener(user.uid);
+      } else {
+        _stopUserListener();
+        _currentUser = null;
+        notifyListeners();
+      }
+    });
+    tryAutoLogin();
+  }
   bool isLoading = false;
   String? errorMessage;
   bool rememberMe = false;
@@ -55,12 +70,77 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _startUserListener(String uid) {
+    _userSubscription?.cancel();
+    _userSubscription = _firestore
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((doc) async {
+      if (doc.exists) {
+        var data = doc.data()!;
+
+        // Cấp quyền Admin tự động cho email admin
+        if (data['email']?.toString().toLowerCase().contains('admin') == true &&
+            data['role']?.toString().toLowerCase() != 'admin') {
+          data['role'] = 'admin';
+          await _firestore.collection('users').doc(uid).update({'role': 'admin'});
+        }
+
+        // Tự động gán 500 điểm cho tài khoản test dat2@gmail.com
+        if (data['email']?.toString().toLowerCase() == 'dat2@gmail.com' && data['hasSeededPoints'] != true) {
+          data['points'] = 500;
+          data['accumulatedPoints'] = 500;
+          data['tier'] = 'Kim Cương';
+          data['hasSeededPoints'] = true;
+          await _firestore.collection('users').doc(uid).update({
+            'points': 500,
+            'accumulatedPoints': 500,
+            'tier': 'Kim Cương',
+            'hasSeededPoints': true,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+
+        _currentUser = AppUser.fromJson(data);
+        notifyListeners();
+      }
+    });
+  }
+
+  void _stopUserListener() {
+    _userSubscription?.cancel();
+    _userSubscription = null;
+  }
+
   // Tải thông tin user từ Firestore
   Future<void> _loadUserFromFirestore(String uid) async {
     try {
-      final doc = await _firestore.collection('users').doc(uid).get();
+      final doc = await _firestore.collection('users').doc(uid).get(
+        const GetOptions(source: Source.server),
+      );
       if (doc.exists) {
-        _currentUser = AppUser.fromJson(doc.data()!);
+        var data = doc.data()!;
+        if (data['email']?.toString().toLowerCase().contains('admin') == true &&
+            data['role']?.toString().toLowerCase() != 'admin') {
+          data['role'] = 'admin';
+          await _firestore.collection('users').doc(uid).update({'role': 'admin'});
+        }
+        // Auto-grant 500 points (Diamond tier) to dat2@gmail.com once for loyalty testing
+        if (data['email']?.toString().toLowerCase() == 'dat2@gmail.com' && data['hasSeededPoints'] != true) {
+          data['points'] = 500;
+          data['accumulatedPoints'] = 500;
+          data['tier'] = 'Kim Cương';
+          data['hasSeededPoints'] = true;
+          await _firestore.collection('users').doc(uid).update({
+            'points': 500,
+            'accumulatedPoints': 500,
+            'tier': 'Kim Cương',
+            'hasSeededPoints': true,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+        _currentUser = AppUser.fromJson(data);
       }
     } catch (e) {
       print("Load user error: $e");
@@ -89,13 +169,22 @@ class AuthProvider extends ChangeNotifier {
         id: credential.user!.uid,
         fullName: fullName,
         email: email,
+        role: email.toLowerCase().contains('admin') ? 'admin' : 'user',
+        points: email.toLowerCase() == 'dat2@gmail.com' ? 500 : 0,
+        accumulatedPoints: email.toLowerCase() == 'dat2@gmail.com' ? 500 : 0,
+        tier: email.toLowerCase() == 'dat2@gmail.com' ? 'Kim Cương' : 'Đồng',
         // password: không lưu password thật vào Firestore
       );
+
+      final userMap = newUser.toJson();
+      if (email.toLowerCase() == 'dat2@gmail.com') {
+        userMap['hasSeededPoints'] = true;
+      }
 
       await _firestore
           .collection('users')
           .doc(credential.user!.uid)
-          .set(newUser.toJson());
+          .set(userMap);
 
       _currentUser = newUser;
       return true;
@@ -394,5 +483,51 @@ class AuthProvider extends ChangeNotifier {
       default:
         return e.message ?? 'Đổi mật khẩu thất bại';
     }
+  }
+
+  /// Tính toán hạng thành viên dựa trên số điểm tích lũy
+  String calculateTier(int points) {
+    if (points >= 500) return 'Kim Cương';
+    if (points >= 200) return 'Vàng';
+    if (points >= 50) return 'Bạc';
+    return 'Đồng';
+  }
+
+  /// Cập nhật điểm tích lũy và hạng thành viên
+  Future<void> updateUserPoints(int pointsOffset) async {
+    if (_currentUser == null) return;
+    try {
+      final uid = _currentUser!.id;
+      final newPoints = (_currentUser!.points + pointsOffset).clamp(0, 999999);
+      
+      // Chỉ cộng vào accumulatedPoints khi pointsOffset > 0 (cộng điểm)
+      final newAccumulated = pointsOffset > 0
+          ? _currentUser!.accumulatedPoints + pointsOffset
+          : _currentUser!.accumulatedPoints;
+
+      final newTier = calculateTier(newAccumulated);
+
+      await _firestore.collection('users').doc(uid).update({
+        'points': newPoints,
+        'accumulatedPoints': newAccumulated,
+        'tier': newTier,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      _currentUser = _currentUser!.copyWith(
+        points: newPoints,
+        accumulatedPoints: newAccumulated,
+        tier: newTier,
+      );
+      notifyListeners();
+    } catch (e) {
+      print('Lỗi cập nhật điểm user: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _userSubscription?.cancel();
+    super.dispose();
   }
 }
