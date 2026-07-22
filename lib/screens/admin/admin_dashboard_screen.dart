@@ -157,6 +157,38 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Đăng xuất',
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Đăng xuất'),
+                  content: const Text('Bạn có chắc chắn muốn đăng xuất khỏi tài khoản Admin?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text('Đăng xuất'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true && context.mounted) {
+                await context.read<AuthProvider>().logout();
+              }
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: adminProvider.loadAll,
