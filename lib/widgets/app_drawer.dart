@@ -87,119 +87,144 @@ class AppDrawer extends StatelessWidget {
             ),
 
             // Menu Items
-            _DrawerItem(
-              icon: Icons.storefront_outlined,
-              title: 'Danh sách sản phẩm',
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const OptimizedProductListScreen(),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _DrawerItem(
+                    icon: Icons.storefront_outlined,
+                    title: 'Danh sách sản phẩm',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const OptimizedProductListScreen(),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.favorite_border,
-              title: 'Yêu thích',
-              onTap: () {
-                Navigator.pop(context);
-                if (auth.isLoggedIn) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const WishlistScreen()),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                }
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.person_outline_rounded,
-              title: 'Trang cá nhân',
-              onTap: () {
-                Navigator.pop(context);
-                if (auth.isLoggedIn) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                }
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.shopping_cart_outlined,
-              title: 'Giỏ hàng',
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CartScreen(),
+                  _DrawerItem(
+                    icon: Icons.shopping_cart_outlined,
+                    title: 'Giỏ hàng',
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (auth.isLoggedIn) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CartScreen(),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        );
+                      }
+                    },
                   ),
-                );
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.receipt_long_outlined,
-              title: 'Đơn hàng của tôi',
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const OrderHistoryScreen(),
+                  _DrawerItem(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'Đơn hàng của tôi',
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (auth.isLoggedIn) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const OrderHistoryScreen(),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        );
+                      }
+                    },
                   ),
-                );
-              },
-            ),
-            Builder(
-              builder: (context) {
-                final unread = auth.isLoggedIn
-                    ? context.watch<NotificationProvider>().unreadCount
-                    : 0;
-                return _DrawerItem(
-                  icon: Icons.notifications_none_rounded,
-                  title: unread > 0 ? 'Thông báo ($unread)' : 'Thông báo',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const NotificationsScreen(),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                  _DrawerItem(
+                    icon: Icons.favorite_border,
+                    title: 'Yêu thích',
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (auth.isLoggedIn) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const WishlistScreen()),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        );
+                      }
+                    },
+                  ),
+                  Builder(
+                    builder: (context) {
+                      final unread = auth.isLoggedIn
+                          ? context.watch<NotificationProvider>().unreadCount
+                          : 0;
+                      return _DrawerItem(
+                        icon: Icons.notifications_none_rounded,
+                        title: unread > 0 ? 'Thông báo ($unread)' : 'Thông báo',
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (auth.isLoggedIn) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NotificationsScreen(),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.person_outline_rounded,
+                    title: 'Trang cá nhân',
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (auth.isLoggedIn) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        );
+                      }
+                    },
+                  ),
+                  if (auth.isAdmin)
+                    _DrawerItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: 'Admin Dashboard',
+                      onTap: () {
+                        Navigator.pop(context);
 
-            if (auth.isAdmin)
-              _DrawerItem(
-                icon: Icons.admin_panel_settings_outlined,
-                title: 'Admin Dashboard',
-                onTap: () {
-                  Navigator.pop(context);
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AdminDashboardScreen(),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminDashboardScreen(),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                ],
               ),
-
-            const Spacer(),
+            ),
             const Divider(height: 1),
 
             if (auth.isLoggedIn)
