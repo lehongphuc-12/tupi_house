@@ -161,35 +161,42 @@ class OptimizedProductCard extends StatelessWidget {
 
                   // Round Favorite Button (Top Right)
                   Positioned(
-                    top: 6,
-                    right: 6,
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: Colors.white.withValues(alpha: 0.9),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: Icon(
-                          isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          size: 17,
-                          color: isFavorite
-                              ? Colors.redAccent
-                              : AppColors.muted,
-                        ),
-                        onPressed: () async {
+                    top: 0,
+                    right: 0,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: () async {
                           final auth = context.read<AuthProvider>();
                           if (!auth.isLoggedIn) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const LoginScreen(returnToPrevious: true)),
+                                  builder: (_) => const LoginScreen(
+                                      returnToPrevious: true)),
                             );
                             return;
                           }
                           await wishlistProvider.toggleWishlist(product);
                         },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundColor:
+                                Colors.white.withValues(alpha: 0.9),
+                            child: Icon(
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              size: 17,
+                              color: isFavorite
+                                  ? Colors.redAccent
+                                  : AppColors.muted,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

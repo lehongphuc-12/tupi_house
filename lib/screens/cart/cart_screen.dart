@@ -299,17 +299,52 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_cart_outlined,
-              size: 100, color: Colors.grey[300]),
-          const SizedBox(height: 20),
-          const Text("Giỏ hàng trống",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: AppColors.softPink,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.shopping_cart_outlined,
+              size: 64,
+              color: AppColors.pastelPinkDark,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "Giỏ hàng đang trống",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: AppColors.ink,
+            ),
+          ),
           const SizedBox(height: 8),
-          const Text("Hãy thêm một số sản phẩm yêu thích của bạn"),
-          const SizedBox(height: 30),
+          const Text(
+            "Hãy khám phá các món đồ decor tuyệt đẹp\nvà thêm vào giỏ hàng nhé!",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.muted, fontSize: 14),
+          ),
+          const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Quay lại mua sắm"),
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.pastelPinkDark,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              "Khám phá ngay",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

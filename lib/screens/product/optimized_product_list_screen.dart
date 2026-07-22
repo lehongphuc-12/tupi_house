@@ -9,6 +9,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/optimized_product_card.dart';
 import '../../widgets/product_filter_sheet.dart';
+import '../../widgets/skeleton_product_card.dart';
 import '../cart/cart_screen.dart';
 import '../login_screen.dart';
 import '../notifications/notifications_screen.dart';
@@ -306,8 +307,20 @@ class _OptimizedProductListScreenState
 
             // ── Grid Product List ────────────────────────────────────────────
             if (productProvider.isLoading)
-              const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.65,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => const SkeletonProductCard(),
+                    childCount: 4,
+                  ),
+                ),
               )
             else if (displayedProducts.isEmpty)
               SliverFillRemaining(
