@@ -19061,3 +19061,1059 @@ STACK TRACE:
 null
 ======================================================
 
+======================================================
+2026-07-22 22:43:18.584810: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:18.642869: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:18.647183: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:18.650789: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:18.697618: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:18.701860: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:18.704956: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:18.707038: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:20.378375: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:20.380444: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:20.382949: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:20.385003: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:28.640928: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:28.645339: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:28.647433: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:28.648462: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.542299: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.545869: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.548999: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.551109: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.587773: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.591233: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.594764: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:38.597225: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.441278: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.444862: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.448007: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.451096: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.486236: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.518938: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.521928: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:48.525444: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:49.914966: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:49.917138: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:49.919359: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:49.920406: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:51.072109: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:51.075843: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:51.077910: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:43:51.078936: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.728847: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.732048: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.736974: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.742999: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.779408: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.782135: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.784681: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:44:06.785704: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.155064: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.174891: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.181129: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.185280: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.234995: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.238190: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.240387: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:50:31.243899: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.313435: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.316181: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.318349: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.320584: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.352118: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.356102: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.358121: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:36.360114: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:38.307109: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:38.309136: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:38.311669: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:38.313177: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:39.816119: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:39.818025: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:39.819021: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:51:39.821024: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.405136: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.408181: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.412166: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.415939: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.451641: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.453649: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.454689: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:06.456720: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:08.679877: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:08.682155: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:08.683653: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:08.684756: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:09.942054: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:09.943921: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:09.945994: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 22:52:09.948063: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.481284: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.499510: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.504027: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.508656: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.543955: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.547222: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.549330: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:32.551418: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:36.129566: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:36.132181: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:36.133688: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:01:36.136041: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.355741: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.373089: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.377185: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.381289: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.428329: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.433717: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.436123: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:02.438228: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:03.540671: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:03.543680: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:03.546155: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:03.549261: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:07.218523: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:07.221390: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:07.222642: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:03:07.225203: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.710165: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.726222: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.730488: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.735315: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.775211: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.779536: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.782052: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:42.785095: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:47.957130: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:47.960296: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:47.963350: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:47.965097: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:51.961133: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:51.962525: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:51.965296: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+
+======================================================
+2026-07-22 23:04:51.967320: EXCEPTION: ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the intermediate ColoredBox.
+STACK TRACE:
+null
+======================================================
+

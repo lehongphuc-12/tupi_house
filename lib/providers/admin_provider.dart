@@ -283,23 +283,27 @@ class AdminProvider extends ChangeNotifier {
 
       if (userId.isNotEmpty && pointsEarned > 0) {
         final userRef = _db.collection('users').doc(userId);
-        final userSnap = await userRef.get();
+        final userSnap = await userRef.get(const GetOptions(source: Source.server));
         if (userSnap.exists) {
           final userData = userSnap.data() ?? {};
           final currentPoints = (userData['points'] ?? 0) as int;
+          final currentAccumulated = (userData['accumulatedPoints'] ?? currentPoints) as int;
+
           final newPoints = currentPoints + pointsEarned;
+          final newAccumulated = currentAccumulated + pointsEarned;
 
           String newTier = 'Đồng';
-          if (newPoints >= 500) {
+          if (newAccumulated >= 500) {
             newTier = 'Kim Cương';
-          } else if (newPoints >= 200) {
+          } else if (newAccumulated >= 200) {
             newTier = 'Vàng';
-          } else if (newPoints >= 50) {
+          } else if (newAccumulated >= 50) {
             newTier = 'Bạc';
           }
 
           batch.update(userRef, {
             'points': newPoints,
+            'accumulatedPoints': newAccumulated,
             'tier': newTier,
             'updatedAt': FieldValue.serverTimestamp(),
           });

@@ -165,4 +165,69 @@ class OrderService {
       } catch (_) {}
     }
   }
+
+  /// Xác nhận đã nhận hàng (chuyển sang delivered và tích điểm)
+  Future<void> confirmDelivery(String orderId) async {
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    final doc = await orderRef.get(const GetOptions(source: Source.server));
+    if (!doc.exists) return;
+
+    final data = doc.data() ?? {};
+    final currentStatus = data['status']?.toString() ?? 'pending';
+    if (currentStatus != 'shipping') return; // Chỉ cho phép nhận hàng khi đang giao
+
+    final userId = data['userId']?.toString() ?? '';
+    final totalAmount = (data['totalAmount'] ?? 0) is int
+        ? data['totalAmount'] as int
+        : (data['totalAmount'] as num).toInt();
+    final pointsEarned = (totalAmount / 100000).floor();
+
+    final batch = _firestore.batch();
+    batch.update(orderRef, {
+      'status': 'delivered',
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    if (userId.isNotEmpty && pointsEarned > 0) {
+      final userRef = _firestore.collection('users').doc(userId);
+      final userSnap = await userRef.get(const GetOptions(source: Source.server));
+      if (userSnap.exists) {
+        final userData = userSnap.data() ?? {};
+        final currentPoints = (userData['points'] ?? 0) as int;
+        final currentAccumulated = (userData['accumulatedPoints'] ?? currentPoints) as int;
+        
+        final newPoints = currentPoints + pointsEarned;
+        final newAccumulated = currentAccumulated + pointsEarned;
+
+        // Tính hạng thành viên mới dựa trên accumulatedPoints tích lũy lũy kế
+        String newTier = 'Đồng';
+        if (newAccumulated >= 500) {
+          newTier = 'Kim Cương';
+        } else if (newAccumulated >= 200) {
+          newTier = 'Vàng';
+        } else if (newAccumulated >= 50) {
+          newTier = 'Bạc';
+        }
+
+        batch.update(userRef, {
+          'points': newPoints,
+          'accumulatedPoints': newAccumulated,
+          'tier': newTier,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+    }
+
+    await batch.commit();
+
+    if (userId.isNotEmpty) {
+      try {
+        await NotificationService.notifyOrderStatusChanged(
+          userId: userId,
+          orderId: orderId,
+          newStatus: 'delivered',
+        );
+      } catch (_) {}
+    }
+  }
 }

@@ -444,6 +444,35 @@ class _OrderCard extends StatelessWidget {
                 ),
               ),
 
+            if (order.status == 'shipping') ...[
+              const Divider(height: 1, color: Color(0xFFF5EFF2)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColors.pastelPinkDark,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      icon: const Icon(Icons.check_circle_outline, size: 16),
+                      label: const Text(
+                        'Đã nhận hàng',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      onPressed: () => _confirmDelivery(context, order),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             // Footer: ngày đặt + tổng tiền
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -483,6 +512,53 @@ class _OrderCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _confirmDelivery(BuildContext context, Order order) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận đã nhận hàng?',
+            style: TextStyle(fontWeight: FontWeight.w800)),
+        content: const Text(
+          'Đơn hàng sẽ chuyển sang trạng thái "Đã giao hàng" và bạn sẽ nhận được điểm tích lũy.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xác nhận'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      final success = await context.read<OrderProvider>().confirmDelivery(order.id);
+      if (context.mounted) {
+        if (success) {
+          await context.read<AuthProvider>().refreshUser();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('🎉 Xác nhận nhận hàng thành công! Đã cộng điểm tích lũy.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('❌ Không thể xác nhận nhận hàng'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget _thumbPlaceholder() {
