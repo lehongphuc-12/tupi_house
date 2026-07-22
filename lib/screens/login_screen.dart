@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Quản lý sản phẩm và giỏ hàng gọn gàng, hiện đại.',
+          'Đăng nhập để theo dõi đơn và ưu đãi.',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.muted,
@@ -155,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'Đăng nhập',
+            'Chào mừng đến Tupi House',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,

@@ -36,8 +36,6 @@ class _CartScreenState extends State<CartScreen> {
         title: Text(_selectedItems.isEmpty
             ? "Giỏ hàng của bạn"
             : "${_selectedItems.length} đã chọn"),
-        backgroundColor: AppColors.pastelPinkDark,
-        foregroundColor: Colors.white,
         actions: [
           if (_selectedItems.isNotEmpty)
             IconButton(

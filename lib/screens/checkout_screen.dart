@@ -26,9 +26,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _usePoints = false;
   final TextEditingController _voucherController = TextEditingController();
 
+  late Map<String, dynamic> _shippingAddress;
+
   @override
   void initState() {
     super.initState();
+    final auth = context.read<AuthProvider>();
+    final user = auth.currentUser;
+    _shippingAddress = {
+      'fullName': user?.fullName ?? '',
+      'phone': user?.phone ?? '',
+      'address': user?.address ?? '',
+      'ward': '',
+      'district': '',
+      'city': '',
+    };
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         Provider.of<VoucherProvider>(context, listen: false).removeVoucher();
@@ -46,16 +58,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } catch (_) {}
     super.dispose();
   }
-
-  // Địa chỉ giao hàng mẫu (sau này lấy từ user profile)
-  Map<String, dynamic> _shippingAddress = {
-    'fullName': 'Nguyễn Văn A',
-    'phone': '0123456789',
-    'address': '123 Đường ABC, Phường XYZ',
-    'ward': 'Phường 1',
-    'district': 'Quận 1',
-    'city': 'TP. Hồ Chí Minh',
-  };
 
   int get _subtotalAmount => widget.selectedItems
       .fold(0, (sum, item) => sum + (item.price * item.quantity));
@@ -108,8 +110,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text("Thanh toán"),
-          backgroundColor: AppColors.pastelPinkDark,
-          foregroundColor: Colors.white,
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -173,7 +173,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text("Lỗi thanh toán"),
-          backgroundColor: Colors.red,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

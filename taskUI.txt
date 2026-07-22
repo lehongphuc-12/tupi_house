@@ -1,0 +1,250 @@
+Hướng redesign nên đi: Soft Commerce Home (không phải “admin app” hay “template pastel”)
+
+Đọc app hiện tại như: shop decor nhà cửa cho người mua VN, không phải tool quản lý.
+Hướng redesign nên bám commerce + cảm xúc nhà ấm, không làm lại thành dashboard hay landing Awwwards.
+
+───
+
+1. Một câu định hướng
+
+“Tupi House = Shopee/Lazada flow (nhanh, rõ, tin cậy) + cảm giác cửa hàng decor (êm, pastel, có khoảng thở) — không copy full marketplace, cũng không chỉ làm app đẹp.”
+
+┌──────────────┬───────────────────┬───────────────────────────────────┐
+│ Trục         │ Chọn              │ Lý do                             │
+├──────────────┼───────────────────┼───────────────────────────────────┤
+│ Mục tiêu     │ Mua hàng mượt     │ App đã có cart, checkout,         │
+│ chính        │                   │ voucher, flash sale               │
+├──────────────┼───────────────────┼───────────────────────────────────┤
+│ Cảm xúc      │ Warm · soft ·     │ Decor / tulip / pastel đã có sẵn  │
+│ brand        │ home              │                                   │
+├──────────────┼───────────────────┼───────────────────────────────────┤
+│ Mật độ UI    │ Trung bình (daily │ Không gallery art, không cockpit  │
+│              │ app)              │ admin                             │
+├──────────────┼───────────────────┼───────────────────────────────────┤
+│ Motion       │ Nhẹ               │ Hero, badge, skeleton — không     │
+│              │                   │ scroll-hijack                     │
+├──────────────┼───────────────────┼───────────────────────────────────┤
+│ Navigation   │ Thumb-first       │ Bottom nav, không drawer-first    │
+│              │ mobile            │                                   │
+└──────────────┴───────────────────┴───────────────────────────────────┘
+
+───
+
+2. Ba hướng có thể — và nên chọn cái nào
+
+A. Marketplace tối đa (Shopee-like)
+Nhiều tab, deal, banner, flash, feed dày.
+Phù hợp: traffic lớn, SKU nhiều, săn sale.
+Không hợp team/app hiện tại: dễ “ồn”, brand decor bị át.
+
+B. Boutique premium (Apple / Aesop-like)
+Rất thưa, typography lớn, ít filter, story-led.
+Phù hợp: brand luxury, catalog nhỏ.
+Rủi ro: chậm conversion, dev effort cao, lệch user VN quen e-com.
+
+C. Soft Commerce Home ← nên chọn
+• Layout commerce chuẩn (grid 2 cột, filter, cart badge, checkout rõ)
+• Skin pastel home (hồng/xanh nhạt, card bo tròn, ảnh lớn)
+• Copy consumer, không giọng “quản lý sản phẩm”
+• Admin tách visual (dense hơn, neuter hơn) — storefront giữ soft
+
+Đây là hướng balance đúng nhất với code và brand hiện có: redesign = chỉnh hệ thống + IA, không đập brand.
+
+───
+
+3. Ngôn ngữ thiết kế cụ thể
+
+Visual system (giữ & siết)
+
+┌───────────┬──────────────────────────────────────────────────────────┐
+│ Token     │ Hướng                                                    │
+├───────────┼──────────────────────────────────────────────────────────┤
+│ Primary   │ Hồng đậm brand (CTA, giá, active) — 1 accent duy nhất    │
+├───────────┼──────────────────────────────────────────────────────────┤
+│ Secondary │ Xanh lá nhạt (success, stock, free ship, loyalty)        │
+├───────────┼──────────────────────────────────────────────────────────┤
+│ Surface   │ Off-white ấm (#FFFAFB) + card trắng, border soft         │
+├───────────┼──────────────────────────────────────────────────────────┤
+│ Radius    │ Hệ thống cố định: input/card ~16–22, button ~16 hoặc     │
+│           │ pill cho CTA chính                                       │
+├───────────┼──────────────────────────────────────────────────────────┤
+│ Type      │ Sans sạch (Roboto/Inter OK); hierarchy rõ: title w800,   │
+│           │ body muted                                               │
+├───────────┼──────────────────────────────────────────────────────────┤
+│ Icon      │ Material rounded outlined — một family, stroke đồng nhất │
+├───────────┼──────────────────────────────────────────────────────────┤
+│ Emoji     │ Giảm mạnh trên UI chính; badge text FLASH / SALE thay    │
+│           │ ⚡🌸                                                     │
+└───────────┴──────────────────────────────────────────────────────────┘
+
+Không làm: AI purple gradient, glassmorphism tràn lan, dark mode trước khi light ổn, 3 kiểu AppBar khác nhau.
+
+Layout rhythm
+• Home: search sticky + category chips + (optional) 1 banner flash → grid
+• Card: ảnh chiếm ~60–65% chiều cao, title 2 dòng, giá + gạch, wishlist 1 nút
+• Detail: ảnh full-bleed → giá/stock → mô tả → review → bottom bar 2 CTA
+• Cart/Checkout: list + sticky summary (pattern Shopee, skin Tupi)
+
+Motion
+• Hero product image (đã có — giữ)
+• Skeleton shimmer khi load grid
+• Badge flash pulse rất nhẹ (optional)
+• Không: parallax, marquee, animation “agency”
+
+───
+
+4. Information Architecture (xương sống redesign)
+
+Storefront (user)
+
+[ Trang chủ ]  [ Yêu thích ]  [ Giỏ (badge) ]  [ Đơn ]  [ Tôi ]
+
+┌───────────┬─────────────────────────────────────────────────────┐
+│ Tab       │ Nội dung                                            │
+├───────────┼─────────────────────────────────────────────────────┤
+│ Trang chủ │ Search, category, flash strip, product grid, filter │
+├───────────┼─────────────────────────────────────────────────────┤
+│ Yêu thích │ Wishlist (guest → soft login)                       │
+├───────────┼─────────────────────────────────────────────────────┤
+│ Giỏ       │ Select items, qty, checkout                         │
+├───────────┼─────────────────────────────────────────────────────┤
+│ Đơn       │ History + tracking                                  │
+├───────────┼─────────────────────────────────────────────────────┤
+│ Tôi       │ Profile, địa chỉ, điểm/hạng, đăng nhập/xuất         │
+└───────────┴─────────────────────────────────────────────────────┘
+
+Drawer: bỏ khỏi primary (hoặc chỉ Settings / Admin entry).
+Admin: entry riêng sau login admin — UI denser, không pastel “cửa hàng”.
+
+Funnel mua (không đổi logic, đổi trải nghiệm)
+
+Browse → Detail → Add cart / Mua ngay → Checkout → Success → Theo dõi đơn
+
+• Mua ngay = thẳng Checkout (không vòng Cart)
+• Địa chỉ = từ profile / form bắt buộc (không hardcode)
+• Giá = một nguồn sự thật (flash / sale / base)
+
+───
+
+5. “North star” từng màn (sau redesign trông như thế nào)
+
+Home
+• Header: logo + search luôn thấy + icon filter (badge nếu đang filter)
+• Dưới search: chips category (horizontal)
+• (Optional) 1 strip Flash sale countdown, không 5 banner
+• Grid 2 cột, skeleton khi load
+• Cart/notif badge trên bottom nav, không nhồi 4 icon AppBar
+
+Product card
+• Ảnh + wishlist
+• Badge sale một góc, không chồng favorite
+• Rating: chỉ hiện khi có data; không default 5.0
+• Giá brand color; gạch mờ
+
+Detail
+• Gallery swipe + indicator
+• Stock / flash / category gọn 1 hàng
+• Bottom bar: Thêm giỏ (outline) + Mua ngay (filled primary)
+• Share: ẩn hoặc implement — không stub snackbar
+
+Cart
+• AppBar cùng hệ light với home (không hồng solid lệch theme)
+• Checkbox + qty + swipe/delete rõ
+• Sticky: tổng + Thanh toán (n)
+
+Checkout
+• Step cảm giác: Địa chỉ → SP → Ưu đãi → Thanh toán → Xác nhận
+• Địa chỉ editable, validate SĐT
+• Breakdown: tạm tính / ship / tier / voucher / điểm / tổng
+• Lỗi: tiếng người, không stack trace
+
+Profile
+• Avatar + hạng + điểm (card loyalty giữ, visual siết)
+• Menu: địa chỉ giao hàng, đơn, wishlist, đổi MK, đăng xuất
+• Copy: “Tài khoản của bạn”, không “quản lý hệ thống”
+
+Auth
+• Headline consumer: “Chào mừng đến Tupi House”
+• Sub: “Đăng nhập để theo dõi đơn và ưu đãi”
+• Sau login: quay lại màn đang dở (deep return), không luôn dump về list
+
+───
+
+6. Admin vs Storefront — tách 2 “skin”
+
+┌─────────┬───────────────────────────┬──────────────────────────┐
+│         │ Storefront                │ Admin                    │
+├─────────┼───────────────────────────┼──────────────────────────┤
+│ Tone    │ Soft, pink/green, ảnh lớn │ Neutral grey + 1 accent  │
+├─────────┼───────────────────────────┼──────────────────────────┤
+│ Density │ Medium                    │ High (tables, filters)   │
+├─────────┼───────────────────────────┼──────────────────────────┤
+│ Nav     │ Bottom tabs               │ Side rail / list modules │
+├─────────┼───────────────────────────┼──────────────────────────┤
+│ Goal    │ Convert                   │ Operate                  │
+└─────────┴───────────────────────────┴──────────────────────────┘
+
+Cùng codebase, 2 theme mode theo role — tránh admin “dính pastel shop” và shop “dính form CRUD”.
+
+───
+
+7. Nguyên tắc “có / không” khi redesign
+
+Làm
+1. Siết design system trước khi vẽ màn mới
+2. Bottom nav + badge trước animation
+3. Checkout trust (địa chỉ, giá, error) trước “đẹp hơn”
+4. 1 AppBar style, 1 CTA style, 1 card style
+5. Copy một brand name (Tupi House hoặc Tulip — chọn 1, dùng xuyên suốt)
+
+Không làm
+1. Redesign “landing page” trong app
+2. Thêm 10 micro-feature UI trước khi funnel ổn
+3. Fake rating / địa chỉ mẫu
+4. Trộn 3 phong cách (Shopee full + boutique + pastel random)
+5. Dark mode / web layout fancy trước mobile storefront
+
+───
+
+8. Roadmap redesign thực tế (theo impact)
+
+Phase 0 — Foundation (1 sprint nhỏ)
+Design tokens, AppBar thống nhất, bỏ hardcode color rải rác, copy brand.
+
+Phase 1 — Trust & money path (P0)
+Địa chỉ thật, giá flash đúng, buy-now → checkout, error UI sạch, rating thật.
+
+Phase 2 — IA & chrome (P1)
+Bottom nav, cart badge, bớt drawer, soft login message, guest cart (nếu kịp).
+
+Phase 3 — Surface polish (P2)
+Skeleton, empty states đẹp, card/detail spacing, touch target 44px, flash strip home.
+
+Phase 4 — Differentiation (P3)
+Mood section “Gợi ý cho phòng…”, lookbook nhẹ, recommendation UI — sau khi 0–2 xong.
+
+───
+
+9. Tham chiếu tinh thần (không copy pixel)
+
+┌────────────────────┬────────────────────────────┬────────────────────┐
+│ App                │ Học gì                     │ Bỏ gì              │
+├────────────────────┼────────────────────────────┼────────────────────┤
+│ Shopee / Tiki      │ Funnel, badge, sticky      │ UI chật, màu ồn,   │
+│                    │ checkout, select cart      │ spam banner        │
+├────────────────────┼────────────────────────────┼────────────────────┤
+│ Ikea / home retail │ Ảnh sản phẩm lớn, category │ Catalog quá        │
+│                    │ rõ                         │ corporate          │
+├────────────────────┼────────────────────────────┼────────────────────┤
+│ Brand decor IG /   │ Pastel, soft shadow,       │ Layout không mua   │
+│ boutique VN        │ lifestyle                  │ được               │
+└────────────────────┴────────────────────────────┴────────────────────┘
+
+Kết quả mong muốn: “Mở app biết ngay là shop decor, 30 giây đã biết mua thế nào.”
+
+───
+
+10. Tóm lại một dòng cho team
+
+Redesign theo hướng Soft Commerce Home:
+giữ pastel decor, chuẩn hóa navigation + checkout như app bán hàng, siết design system, tách skin admin — không biến app thành marketplace ồn ào, cũng không thành portfolio boutique khó mua.

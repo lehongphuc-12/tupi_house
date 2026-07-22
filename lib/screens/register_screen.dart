@@ -67,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 6),
                         const Text(
-                          'Điền thông tin bên dưới để bắt đầu quản lý sản phẩm.',
+                          'Điền thông tin bên dưới để bắt đầu mua sắm tại Tupi House.',
                           style: TextStyle(color: AppColors.muted, height: 1.4),
                         ),
                         const SizedBox(height: 22),

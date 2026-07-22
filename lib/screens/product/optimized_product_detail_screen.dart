@@ -16,6 +16,7 @@ import '../../widgets/star_rating_bar.dart';
 import '../../widgets/flash_sale_timer_widget.dart';
 import '../cart/cart_screen.dart';
 import '../login_screen.dart';
+import '../checkout_screen.dart';
 import 'add_review_bottom_sheet.dart';
 
 class OptimizedProductDetailScreen extends StatefulWidget {
@@ -99,7 +100,6 @@ class _OptimizedProductDetailScreenState
       return;
     }
     
-    final cart = context.read<CartProvider>();
     final cartItem = CartItem(
       productId: widget.product.id,
       title: widget.product.title,
@@ -107,11 +107,12 @@ class _OptimizedProductDetailScreenState
       thumbnail: widget.product.thumbnail,
       quantity: _quantity,
     );
-    cart.addToCart(cartItem);
     
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const CartScreen()),
+      MaterialPageRoute(
+        builder: (_) => CheckoutScreen(selectedItems: [cartItem]),
+      ),
     );
   }
 
@@ -369,19 +370,26 @@ class _OptimizedProductDetailScreenState
                   // Rating Summary & Sold Count
                   Row(
                     children: [
-                      StarRatingBar(
-                        rating: widget.product.rating > 0
-                            ? widget.product.rating
-                            : 5.0,
-                        starSize: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${widget.product.rating > 0 ? widget.product.rating.toStringAsFixed(1) : "5.0"} (${reviews.length} đánh giá)',
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(width: 16),
+                      if (widget.product.rating > 0) ...[
+                        StarRatingBar(
+                          rating: widget.product.rating,
+                          starSize: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${widget.product.rating.toStringAsFixed(1)} (${reviews.length} đánh giá)',
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(width: 16),
+                      ] else ...[
+                        const Text(
+                          'Chưa có đánh giá',
+                          style: TextStyle(
+                              fontSize: 13, color: AppColors.muted),
+                        ),
+                        const SizedBox(width: 16),
+                      ],
                       if (widget.product.sold > 0)
                         Text(
                           'Đã bán ${widget.product.sold}',

@@ -49,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trang cá nhân'),
+        title: const Text('Tài khoản của bạn'),
         elevation: 0,
       ),
       body: SingleChildScrollView(

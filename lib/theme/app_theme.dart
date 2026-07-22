@@ -132,4 +132,50 @@ class AppTheme {
       ),
     );
   }
+
+  static ThemeData get adminTheme {
+    final base = ThemeData(useMaterial3: true, fontFamily: 'Roboto');
+    return base.copyWith(
+      scaffoldBackgroundColor: const Color(0xFFF5F7FA), // Neutral grey background
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF3B82F6), // Blue accent for admin
+        primary: const Color(0xFF3B82F6),
+        secondary: const Color(0xFF64748B), // Slate secondary
+        surface: Colors.white,
+        background: const Color(0xFFF5F7FA),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: Color(0xFF1E293B), // Slate dark
+        elevation: 0,
+        centerTitle: true,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF3B82F6),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
 }
