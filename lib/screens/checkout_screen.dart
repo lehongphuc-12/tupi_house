@@ -94,7 +94,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       // Giảm giá từ đổi điểm thưởng
       int pointsDiscount = 0;
       if (_usePoints && userPoints > 0) {
-        int maxPointsDiscount = subtotal + shippingFee - tierDiscount - voucherDiscount;
+        int maxPointsDiscount =
+            subtotal + shippingFee - tierDiscount - voucherDiscount;
         if (maxPointsDiscount < 0) maxPointsDiscount = 0;
         int userPointsValue = userPoints * 1000;
         if (userPointsValue > maxPointsDiscount) {
@@ -104,7 +105,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         }
       }
 
-      int total = subtotal + shippingFee - tierDiscount - voucherDiscount - pointsDiscount;
+      int total = subtotal +
+          shippingFee -
+          tierDiscount -
+          voucherDiscount -
+          pointsDiscount;
       if (total < 0) total = 0;
 
       return Scaffold(
@@ -132,7 +137,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const Divider(height: 8),
 
               // 2b. Ưu đãi & Khách hàng thân thiết
-              _buildVoucherAndLoyaltySection(subtotal, userPoints, userTier, voucherProvider),
+              _buildVoucherAndLoyaltySection(
+                  subtotal, userPoints, userTier, voucherProvider),
 
               const Divider(height: 8),
 
@@ -162,7 +168,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
 
               // 5. Chi tiết thanh toán
-              _buildPaymentDetails(subtotal, tierDiscount, voucherDiscount, pointsDiscount, shippingFee, total),
+              _buildPaymentDetails(subtotal, tierDiscount, voucherDiscount,
+                  pointsDiscount, shippingFee, total),
             ],
           ),
         ),
@@ -181,10 +188,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               Text(
                 "Đã xảy ra lỗi khi tải trang thanh toán:\n$e",
-                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
               ),
               const SizedBox(height: 16),
-              const Text("Stack Trace:", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Stack Trace:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(8),
@@ -216,9 +227,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const Spacer(),
               TextButton(
-                onPressed: _showEditAddressDialog, 
-                child: const Text("Thay đổi")
-              ),
+                  onPressed: _showEditAddressDialog,
+                  child: const Text("Thay đổi")),
             ],
           ),
           const SizedBox(height: 8),
@@ -235,34 +245,46 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _showEditAddressDialog() {
-    final nameController = TextEditingController(text: _shippingAddress['fullName']);
-    final phoneController = TextEditingController(text: _shippingAddress['phone']);
-    final addressController = TextEditingController(text: _shippingAddress['address']);
-    final wardController = TextEditingController(text: _shippingAddress['ward']);
-    final districtController = TextEditingController(text: _shippingAddress['district']);
-    final cityController = TextEditingController(text: _shippingAddress['city']);
+    final nameController =
+        TextEditingController(text: _shippingAddress['fullName']);
+    final phoneController =
+        TextEditingController(text: _shippingAddress['phone']);
+    final addressController =
+        TextEditingController(text: _shippingAddress['address']);
+    final wardController =
+        TextEditingController(text: _shippingAddress['ward']);
+    final districtController =
+        TextEditingController(text: _shippingAddress['district']);
+    final cityController =
+        TextEditingController(text: _shippingAddress['city']);
 
     showDialog(
       context: context,
       builder: (context) {
         // Styling chung cho input để tái sử dụng ngắn gọn
-        InputDecoration inputStyle(String label, [IconData? icon]) => InputDecoration(
-          labelText: label,
-          prefixIcon: icon != null ? Icon(icon, size: 20) : null,
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        );
+        InputDecoration inputStyle(String label, [IconData? icon]) =>
+            InputDecoration(
+              labelText: label,
+              prefixIcon: icon != null ? Icon(icon, size: 20) : null,
+              isDense: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            );
 
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20),
           title: Row(
             children: [
-              Icon(Icons.location_on_rounded, color: Theme.of(context).primaryColor),
+              Icon(Icons.location_on_rounded,
+                  color: Theme.of(context).primaryColor),
               const SizedBox(width: 8),
-              const Text('Thay đổi địa chỉ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Thay đổi địa chỉ',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ],
           ),
           content: SingleChildScrollView(
@@ -270,19 +292,43 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 10),
-                TextField(controller: nameController, textInputAction: TextInputAction.next, decoration: inputStyle('Họ và tên', Icons.person_outline)),
+                TextField(
+                    controller: nameController,
+                    textInputAction: TextInputAction.next,
+                    decoration: inputStyle('Họ và tên', Icons.person_outline)),
                 const SizedBox(height: 10),
-                TextField(controller: phoneController, keyboardType: TextInputType.phone, textInputAction: TextInputAction.next, decoration: inputStyle('Số điện thoại', Icons.phone_outlined)),
+                TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.next,
+                    decoration:
+                        inputStyle('Số điện thoại', Icons.phone_outlined)),
                 const SizedBox(height: 10),
-                TextField(controller: addressController, textInputAction: TextInputAction.next, decoration: inputStyle('Địa chỉ (Số nhà, đường)', Icons.home_outlined)),
+                TextField(
+                    controller: addressController,
+                    textInputAction: TextInputAction.next,
+                    decoration: inputStyle(
+                        'Địa chỉ (Số nhà, đường)', Icons.home_outlined)),
                 const SizedBox(height: 10),
-                TextField(controller: cityController, textInputAction: TextInputAction.next, decoration: inputStyle('Tỉnh/Thành phố', Icons.location_city_outlined)),
+                TextField(
+                    controller: cityController,
+                    textInputAction: TextInputAction.next,
+                    decoration: inputStyle(
+                        'Tỉnh/Thành phố', Icons.location_city_outlined)),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(child: TextField(controller: districtController, textInputAction: TextInputAction.next, decoration: inputStyle('Quận/Huyện'))),
+                    Expanded(
+                        child: TextField(
+                            controller: districtController,
+                            textInputAction: TextInputAction.next,
+                            decoration: inputStyle('Quận/Huyện'))),
                     const SizedBox(width: 8),
-                    Expanded(child: TextField(controller: wardController, textInputAction: TextInputAction.done, decoration: inputStyle('Phường/Xã'))),
+                    Expanded(
+                        child: TextField(
+                            controller: wardController,
+                            textInputAction: TextInputAction.done,
+                            decoration: inputStyle('Phường/Xã'))),
                   ],
                 ),
               ],
@@ -295,7 +341,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                    style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8))),
                     child: const Text('Hủy'),
                   ),
                 ),
@@ -315,7 +363,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       });
                       Navigator.pop(context);
                     },
-                    style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8))),
                     child: const Text('Lưu'),
                   ),
                 ),
@@ -335,8 +385,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             borderRadius: BorderRadius.circular(8),
             child: item.thumbnail.isNotEmpty
                 ? Image.network(item.thumbnail,
-                    width: 60, height: 60, fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 60))
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.image, size: 60))
                 : const Icon(Icons.image, size: 60),
           ),
           title: Text(item.title, maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -391,7 +444,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildPaymentDetails(int subtotal, int tierDiscount, int voucherDiscount, int pointsDiscount, int shippingFee, int total) {
+  Widget _buildPaymentDetails(int subtotal, int tierDiscount,
+      int voucherDiscount, int pointsDiscount, int shippingFee, int total) {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
@@ -403,15 +457,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const SizedBox(height: 12),
           _detailRow("Tổng tiền hàng", formatVnd(subtotal.toDouble())),
           if (tierDiscount > 0)
-            _detailRow("Giảm giá thành viên", "-${formatVnd(tierDiscount.toDouble())}"),
+            _detailRow("Giảm giá thành viên",
+                "-${formatVnd(tierDiscount.toDouble())}"),
           if (voucherDiscount > 0)
-            _detailRow("Voucher giảm giá", "-${formatVnd(voucherDiscount.toDouble())}"),
+            _detailRow("Voucher giảm giá",
+                "-${formatVnd(voucherDiscount.toDouble())}"),
           if (pointsDiscount > 0)
-            _detailRow("Đổi điểm thưởng", "-${formatVnd(pointsDiscount.toDouble())}"),
-          _detailRow("Phí vận chuyển", shippingFee == 0 ? "Freeship" : formatVnd(shippingFee.toDouble())),
-          const Divider(),
+            _detailRow(
+                "Đổi điểm thưởng", "-${formatVnd(pointsDiscount.toDouble())}"),
           _detailRow(
-              "Tổng thanh toán", formatVnd(total.toDouble()),
+              "Phí vận chuyển",
+              shippingFee == 0
+                  ? "Freeship"
+                  : formatVnd(shippingFee.toDouble())),
+          const Divider(),
+          _detailRow("Tổng thanh toán", formatVnd(total.toDouble()),
               isBold: true),
         ],
       ),
@@ -469,7 +529,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
+    final voucherProvider =
+        Provider.of<VoucherProvider>(context, listen: false);
 
     final firebaseUser = authProvider.firebaseUser;
     final appUser = authProvider.currentUser;
@@ -505,7 +566,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     int pointsToUse = 0;
     int pointsDiscount = 0;
     if (_usePoints && appUser.points > 0) {
-      int maxPointsDiscount = subtotal + shippingFee - tierDiscount - voucherDiscount;
+      int maxPointsDiscount =
+          subtotal + shippingFee - tierDiscount - voucherDiscount;
       if (maxPointsDiscount < 0) maxPointsDiscount = 0;
       int userPointsValue = appUser.points * 1000;
       if (userPointsValue > maxPointsDiscount) {
@@ -579,7 +641,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  Widget _buildVoucherAndLoyaltySection(int subtotal, int userPoints, String tier, VoucherProvider voucherProvider) {
+  Widget _buildVoucherAndLoyaltySection(int subtotal, int userPoints,
+      String tier, VoucherProvider voucherProvider) {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
@@ -589,7 +652,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const Text("Ưu đãi & Khách hàng thân thiết 🎁",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 12),
-          
+
           // Hạng thành viên hiện tại
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -597,7 +660,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const Text("Hạng thành viên:", style: TextStyle(fontSize: 14)),
               Text(
                 tier,
-                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.pastelPinkDark),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.pastelPinkDark),
               ),
             ],
           ),
@@ -611,8 +676,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   controller: _voucherController,
                   decoration: InputDecoration(
                     hintText: "Nhập mã voucher...",
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                     isDense: true,
                   ),
                 ),
@@ -624,17 +691,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: () {
-                    voucherProvider.applyVoucher(_voucherController.text, subtotal);
+                    voucherProvider.applyVoucher(
+                        _voucherController.text, subtotal);
                   },
                   child: const Text("Áp dụng"),
                 ),
               ),
             ],
           ),
-          
+
           if (voucherProvider.errorMessage != null) ...[
             const SizedBox(height: 6),
             Text(
@@ -642,7 +711,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               style: const TextStyle(color: Colors.redAccent, fontSize: 12),
             ),
           ],
-          
+
           if (voucherProvider.appliedVoucher != null) ...[
             const SizedBox(height: 8),
             Row(
@@ -651,7 +720,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Expanded(
                   child: Text(
                     "Đã áp dụng: ${voucherProvider.appliedVoucher!.code} (Giảm ${formatVnd(voucherDiscount(voucherProvider.appliedVoucher!, subtotal).toDouble())})",
-                    style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: const TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -660,12 +732,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     _voucherController.clear();
                     voucherProvider.removeVoucher();
                   },
-                  child: const Text("Gỡ bỏ", style: TextStyle(color: Colors.red)),
+                  child:
+                      const Text("Gỡ bỏ", style: TextStyle(color: Colors.red)),
                 ),
               ],
             ),
           ],
-          
+
           const Divider(height: 24),
 
           // Tích điểm & Dùng điểm
@@ -685,7 +758,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               Switch(
                 value: _usePoints,
-                activeThumbColor: Colors.white,
+                activeColor: Colors.white,
                 activeTrackColor: AppColors.pastelPinkDark,
                 onChanged: userPoints > 0
                     ? (val) {
@@ -707,21 +780,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _showVietQRDialog(String orderId, int amount) {
-    const bankId = "MB"; 
-    const accountNo = "0788580223"; 
-    const accountName = "LE HONG PHUC"; 
-    final qrUrl = "https://img.vietqr.io/image/$bankId-$accountNo-compact.png?amount=$amount&addInfo=$orderId&accountName=$accountName";
+    const bankId = "MB";
+    const accountNo = "0788580223";
+    const accountName = "LE HONG PHUC";
+    final qrUrl =
+        "https://img.vietqr.io/image/$bankId-$accountNo-compact.png?amount=$amount&addInfo=$orderId&accountName=$accountName";
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Chuyển khoản thanh toán", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text("Chuyển khoản thanh toán",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Quét mã QR dưới đây bằng ứng dụng ngân hàng của bạn để thanh toán.", textAlign: TextAlign.center),
+            const Text(
+                "Quét mã QR dưới đây bằng ứng dụng ngân hàng của bạn để thanh toán.",
+                textAlign: TextAlign.center),
             const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -730,15 +808,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 height: 250,
                 width: 250,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.broken_image,
+                    size: 50,
+                    color: Colors.grey),
               ),
             ),
             const SizedBox(height: 16),
-            Text("Số tiền: ${formatVnd(amount.toDouble())}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.pastelPinkDark)),
+            Text("Số tiền: ${formatVnd(amount.toDouble())}",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: AppColors.pastelPinkDark)),
             const SizedBox(height: 8),
-            Text("Nội dung: $orderId", style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text("Nội dung: $orderId",
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            const Text("Sau khi chuyển khoản thành công, vui lòng nhấn nút bên dưới.", style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center),
+            const Text(
+                "Sau khi chuyển khoản thành công, vui lòng nhấn nút bên dưới.",
+                style: TextStyle(color: Colors.grey, fontSize: 13),
+                textAlign: TextAlign.center),
           ],
         ),
         actions: [
@@ -746,19 +835,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pastelPinkDark,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(vertical: 12)
-              ),
+                  backgroundColor: AppColors.pastelPinkDark,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(vertical: 12)),
               onPressed: () {
                 Navigator.pop(context); // Đóng dialog
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Đặt hàng thành công! Chúng tôi sẽ kiểm tra thanh toán và giao hàng."), backgroundColor: Colors.green),
+                  const SnackBar(
+                      content: Text(
+                          "Đặt hàng thành công! Chúng tôi sẽ kiểm tra thanh toán và giao hàng."),
+                      backgroundColor: Colors.green),
                 );
-                Navigator.popUntil(context, (route) => route.isFirst); // Về trang chủ
+                Navigator.popUntil(
+                    context, (route) => route.isFirst); // Về trang chủ
               },
-              child: const Text("TÔI ĐÃ THANH TOÁN", style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text("TÔI ĐÃ THANH TOÁN",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           )
         ],

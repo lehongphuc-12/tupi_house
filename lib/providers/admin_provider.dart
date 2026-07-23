@@ -6,7 +6,36 @@ import '../models/order.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 import '../models/voucher.dart';
-import '../services/notification_service.dart';
+
+enum AnalyticsPeriod { day, week, month }
+
+class RevenueDataPoint {
+  final DateTime periodStart;
+  final int revenue;
+  final int orderCount;
+
+  const RevenueDataPoint({
+    required this.periodStart,
+    required this.revenue,
+    required this.orderCount,
+  });
+}
+
+class TopSellingProduct {
+  final String productId;
+  final String title;
+  final String thumbnail;
+  final int quantitySold;
+  final int revenue;
+
+  const TopSellingProduct({
+    required this.productId,
+    required this.title,
+    required this.thumbnail,
+    required this.quantitySold,
+    required this.revenue,
+  });
+}
 
 class AdminProvider extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -20,8 +49,116 @@ class AdminProvider extends ChangeNotifier {
   List<Voucher> vouchers = [];
 
   int get revenue => orders
-      .where((order) => order.status == 'delivered')
+      .where((order) => normalizeOrderStatus(order.status) == 'delivered')
       .fold(0, (sum, order) => sum + order.totalAmount);
+
+  int get deliveredOrderCount => orders
+      .where((order) => normalizeOrderStatus(order.status) == 'delivered')
+      .length;
+
+  int get cancelledOrderCount => orders
+      .where((order) => normalizeOrderStatus(order.status) == 'cancelled')
+      .length;
+
+  double get cancellationRate {
+    if (orders.isEmpty) return 0;
+    return cancelledOrderCount / orders.length * 100;
+  }
+
+  Map<String, int> get orderCountByStatus {
+    final result = <String, int>{
+      for (final status in validOrderStatuses) status: 0,
+    };
+
+    for (final order in orders) {
+      final status = normalizeOrderStatus(order.status);
+      result[status] = (result[status] ?? 0) + 1;
+    }
+
+    return result;
+  }
+
+  List<RevenueDataPoint> revenueData(
+    AnalyticsPeriod period, {
+    int maxPoints = 12,
+  }) {
+    final grouped = <DateTime, List<Order>>{};
+
+    for (final order in orders) {
+      if (normalizeOrderStatus(order.status) != 'delivered') continue;
+      final key = _periodStart(order.createdAt, period);
+      grouped.putIfAbsent(key, () => <Order>[]).add(order);
+    }
+
+    final points = grouped.entries.map((entry) {
+      return RevenueDataPoint(
+        periodStart: entry.key,
+        revenue: entry.value.fold(
+          0,
+          (sum, order) => sum + order.totalAmount,
+        ),
+        orderCount: entry.value.length,
+      );
+    }).toList()
+      ..sort((a, b) => a.periodStart.compareTo(b.periodStart));
+
+    if (points.length <= maxPoints) return points;
+    return points.sublist(points.length - maxPoints);
+  }
+
+  List<TopSellingProduct> topSellingProducts({int limit = 10}) {
+    final totals = <String, _ProductSalesAccumulator>{};
+
+    for (final order in orders) {
+      if (normalizeOrderStatus(order.status) != 'delivered') continue;
+
+      for (final item in order.items) {
+        final key = item.productId.isNotEmpty
+            ? item.productId
+            : '${item.title}|${item.thumbnail}';
+        final current = totals.putIfAbsent(
+          key,
+          () => _ProductSalesAccumulator(
+            productId: item.productId,
+            title: item.title,
+            thumbnail: item.thumbnail,
+          ),
+        );
+        current.quantitySold += item.quantity;
+        current.revenue += item.price * item.quantity;
+      }
+    }
+
+    final result = totals.values.map((item) {
+      return TopSellingProduct(
+        productId: item.productId,
+        title: item.title,
+        thumbnail: item.thumbnail,
+        quantitySold: item.quantitySold,
+        revenue: item.revenue,
+      );
+    }).toList()
+      ..sort((a, b) {
+        final quantityCompare = b.quantitySold.compareTo(a.quantitySold);
+        if (quantityCompare != 0) return quantityCompare;
+        return b.revenue.compareTo(a.revenue);
+      });
+
+    return result.take(limit).toList();
+  }
+
+  DateTime _periodStart(DateTime date, AnalyticsPeriod period) {
+    final local = date.toLocal();
+    switch (period) {
+      case AnalyticsPeriod.day:
+        return DateTime(local.year, local.month, local.day);
+      case AnalyticsPeriod.week:
+        final day = DateTime(local.year, local.month, local.day);
+        return day.subtract(Duration(days: day.weekday - DateTime.monday));
+      case AnalyticsPeriod.month:
+        return DateTime(local.year, local.month);
+    }
+  }
 
   static const List<String> validOrderStatuses = [
     'pending',
@@ -220,113 +357,45 @@ class AdminProvider extends ChangeNotifier {
       throw Exception('Trạng thái đơn hàng không hợp lệ.');
     }
 
-    final snapshot = await orderRef.get();
-    if (!snapshot.exists) {
-      throw Exception('Không tìm thấy đơn hàng.');
-    }
+    await _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
 
-    final data = snapshot.data();
-    if (data == null) {
-      throw Exception('Dữ liệu đơn hàng không hợp lệ.');
-    }
+      if (!snapshot.exists) {
+        throw Exception('Không tìm thấy đơn hàng.');
+      }
 
-    final currentStatus = normalizeOrderStatus(
-      data['status']?.toString() ?? 'pending',
-    );
+      final data = snapshot.data();
 
-    if (currentStatus == normalizedNewStatus) {
-      return;
-    }
+      if (data == null) {
+        throw Exception('Dữ liệu đơn hàng không hợp lệ.');
+      }
 
-    final isAllowed = canUpdateOrderStatus(
-      currentStatus: currentStatus,
-      newStatus: normalizedNewStatus,
-    );
-
-    if (!isAllowed) {
-      throw Exception(
-        'Không thể chuyển đơn hàng từ '
-        '"${orderStatusLabel(currentStatus)}" sang '
-        '"${orderStatusLabel(normalizedNewStatus)}".',
+      final currentStatus = normalizeOrderStatus(
+        data['status']?.toString() ?? 'pending',
       );
-    }
 
-    final batch = _db.batch();
-    batch.update(orderRef, {
-      'status': normalizedNewStatus,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    // Hoàn trả kho hàng nếu trạng thái là cancelled
-    if (normalizedNewStatus == 'cancelled') {
-      final itemsList = (data['items'] as List?) ?? [];
-      for (final item in itemsList) {
-        final productId = item['productId']?.toString() ?? '';
-        final quantity = (item['quantity'] ?? 0) as int;
-        if (productId.isNotEmpty && quantity > 0) {
-          final productRef = _db.collection('products').doc(productId);
-          batch.update(productRef, {
-            'stock': FieldValue.increment(quantity),
-            'sold': FieldValue.increment(-quantity),
-          });
-        }
+      if (currentStatus == normalizedNewStatus) {
+        return;
       }
-    }
 
-    // Tích điểm và thăng hạng thành viên nếu trạng thái là delivered
-    if (normalizedNewStatus == 'delivered') {
-      final userId = data['userId']?.toString() ?? '';
-      final totalAmount = (data['totalAmount'] ?? 0) is int
-          ? data['totalAmount'] as int
-          : (data['totalAmount'] as num).toInt();
-      final pointsEarned = (totalAmount / 100000).floor();
+      final isAllowed = canUpdateOrderStatus(
+        currentStatus: currentStatus,
+        newStatus: normalizedNewStatus,
+      );
 
-      if (userId.isNotEmpty && pointsEarned > 0) {
-        final userRef = _db.collection('users').doc(userId);
-        final userSnap = await userRef.get(const GetOptions(source: Source.server));
-        if (userSnap.exists) {
-          final userData = userSnap.data() ?? {};
-          final currentPoints = (userData['points'] ?? 0) as int;
-          final currentAccumulated = (userData['accumulatedPoints'] ?? currentPoints) as int;
-
-          final newPoints = currentPoints + pointsEarned;
-          final newAccumulated = currentAccumulated + pointsEarned;
-
-          String newTier = 'Đồng';
-          if (newAccumulated >= 500) {
-            newTier = 'Kim Cương';
-          } else if (newAccumulated >= 200) {
-            newTier = 'Vàng';
-          } else if (newAccumulated >= 50) {
-            newTier = 'Bạc';
-          }
-
-          batch.update(userRef, {
-            'points': newPoints,
-            'accumulatedPoints': newAccumulated,
-            'tier': newTier,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-        }
-      }
-    }
-
-    await batch.commit();
-
-    final String? notifyUserId = data['userId']?.toString();
-
-    // Notify customer only when status actually changed
-    if (notifyUserId != null && notifyUserId!.isNotEmpty) {
-      try {
-        await NotificationService.notifyOrderStatusChanged(
-          userId: notifyUserId!,
-          orderId: orderId,
-          newStatus: normalizedNewStatus,
+      if (!isAllowed) {
+        throw Exception(
+          'Không thể chuyển đơn hàng từ '
+          '"${orderStatusLabel(currentStatus)}" sang '
+          '"${orderStatusLabel(normalizedNewStatus)}".',
         );
-      } catch (_) {
-        // Order update already succeeded; notification is best-effort.
       }
-    }
+
+      transaction.update(orderRef, {
+        'status': normalizedNewStatus,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
 
     await loadOrders();
   }
@@ -393,4 +462,18 @@ class AdminProvider extends ChangeNotifier {
     await _db.collection('vouchers').doc(id).delete();
     await loadVouchers();
   }
+}
+
+class _ProductSalesAccumulator {
+  final String productId;
+  final String title;
+  final String thumbnail;
+  int quantitySold = 0;
+  int revenue = 0;
+
+  _ProductSalesAccumulator({
+    required this.productId,
+    required this.title,
+    required this.thumbnail,
+  });
 }
