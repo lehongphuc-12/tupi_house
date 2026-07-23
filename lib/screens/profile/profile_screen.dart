@@ -152,9 +152,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
             ),
+            // Hiển thị mục đổi mật khẩu cho cả Email/Password và Google Account
             _buildActionItem(
-              icon: Icons.favorite_border_rounded,
-              title: 'Danh sách yêu thích',
+              icon: Icons.lock_outline_rounded,
+              title: 'Đổi mật khẩu',
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(

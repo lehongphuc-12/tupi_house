@@ -56,8 +56,17 @@ class AuthProvider extends ChangeNotifier {
 
   bool get canChangePassword => isPasswordAccount;
 
+  /// Kiểm tra tài khoản Google đã có Email/Password provider chưa
+  bool get hasEmailPasswordProvider => isPasswordAccount;
+
+  /// Kiểm tra tài khoản Google chưa có password (chỉ có Google provider)
+  bool get needsPasswordSetup => isGoogleAccount && !isPasswordAccount;
+
   static const String googlePasswordManagedMessage =
       'Bạn đang đăng nhập bằng Google. Mật khẩu được quản lý bởi Google nên không thể đổi mật khẩu trong ứng dụng.';
+
+  static const String googleNeedsPasswordSetupMessage =
+      'Tài khoản Google của bạn chưa có mật khẩu. Bạn có thể tạo mật khẩu để đăng nhập bằng email/password.';
 
   // Khôi phục phiên đăng nhập khi mở app
   Future<void> tryAutoLogin() async {
@@ -370,10 +379,30 @@ class AuthProvider extends ChangeNotifier {
 
       return true;
     } on FirebaseAuthException catch (e) {
-      errorMessage = _handleFirebaseError(e);
+      // Xử lý các lỗi Firebase cụ thể hơn cho Google Sign-In
+      switch (e.code) {
+        case 'account-exists-with-different-credential':
+          errorMessage = 'Tài khoản đã tồn tại với phương thức đăng nhập khác.';
+          break;
+        case 'invalid-credential':
+          errorMessage = 'Thông tin đăng nhập Google không hợp lệ.';
+          break;
+        case 'operation-not-allowed':
+          errorMessage = 'Đăng nhập Google chưa được bật trong Firebase Console.';
+          break;
+        case 'user-disabled':
+          errorMessage = 'Tài khoản của bạn đã bị vô hiệu hóa.';
+          break;
+        case 'user-not-found':
+          errorMessage = 'Không tìm thấy tài khoản Google.';
+          break;
+        default:
+          errorMessage = _handleFirebaseError(e);
+      }
       return false;
     } catch (e) {
-      errorMessage = 'Đăng nhập Google thất bại: $e';
+      // Xử lý các lỗi không phải Firebase Auth
+      errorMessage = 'Đăng nhập Google thất bại. Vui lòng kiểm tra kết nối mạng và thử lại.';
       return false;
     } finally {
       isLoading = false;
@@ -482,6 +511,59 @@ class AuthProvider extends ChangeNotifier {
         return 'Vui lòng đăng nhập lại trước khi đổi mật khẩu';
       default:
         return e.message ?? 'Đổi mật khẩu thất bại';
+    }
+  }
+
+  /// Tạo mật khẩu cho tài khoản Google (link EmailAuthProvider)
+  /// Trả về null nếu thành công, hoặc chuỗi lỗi nếu thất bại
+  Future<String?> setupPasswordForGoogleAccount({
+    required String password,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return 'Người dùng chưa đăng nhập';
+    }
+
+    // Kiểm tra nếu đã có password rồi thì không cần setup
+    if (hasEmailPasswordProvider) {
+      return 'Tài khoản này đã có mật khẩu';
+    }
+
+    try {
+      // Tạo credential từ email và password
+      final credential = EmailAuthProvider.credential(
+        email: user.email ?? '',
+        password: password,
+      );
+
+      // Link credential vào tài khoản hiện tại
+      await user.linkWithCredential(credential);
+      
+      // Refresh user để cập nhật provider list
+      await user.reload();
+      
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return _handleSetupPasswordError(e);
+    } catch (e) {
+      return 'Tạo mật khẩu thất bại: $e';
+    }
+  }
+
+  String _handleSetupPasswordError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'weak-password':
+        return 'Mật khẩu quá yếu (ít nhất 6 ký tự)';
+      case 'email-already-in-use':
+        return 'Email này đã được sử dụng bởi tài khoản khác';
+      case 'invalid-email':
+        return 'Email không hợp lệ';
+      case 'requires-recent-login':
+        return 'Vui lòng đăng nhập lại trước khi thực hiện';
+      case 'credential-already-in-use':
+        return 'Mật khẩu này đã được sử dụng bởi tài khoản khác';
+      default:
+        return e.message ?? 'Tạo mật khẩu thất bại';
     }
   }
 

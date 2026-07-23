@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../theme/app_theme.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -43,7 +44,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
-  Future<void> _changePassword() async {
+  /// Xử lý đổi mật khẩu cho tài khoản Email/Password
+  Future<void> _changePasswordForEmailAccount() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -74,11 +76,49 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     });
   }
 
+  /// Xử lý tạo mật khẩu cho tài khoản Google
+  Future<void> _setupPasswordForGoogleAccount() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final auth = context.read<AuthProvider>();
+    final error = await auth.setupPasswordForGoogleAccount(
+      password: _newPasswordController.text,
+    );
+
+    if (!mounted) return;
+
+    if (error == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tạo mật khẩu thành công! 🎉\nBạn có thể đăng nhập bằng email/password.')),
+      );
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    
+    // Xác định loại tài khoản
+    final isGoogleAccount = auth.isGoogleAccount;
+    final hasPassword = auth.hasEmailPasswordProvider;
+    final isGoogleWithoutPassword = isGoogleAccount && !hasPassword;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đổi mật khẩu'),
+        title: Text(isGoogleWithoutPassword ? 'Tạo mật khẩu' : 'Đổi mật khẩu'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -88,33 +128,56 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                controller: _currentPasswordController,
-                obscureText: _obscureCurrent,
-                decoration: InputDecoration(
-                  labelText: 'Mật khẩu hiện tại',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscureCurrent
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined),
-                    onPressed: () =>
-                        setState(() => _obscureCurrent = !_obscureCurrent),
-                  ),
-                ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'Vui lòng nhập mật khẩu hiện tại';
-                  }
-                  return null;
-                },
+              // Icon thông báo
+              Icon(
+                isGoogleWithoutPassword ? Icons.lock_open : Icons.lock,
+                size: 60,
+                color: AppColors.pastelPinkDark,
               ),
               const SizedBox(height: 16),
+              
+              // Tiêu đề mô tả
+              Text(
+                isGoogleWithoutPassword
+                    ? 'Tạo mật khẩu cho tài khoản Google'
+                    : 'Nhập mật khẩu hiện tại và mật khẩu mới',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.muted,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Chỉ hiển thị trường mật khẩu hiện tại cho tài khoản Email/Password
+              if (!isGoogleWithoutPassword) ...[
+                TextFormField(
+                  controller: _currentPasswordController,
+                  obscureText: _obscureCurrent,
+                  decoration: InputDecoration(
+                    labelText: 'Mật khẩu hiện tại',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscureCurrent ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                      onPressed: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                    ),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Vui lòng nhập mật khẩu hiện tại';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Trường mật khẩu mới (dùng chung cho cả hai trường hợp)
               TextFormField(
                 controller: _newPasswordController,
                 obscureText: _obscureNew,
                 decoration: InputDecoration(
-                  labelText: 'Mật khẩu mới',
+                  labelText: isGoogleWithoutPassword ? 'Mật khẩu mới' : 'Mật khẩu mới',
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(_obscureNew
@@ -134,6 +197,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Trường xác nhận mật khẩu mới
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: _obscureConfirm,
@@ -159,8 +224,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 },
               ),
               const SizedBox(height: 32),
+
+              // Nút xác nhận
               ElevatedButton(
-                onPressed: _isLoading ? null : _changePassword,
+                onPressed: _isLoading 
+                    ? null 
+                    : (isGoogleWithoutPassword 
+                        ? _setupPasswordForGoogleAccount 
+                        : _changePasswordForEmailAccount),
                 child: _isLoading
                     ? const SizedBox(
                         height: 20,
@@ -168,8 +239,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         child: CircularProgressIndicator(
                             color: Colors.white, strokeWidth: 2),
                       )
-                    : const Text('Cập nhật mật khẩu'),
+                    : Text(isGoogleWithoutPassword ? 'Tạo mật khẩu' : 'Cập nhật mật khẩu'),
               ),
+
+              // Thông báo cho tài khoản Google
+              if (isGoogleWithoutPassword) ...[
+                const SizedBox(height: 16),
+                const Text(
+                  'Sau khi tạo mật khẩu, bạn có thể đăng nhập bằng:\n• Google\n• Email + Mật khẩu',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.muted,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

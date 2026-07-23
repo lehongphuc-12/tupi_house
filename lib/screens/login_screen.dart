@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import 'admin/admin_dashboard_screen.dart';
 import 'main_screen.dart';
 import 'register_screen.dart';  
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final bool returnToPrevious;
@@ -233,7 +234,18 @@ class _LoginScreenState extends State<LoginScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                );
+              },
+              child: const Text('Quên mật khẩu?'),
+            ),
+          ),
           Row(
             children: [
               Checkbox(
