@@ -119,17 +119,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     const SizedBox(height: 14),
                     LayoutBuilder(builder: (_, constraints) {
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: stats.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: constraints.maxWidth < 340 ? 1 : 2,
-                          mainAxisExtent: 126,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
-                        itemBuilder: (_, index) => _StatCard(stat: stats[index]),
+                      final isSmall = constraints.maxWidth < 340;
+                      final itemWidth = isSmall 
+                          ? constraints.maxWidth 
+                          : (constraints.maxWidth - 12) / 2.001;
+                          
+                      return Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: stats.map((stat) {
+                          return SizedBox(
+                            width: itemWidth,
+                            child: _StatCard(stat: stat),
+                          );
+                        }).toList(),
                       );
                     }),
                     const SizedBox(height: 30),
@@ -1234,6 +1237,7 @@ class _StatCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 42,
@@ -1244,14 +1248,20 @@ class _StatCard extends StatelessWidget {
               ),
               child: Icon(stat.icon, color: AppColors.pastelPinkDark),
             ),
-            const Spacer(),
+            const SizedBox(height: 16),
             Text(
               stat.value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
             ),
-            Text(stat.title, style: const TextStyle(color: AppColors.muted)),
+            const SizedBox(height: 4),
+            Text(
+              stat.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: AppColors.muted),
+            ),
           ],
         ),
       ),
