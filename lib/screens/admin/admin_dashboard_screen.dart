@@ -45,6 +45,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       maxPoints: _selectedPeriod == AnalyticsPeriod.month ? 12 : 10,
     );
     final topProducts = admin.topSellingProducts(limit: 10);
+    final pendingOrders = admin.orderCountByStatus['pending'] ?? 0;
+    final lowStockProducts =
+        admin.products.where((product) => product.stock < 5).length;
 
     final stats = [
       _Stat('Tổng doanh thu', money.format(admin.revenue),
@@ -70,15 +73,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Icons.local_offer_outlined, AdminVoucherScreen()),
     ];
 
-    return Scaffold(
-      appBar: AppBar(
+    return Theme(
+      data: AppTheme.adminTheme,
+      child: Scaffold(
+        appBar: AppBar(
         title: const Text('Admin Dashboard'),
         actions: [
           _AdminAccountMenu(auth: auth),
           const SizedBox(width: 12),
         ],
       ),
-      body: RefreshIndicator(
+        body: RefreshIndicator(
         onRefresh: admin.loadAll,
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -100,25 +105,33 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         message: admin.errorMessage!,
                         onRetry: admin.loadAll,
                       ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 22),
+                    if (pendingOrders > 0 || lowStockProducts > 0) ...[
+                      _AttentionCard(
+                        pendingOrders: pendingOrders,
+                        lowStockProducts: lowStockProducts,
+                      ),
+                      const SizedBox(height: 28),
+                    ],
                     const _SectionTitle(
                       title: 'Tổng quan kinh doanh',
                       subtitle: 'Chỉ tính doanh thu từ đơn hàng đã giao',
                     ),
                     const SizedBox(height: 14),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: stats.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 290,
-                        mainAxisExtent: 140,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 14,
-                      ),
-                      itemBuilder: (_, index) => _StatCard(stat: stats[index]),
-                    ),
+                    LayoutBuilder(builder: (_, constraints) {
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: stats.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: constraints.maxWidth < 340 ? 1 : 2,
+                          mainAxisExtent: 126,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                        itemBuilder: (_, index) => _StatCard(stat: stats[index]),
+                      );
+                    }),
                     const SizedBox(height: 30),
                     _AnalyticsCard(
                       selectedPeriod: _selectedPeriod,
@@ -182,6 +195,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -1074,6 +1088,95 @@ class _TopProductsCard extends StatelessWidget {
   }
 }
 
+class _AttentionCard extends StatelessWidget {
+  final int pendingOrders;
+  final int lowStockProducts;
+
+  const _AttentionCard({
+    required this.pendingOrders,
+    required this.lowStockProducts,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <Widget>[
+      if (pendingOrders > 0)
+        _AttentionRow(
+          icon: Icons.pending_actions_outlined,
+          title: 'Đơn chờ xác nhận',
+          detail: '$pendingOrders đơn cần được xử lý',
+          color: Colors.orange.shade700,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AdminOrderScreen(initialStatus: 'pending'),
+            ),
+          ),
+        ),
+      if (lowStockProducts > 0)
+        _AttentionRow(
+          icon: Icons.inventory_2_outlined,
+          title: 'Tồn kho thấp',
+          detail: '$lowStockProducts sản phẩm còn dưới 5',
+          color: Colors.red.shade700,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AdminProductScreen(initialLowStock: true),
+            ),
+          ),
+        ),
+    ];
+
+    return Card(
+      color: const Color(0xFFFFFBEB),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 10, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Cần xử lý', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 8),
+            ...items,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AttentionRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String detail;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AttentionRow({
+    required this.icon,
+    required this.title,
+    required this.detail,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      minVerticalPadding: 4,
+      leading: CircleAvatar(
+        backgroundColor: color.withValues(alpha: 0.12),
+        foregroundColor: color,
+        child: Icon(icon),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+      subtitle: Text(detail),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
+    );
+  }
+}
 class _DashboardHeader extends StatelessWidget {
   const _DashboardHeader();
 
@@ -1312,8 +1415,10 @@ class _AccessDeniedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Không có quyền truy cập')),
+    return Theme(
+      data: AppTheme.adminTheme,
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Không có quyền truy cập')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -1344,6 +1449,7 @@ class _AccessDeniedScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

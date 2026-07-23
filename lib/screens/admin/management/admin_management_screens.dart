@@ -142,7 +142,8 @@ Future<void> _showCategoryDialog(BuildContext context, [Category? old]) async {
 }
 
 class AdminProductScreen extends StatefulWidget {
-  const AdminProductScreen({super.key});
+  final bool initialLowStock;
+  const AdminProductScreen({super.key, this.initialLowStock = false});
   @override
   State<AdminProductScreen> createState() => _AdminProductScreenState();
 }
@@ -155,6 +156,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   @override
   void initState() {
     super.initState();
+    _onlyLowStock = widget.initialLowStock;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final p = context.read<AdminProvider>();
       await Future.wait([p.loadProducts(), p.loadCategories()]);
@@ -376,7 +378,8 @@ Future<void> _showProductDialog(BuildContext context, [Product? old]) async {
 }
 
 class AdminOrderScreen extends StatefulWidget {
-  const AdminOrderScreen({super.key});
+  final String initialStatus;
+  const AdminOrderScreen({super.key, this.initialStatus = ''});
   @override
   State<AdminOrderScreen> createState() => _AdminOrderScreenState();
 }
@@ -387,6 +390,7 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
   @override
   void initState() {
     super.initState();
+    status = widget.initialStatus;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -506,7 +510,23 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
                   ),
                 ),
                 isThreeLine: true,
-                trailing: SizedBox(
+                trailing: MediaQuery.sizeOf(context).width < 600
+                    ? IconButton(
+                        tooltip: canEditStatus
+                            ? 'Cập nhật trạng thái'
+                            : 'Trạng thái cuối',
+                        icon: const Icon(Icons.edit_outlined),
+                        onPressed: canEditStatus
+                            ? () => _showOrderStatusSheet(
+                                  context,
+                                  provider,
+                                  order.id,
+                                  currentStatus,
+                                  dropdownStatuses,
+                                )
+                            : null,
+                      )
+                    : SizedBox(
                   width: 190,
                   child: DropdownButtonFormField<String>(
                     value: currentStatus,
@@ -566,6 +586,65 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
   }
 }
 
+Future<void> _showOrderStatusSheet(
+  BuildContext context,
+  AdminProvider provider,
+  String orderId,
+  String currentStatus,
+  List<String> statuses,
+) async {
+  await showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Cập nhật trạng thái',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...statuses.map(
+              (status) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  status == currentStatus
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                ),
+                title: Text(provider.orderStatusLabel(status)),
+                onTap: status == currentStatus
+                    ? () => Navigator.pop(sheetContext)
+                    : () async {
+                        try {
+                          await provider.updateOrderStatus(orderId, status);
+                          if (sheetContext.mounted) Navigator.pop(sheetContext);
+                          if (context.mounted) {
+                            _message(
+                              context,
+                              'Đã cập nhật trạng thái đơn hàng',
+                            );
+                          }
+                        } catch (error) {
+                          if (context.mounted) {
+                            _message(context, error.toString(), error: true);
+                          }
+                        }
+                      },
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 String _shortOrderId(String id) {
   if (id.isEmpty) return 'Không xác định';
   return id.length > 8 ? id.substring(0, 8) : id;
@@ -1055,7 +1134,10 @@ class _AdminCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        child: Padding(
+        child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onEdit,
+            child: Padding(
             padding: const EdgeInsets.all(16),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1105,7 +1187,7 @@ class _AdminCard extends StatelessWidget {
                       style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.pastelGreenDark))),
-            ])));
+             ]))));
   }
 }
 
