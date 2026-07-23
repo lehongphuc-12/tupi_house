@@ -9,6 +9,7 @@ import '../../../models/user.dart';
 import '../../../models/voucher.dart';
 import '../../../providers/admin_provider.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/product_image.dart';
 
 final _money =
     NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
@@ -196,10 +197,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
           FilterChip(
             label: const Text('Cảnh báo tồn kho (Kho < 5)'),
             selected: _onlyLowStock,
-            selectedColor: Colors.redAccent.withValues(alpha: 0.15),
-            checkmarkColor: Colors.redAccent,
+            selectedColor: AppColors.error.withValues(alpha: 0.15),
+            checkmarkColor: AppColors.error,
             labelStyle: TextStyle(
-              color: _onlyLowStock ? Colors.redAccent : Colors.black87,
+              color: _onlyLowStock ? AppColors.error : Colors.black87,
               fontWeight: _onlyLowStock ? FontWeight.bold : FontWeight.normal,
             ),
             onSelected: (selected) {
@@ -901,27 +902,80 @@ Future<void> _showVoucherDialog(BuildContext context, [Voucher? old]) async {
                   ])));
 }
 
-Widget _loadingOrEmpty(AdminProvider provider, List<dynamic> items,
-    String emptyText, Widget Function() content) {
-  if (provider.isLoading && items.isEmpty)
+Widget _loadingOrEmpty(
+  AdminProvider provider,
+  List<dynamic> items,
+  String emptyText,
+  Widget Function() content,
+) {
+  if (provider.isLoading && items.isEmpty) {
     return const Padding(
-        padding: EdgeInsets.all(80),
-        child: Center(child: CircularProgressIndicator()));
-  if (provider.errorMessage != null && items.isEmpty)
+      padding: EdgeInsets.all(80),
+      child: Center(
+        child: CircularProgressIndicator(color: AppColors.primaryPink),
+      ),
+    );
+  }
+  if (provider.errorMessage != null && items.isEmpty) {
     return Padding(
-        padding: const EdgeInsets.all(40),
-        child: Center(
-            child: Text(provider.errorMessage!, textAlign: TextAlign.center)));
-  if (items.isEmpty)
+      padding: const EdgeInsets.all(40),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.cloud_off_rounded,
+              size: 56,
+              color: AppColors.muted,
+            ),
+            const SizedBox(height: 14),
+            Text(
+              provider.errorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  if (items.isEmpty) {
     return Padding(
-        padding: const EdgeInsets.all(70),
-        child: Center(
-            child: Column(children: [
-          const Icon(Icons.inbox_outlined, size: 56, color: AppColors.muted),
-          const SizedBox(height: 12),
-          Text(emptyText,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700))
-        ])));
+      padding: const EdgeInsets.all(64),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 96,
+              height: 96,
+              decoration: const BoxDecoration(
+                color: AppColors.softPink,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.inventory_2_outlined,
+                size: 46,
+                color: AppColors.primaryPink,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              emptyText,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   return content();
 }
 
@@ -934,15 +988,18 @@ class _AdminScaffold extends StatelessWidget {
   final ValueChanged<String>? onSearch;
   final Widget? extraFilter;
   final Widget child;
-  const _AdminScaffold(
-      {required this.title,
-      this.actionLabel,
-      this.onAdd,
-      required this.onRefresh,
-      this.searchHint,
-      this.onSearch,
-      this.extraFilter,
-      required this.child});
+
+  const _AdminScaffold({
+    required this.title,
+    this.actionLabel,
+    this.onAdd,
+    required this.onRefresh,
+    this.searchHint,
+    this.onSearch,
+    this.extraFilter,
+    required this.child,
+  });
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -953,82 +1010,172 @@ class _AdminScaffold extends StatelessWidget {
         body: const Center(
           child: Padding(
             padding: EdgeInsets.all(24),
-            child: Text(
-              'Bạn không có quyền truy cập chức năng quản trị.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.admin_panel_settings_outlined,
+                  size: 64,
+                  color: AppColors.muted,
+                ),
+                SizedBox(height: 18),
+                Text(
+                  'Bạn không có quyền truy cập chức năng quản trị.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       );
     }
 
+    final isCompact = MediaQuery.sizeOf(context).width < 720;
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      floatingActionButton: onAdd == null
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(title),
+        actions: [
+          IconButton(
+            tooltip: 'Làm mới',
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      floatingActionButton: onAdd == null || !isCompact
           ? null
           : FloatingActionButton.extended(
               onPressed: onAdd,
-              icon: const Icon(Icons.add),
-              label: Text(actionLabel ?? 'Thêm')),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(actionLabel ?? 'Thêm'),
+            ),
       body: RefreshIndicator(
+        color: AppColors.primaryPink,
         onRefresh: onRefresh,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+          padding: EdgeInsets.fromLTRB(
+            isCompact ? 16 : 24,
+            18,
+            isCompact ? 16 : 24,
+            110,
+          ),
           children: [
             Center(
-                child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(22),
-                              decoration: BoxDecoration(
-                                  gradient: const LinearGradient(colors: [
-                                    Color(0xFFFFE3ED),
-                                    Color(0xFFFFF4F8)
-                                  ]),
-                                  borderRadius: BorderRadius.circular(22)),
-                              child: Text(title,
-                                  style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.pastelPinkDark))),
-                          if (searchHint != null || extraFilter != null) ...[
-                            const SizedBox(height: 18),
-                            LayoutBuilder(builder: (_, c) {
-                              final search = searchHint == null
-                                  ? null
-                                  : TextField(
-                                      decoration: InputDecoration(
-                                          prefixIcon: const Icon(Icons.search),
-                                          hintText: searchHint),
-                                      onChanged: onSearch);
-                              if (c.maxWidth < 700)
-                                return Column(children: [
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1450),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.softPink, AppColors.lightCream],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white),
+                      ),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final heading = Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Theo dõi dữ liệu thật và thực hiện thao tác quản trị tại một nơi.',
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          );
+                          if (constraints.maxWidth < 700 || onAdd == null) {
+                            return heading;
+                          }
+                          return Row(
+                            children: [
+                              Expanded(child: heading),
+                              FilledButton.icon(
+                                onPressed: onAdd,
+                                icon: const Icon(Icons.add_rounded),
+                                label: Text(actionLabel ?? 'Thêm'),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                    if (searchHint != null || extraFilter != null) ...[
+                      const SizedBox(height: 18),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.outlineSoft),
+                        ),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final search = searchHint == null
+                                ? null
+                                : TextField(
+                                    decoration: InputDecoration(
+                                      prefixIcon:
+                                          const Icon(Icons.search_rounded),
+                                      hintText: searchHint,
+                                    ),
+                                    onChanged: onSearch,
+                                  );
+                            if (constraints.maxWidth < 760) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
                                   if (search != null) search,
                                   if (search != null && extraFilter != null)
                                     const SizedBox(height: 12),
-                                  if (extraFilter != null) extraFilter!
-                                ]);
-                              return Row(children: [
+                                  if (extraFilter != null) extraFilter!,
+                                ],
+                              );
+                            }
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 if (search != null)
                                   Expanded(flex: 2, child: search),
                                 if (search != null && extraFilter != null)
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 14),
                                 if (extraFilter != null)
-                                  Expanded(child: extraFilter!)
-                              ]);
-                            })
-                          ],
-                          const SizedBox(height: 18),
-                          child,
-                        ]))),
+                                  Expanded(child: extraFilter!),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                    child,
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -1044,68 +1191,137 @@ class _AdminCard extends StatelessWidget {
   final String imageUrl;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
-  const _AdminCard(
-      {required this.icon,
-      required this.title,
-      required this.subtitle,
-      required this.badge,
-      this.imageUrl = '',
-      required this.onEdit,
-      required this.onDelete});
+
+  const _AdminCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.badge,
+    this.imageUrl = '',
+    required this.onEdit,
+    required this.onDelete,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-        child: Padding(
-            padding: const EdgeInsets.all(16),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Container(
-                    width: 50,
-                    height: 50,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                        color: AppColors.softPink,
-                        borderRadius: BorderRadius.circular(14)),
-                    child: imageUrl.isEmpty
-                        ? Icon(icon, color: AppColors.pastelPinkDark)
-                        : Image.network(imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                Icon(icon, color: AppColors.pastelPinkDark))),
-                const Spacer(),
-                PopupMenuButton<String>(
-                    onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
-                    itemBuilder: (_) => const [
-                          PopupMenuItem(
-                              value: 'edit', child: Text('Chỉnh sửa')),
-                          PopupMenuItem(value: 'delete', child: Text('Xóa'))
-                        ])
-              ]),
-              const SizedBox(height: 14),
-              Text(title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontSize: 17, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 6),
-              Expanded(
-                  child: Text(subtitle,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: AppColors.muted, height: 1.4))),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.outlineSoft),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
               Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                      color: AppColors.softGreen,
-                      borderRadius: BorderRadius.circular(99)),
-                  child: Text(badge,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.pastelGreenDark))),
-            ])));
+                width: 58,
+                height: 58,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: AppColors.softPink,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: imageUrl.trim().isEmpty
+                    ? Icon(icon, color: AppColors.primaryPink)
+                    : ProductImage(
+                        path: imageUrl,
+                        fit: BoxFit.cover,
+                        iconSize: 28,
+                      ),
+              ),
+              const Spacer(),
+              PopupMenuButton<String>(
+                tooltip: 'Thao tác',
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    onEdit();
+                  } else if (value == 'delete') {
+                    onDelete();
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.edit_outlined),
+                      title: Text('Chỉnh sửa'),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.error,
+                      ),
+                      title: Text(
+                        'Xóa',
+                        style: TextStyle(color: AppColors.error),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 16.5,
+              height: 1.25,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Expanded(
+            child: Text(
+              subtitle,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                height: 1.45,
+                fontSize: 12.5,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.softGreen,
+              borderRadius: BorderRadius.circular(99),
+            ),
+            child: Text(
+              badge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: AppColors.sageGreenDark,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -1121,6 +1337,9 @@ Future<void> _confirm(
                         onPressed: () => Navigator.pop(context, false),
                         child: const Text('Hủy')),
                     FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.error,
+                        ),
                         onPressed: () => Navigator.pop(context, true),
                         child: const Text('Xóa'))
                   ])) ??
@@ -1137,5 +1356,5 @@ Future<void> _confirm(
 void _message(BuildContext context, String text, {bool error = false}) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(text),
-      backgroundColor: error ? Colors.red.shade700 : null));
+      backgroundColor: error ? AppColors.error : null));
 }

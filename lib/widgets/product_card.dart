@@ -22,125 +22,165 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 1.5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hình ảnh
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(14)),
-                child: ProductImage(path: product.thumbnail),
-              ),
-            ),
+    final isFlashSale = product.isCurrentlyFlashSale;
+    final displayPrice = isFlashSale
+        ? product.flashSalePrice!
+        : (product.salePrice ?? product.price);
 
-            // Thông tin
-            Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.fromLTRB(10, 6, 10, 8), // Giảm padding
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.outlineSoft, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.5),
+        child: InkWell(
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Product Image with Favorite Heart over top right
+              Expanded(
+                flex: 3,
+                child: Stack(
                   children: [
-                    Text(
-                      product.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13.5,
-                        height: 1.2,
-                      ),
+                    Positioned.fill(
+                      child: ProductImage(path: product.thumbnail),
                     ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            formatVnd(product.price.toDouble()),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14.5,
-                              color: AppColors.pastelPinkDark,
+                    if (onToggleFavorite != null)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: onToggleFavorite,
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: isFavorite
+                                    ? AppColors.primaryPinkLight
+                                    : AppColors.surface,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 6,
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                isFavorite
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                size: 16,
+                                color: isFavorite
+                                    ? AppColors.primaryPink
+                                    : AppColors.textSecondary,
+                              ),
                             ),
                           ),
                         ),
-
-                        // Nút nhỏ gọn
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (onToggleFavorite != null)
-                              _FavoriteButton(
-                                onPressed: onToggleFavorite!,
-                                isFavorite: isFavorite,
-                              ),
-                            const SizedBox(width: 4),
-                            // if (onAddToCart != null)
-                            //   _CartButton(onPressed: onAddToCart!),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
                   ],
                 ),
               ),
-            ),
-          ],
+              // Info Area
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        product.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                          height: 1.25,
+                        ),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  formatVnd(displayPrice.toDouble()),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 14.5,
+                                    color: AppColors.primaryPink,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (isFlashSale || product.isOnSale)
+                                  Text(
+                                    formatVnd(product.price.toDouble()),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.muted,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (onAddToCart != null)
+                            Tooltip(
+                              message: 'Thêm vào giỏ',
+                              child: InkResponse(
+                                radius: 22,
+                                onTap: onAddToCart,
+                                child: const SizedBox(
+                                  width: 44,
+                                  height: 44,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.softPink,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.add_shopping_cart_rounded,
+                                      size: 18,
+                                      color: AppColors.primaryPink,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-}
-
-// Nút siêu gọn
-class _CartButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  const _CartButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton.filledTonal(
-      style: IconButton.styleFrom(
-        backgroundColor: AppColors.softGreen,
-        foregroundColor: AppColors.pastelGreenDark,
-        iconSize: 17,
-        minimumSize: const Size(30, 30),
-        padding: EdgeInsets.zero,
-      ),
-      icon: const Icon(Icons.add_shopping_cart_rounded),
-      onPressed: onPressed,
-    );
-  }
-}
-
-class _FavoriteButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final bool isFavorite;
-
-  const _FavoriteButton({required this.onPressed, required this.isFavorite});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton.filledTonal(
-      style: IconButton.styleFrom(
-        backgroundColor: AppColors.softPink,
-        foregroundColor: AppColors.pastelPinkDark,
-        iconSize: 17,
-        minimumSize: const Size(30, 30),
-        padding: EdgeInsets.zero,
-      ),
-      icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-      onPressed: onPressed,
     );
   }
 }

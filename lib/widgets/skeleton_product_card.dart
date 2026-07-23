@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class SkeletonProductCard extends StatefulWidget {
   const SkeletonProductCard({super.key});
@@ -41,7 +42,7 @@ class _SkeletonProductCardState extends State<SkeletonProductCard>
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFF2EAF0)),
+              border: Border.all(color: AppColors.outlineSoft),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +50,7 @@ class _SkeletonProductCardState extends State<SkeletonProductCard>
                 Expanded(
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: Color(0xFFEFEFEF),
+                      color: AppColors.surfaceVariant,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
@@ -64,19 +65,19 @@ class _SkeletonProductCardState extends State<SkeletonProductCard>
                       Container(
                         height: 14,
                         width: double.infinity,
-                        color: const Color(0xFFEFEFEF),
+                        color: AppColors.surfaceVariant,
                       ),
                       const SizedBox(height: 6),
                       Container(
                         height: 14,
                         width: 100,
-                        color: const Color(0xFFEFEFEF),
+                        color: AppColors.surfaceVariant,
                       ),
                       const SizedBox(height: 12),
                       Container(
                         height: 18,
                         width: 80,
-                        color: const Color(0xFFEFEFEF),
+                        color: AppColors.surfaceVariant,
                       ),
                     ],
                   ),

@@ -52,7 +52,7 @@ class OrderTrackingWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF0E8EB)),
+        border: Border.all(color: AppColors.outlineSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +114,7 @@ class _StepRow extends StatelessWidget {
             color: AppColors.pastelGreenDark, size: 18),
       );
     } else if (isCurrent) {
-      lineColor = const Color(0xFFE8E2E5);
+      lineColor = AppColors.outlineSoft;
       labelColor = AppColors.pastelPinkDark;
       dot = Container(
         width: 36,
@@ -127,7 +127,7 @@ class _StepRow extends StatelessWidget {
         child: Icon(step.icon, color: AppColors.pastelPinkDark, size: 18),
       );
     } else {
-      lineColor = const Color(0xFFE8E2E5);
+      lineColor = AppColors.outlineSoft;
       labelColor = AppColors.muted;
       dot = Container(
         width: 36,
@@ -135,9 +135,9 @@ class _StepRow extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.grey.shade100,
           shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFE0D8DB), width: 2),
+          border: Border.all(color: AppColors.outlineSoft, width: 2),
         ),
-        child: Icon(step.icon, color: const Color(0xFFCBC4C7), size: 18),
+        child: Icon(step.icon, color: AppColors.muted, size: 18),
       );
     }
 
@@ -202,9 +202,9 @@ class _CancelledTracker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEE),
+        color: AppColors.errorLight,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -214,10 +214,10 @@ class _CancelledTracker extends StatelessWidget {
               color: Colors.white,
               shape: BoxShape.circle,
               border:
-                  Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+                  Border.all(color: AppColors.error.withValues(alpha: 0.4)),
             ),
             child: const Icon(Icons.cancel_outlined,
-                color: Colors.redAccent, size: 26),
+                color: AppColors.error, size: 26),
           ),
           const SizedBox(width: 16),
           const Expanded(
@@ -229,7 +229,7 @@ class _CancelledTracker extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 15,
-                    color: Colors.redAccent,
+                    color: AppColors.error,
                   ),
                 ),
                 SizedBox(height: 4),

@@ -18,12 +18,18 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    OptimizedProductListScreen(),
-    CartScreen(),
-    OrderHistoryScreen(),
-    ProfileScreen(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const OptimizedProductListScreen(),
+      CartScreen(onContinueShopping: () => _onItemTapped(0)),
+      const OrderHistoryScreen(),
+      ProfileScreen(onNavigateHome: () => _onItemTapped(0)),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -54,7 +60,7 @@ class _MainScreenState extends State<MainScreen> {
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           backgroundColor: Colors.white,
-          selectedItemColor: AppColors.pastelPinkDark,
+          selectedItemColor: AppColors.primaryPink,
           unselectedItemColor: AppColors.muted,
           showSelectedLabels: true,
           showUnselectedLabels: true,
@@ -78,7 +84,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
-                          color: Colors.redAccent,
+                          color: AppColors.primaryPink,
                           shape: BoxShape.circle,
                         ),
                         child: Text(
@@ -105,7 +111,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
-                          color: Colors.redAccent,
+                          color: AppColors.primaryPink,
                           shape: BoxShape.circle,
                         ),
                         child: Text(

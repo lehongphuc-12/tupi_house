@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
 
-/// Widget hiển thị ảnh sản phẩm, tự nhận diện:
-/// - Nếu chuỗi bắt đầu bằng "http" → dùng Image.network (ảnh từ internet)
-/// - Ngược lại → dùng Image.asset (ảnh local trong assets/images/products/...)
-///
-/// Nhờ vậy trường "image" trong db.json có thể là URL hoặc đường dẫn asset,
-/// không cần sửa code khi đổi qua lại giữa 2 loại ảnh.
+/// Displays either a network or bundled product image with a warm loading
+/// surface and a decor-focused fallback. The source path is never rewritten.
 class ProductImage extends StatelessWidget {
   final String path;
   final BoxFit fit;
@@ -19,43 +16,72 @@ class ProductImage extends StatelessWidget {
     this.iconSize = 32,
   });
 
-  Widget _errorPlaceholder() => Container(
-        color: Colors.grey.shade200,
-        child: Icon(Icons.local_florist,
-            size: iconSize, color: AppColors.leafGreen),
-      );
+  Widget _placeholder({bool loading = false}) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.lightCream, AppColors.softPink],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: loading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primaryPink,
+                ),
+              )
+            : Icon(
+                Icons.local_florist_outlined,
+                size: iconSize,
+                color: AppColors.primaryPink.withValues(alpha: 0.58),
+              ),
+      ),
+    );
+  }
+
+  Widget _fadeIn(
+    BuildContext context,
+    Widget child,
+    int? frame,
+    bool wasSynchronouslyLoaded,
+  ) {
+    if (wasSynchronouslyLoaded) return child;
+    return AnimatedOpacity(
+      opacity: frame == null ? 0 : 1,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
+      child: child,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isNetwork = path.startsWith('http');
+    final source = path.trim();
+    if (source.isEmpty) return _placeholder();
 
-    if (path.isEmpty) return _errorPlaceholder();
-
-    if (isNetwork) {
+    if (source.startsWith('http')) {
       return Image.network(
-        path,
+        source,
         fit: fit,
-        errorBuilder: (c, e, s) => _errorPlaceholder(),
-        loadingBuilder: (c, child, progress) {
+        frameBuilder: _fadeIn,
+        errorBuilder: (_, __, ___) => _placeholder(),
+        loadingBuilder: (_, child, progress) {
           if (progress == null) return child;
-          return Container(
-            color: Colors.grey.shade100,
-            child: const Center(
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
-          );
+          return _placeholder(loading: true);
         },
       );
     }
 
     return Image.asset(
-      path,
+      source,
       fit: fit,
-      errorBuilder: (c, e, s) => _errorPlaceholder(),
+      frameBuilder: _fadeIn,
+      errorBuilder: (_, __, ___) => _placeholder(),
     );
   }
 }

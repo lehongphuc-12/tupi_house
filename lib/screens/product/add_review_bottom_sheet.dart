@@ -118,26 +118,43 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: AppColors.outlineSoft,
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
             const SizedBox(height: 16),
 
-            const Text(
-              'Đánh giá sản phẩm 🌟',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: AppColors.ink,
-              ),
+            Row(
+              children: [
+                const SizedBox(width: 44),
+                const Expanded(
+                  child: Text(
+                    'Đánh giá sản phẩm',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: IconButton(
+                    tooltip: 'Đóng',
+                    onPressed: _isSubmitting ? null : () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 6),
             Text(
               widget.product.title,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 13, color: AppColors.muted),
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 20),
@@ -189,7 +206,10 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
               TextField(
                 controller: _commentController,
                 maxLines: 4,
+                textInputAction: TextInputAction.newline,
                 decoration: InputDecoration(
+                  labelText: 'Nhận xét của bạn',
+                  alignLabelWithHint: true,
                   hintText:
                       'Chia sẻ cảm nhận của bạn về sản phẩm này nhé (chất lượng, thiết kế, đóng gói...)...',
                   border: OutlineInputBorder(

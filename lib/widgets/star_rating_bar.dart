@@ -18,40 +18,44 @@ class StarRatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(5, (index) {
-        final starValue = index + 1;
-        IconData iconData;
-        if (rating >= starValue) {
-          iconData = Icons.star_rounded;
-        } else if (rating >= starValue - 0.5) {
-          iconData = Icons.star_half_rounded;
-        } else {
-          iconData = Icons.star_outline_rounded;
-        }
+    return Semantics(
+      label: 'Đánh giá ${rating.toStringAsFixed(1)} trên 5 sao',
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(5, (index) {
+          final starValue = index + 1;
+          final iconData = rating >= starValue
+              ? Icons.star_rounded
+              : rating >= starValue - 0.5
+                  ? Icons.star_half_rounded
+                  : Icons.star_outline_rounded;
+          final icon = Icon(iconData, size: starSize, color: starColor);
 
-        final starIcon = Icon(
-          iconData,
-          size: starSize,
-          color: starColor,
-        );
+          if (!isInteractive || onRatingChanged == null) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 2),
+              child: icon,
+            );
+          }
 
-        if (isInteractive && onRatingChanged != null) {
-          return GestureDetector(
-            onTap: () => onRatingChanged!(starValue.toDouble()),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2.0),
-              child: starIcon,
+          return Semantics(
+            button: true,
+            label: 'Chọn $starValue sao',
+            child: Tooltip(
+              message: '$starValue sao',
+              child: InkResponse(
+                radius: 22,
+                onTap: () => onRatingChanged!(starValue.toDouble()),
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(child: icon),
+                ),
+              ),
             ),
           );
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(right: 2.0),
-          child: starIcon,
-        );
-      }),
+        }),
+      ),
     );
   }
 }

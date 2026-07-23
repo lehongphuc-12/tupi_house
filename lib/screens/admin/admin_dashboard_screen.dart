@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../login_screen.dart';
 import '../../providers/admin_provider.dart';
 import '../../theme/app_theme.dart';
+import 'category/category_management_screen.dart';
 import 'management/admin_management_screens.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -61,7 +62,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       const _Module('Sản phẩm', 'Thêm, sửa, xóa và quản lý kho',
           Icons.inventory_2_outlined, AdminProductScreen()),
       const _Module('Danh mục', 'Quản lý danh mục sản phẩm',
-          Icons.category_outlined, AdminCategoryScreen()),
+          Icons.category_outlined, CategoryManagementScreen()),
       const _Module('Đơn hàng', 'Theo dõi và cập nhật trạng thái',
           Icons.receipt_long_outlined, AdminOrderScreen()),
       const _Module('Người dùng', 'Quản lý vai trò và trạng thái',
@@ -303,10 +304,10 @@ class _AdminAccountMenu extends StatelessWidget {
           child: ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.logout, color: Colors.redAccent),
+            leading: Icon(Icons.logout, color: AppColors.error),
             title: Text(
               'Đăng xuất',
-              style: TextStyle(color: Colors.redAccent),
+              style: TextStyle(color: AppColors.error),
             ),
           ),
         ),
@@ -1247,7 +1248,7 @@ class _ErrorBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Colors.redAccent),
+          const Icon(Icons.error_outline, color: AppColors.error),
           const SizedBox(width: 10),
           Expanded(child: Text(message)),
           TextButton(onPressed: onRetry, child: const Text('Thử lại')),
@@ -1320,7 +1321,7 @@ class _AccessDeniedScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.lock_outline, size: 72, color: Colors.redAccent),
+              const Icon(Icons.lock_outline, size: 72, color: AppColors.error),
               const SizedBox(height: 18),
               const Text(
                 'Bạn không có quyền truy cập trang quản trị',
@@ -1352,15 +1353,15 @@ class _AccessDeniedScreen extends StatelessWidget {
 Color _statusColor(String status) {
   switch (status) {
     case 'pending':
-      return Colors.orange;
+      return AppColors.warning;
     case 'confirmed':
-      return Colors.blue;
+      return AppColors.primaryPink;
     case 'shipping':
-      return Colors.purple;
+      return AppColors.deepSage;
     case 'delivered':
-      return AppColors.pastelGreenDark;
+      return AppColors.success;
     case 'cancelled':
-      return Colors.redAccent;
+      return AppColors.error;
     default:
       return AppColors.muted;
   }

@@ -22,15 +22,15 @@ class OrderStatusBadge extends StatelessWidget {
   static Color bgColor(String status) {
     switch (status) {
       case 'pending':
-        return const Color(0xFFFFF3E0);
+        return AppColors.warningLight;
       case 'confirmed':
-        return const Color(0xFFE3F2FD);
+        return AppColors.softPink;
       case 'shipping':
-        return const Color(0xFFF3E5F5);
+        return AppColors.softGreen;
       case 'delivered':
         return AppColors.softGreen;
       case 'cancelled':
-        return const Color(0xFFFFEBEE);
+        return AppColors.errorLight;
       default:
         return Colors.grey.shade100;
     }
@@ -39,15 +39,15 @@ class OrderStatusBadge extends StatelessWidget {
   static Color fgColor(String status) {
     switch (status) {
       case 'pending':
-        return const Color(0xFFE65100);
+        return AppColors.warning;
       case 'confirmed':
-        return const Color(0xFF1565C0);
+        return AppColors.primaryPinkDark;
       case 'shipping':
-        return const Color(0xFF6A1B9A);
+        return AppColors.deepSage;
       case 'delivered':
         return AppColors.pastelGreenDark;
       case 'cancelled':
-        return Colors.redAccent;
+        return AppColors.error;
       default:
         return AppColors.muted;
     }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,10 +14,11 @@ import 'providers/review_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/voucher_provider.dart';
 import 'screens/main_screen.dart';
-import 'screens/product/optimized_product_list_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
 import 'firebase_options.dart';
+import 'utils/error_logger.dart';
 import 'package:flutter/services.dart';
 
 /// GlobalKey cho ScaffoldMessenger – thông báo đơn hàng toàn cục
@@ -28,18 +28,14 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Log all errors to error_log.txt in the workspace root
+  // Preserve file logging on IO targets while remaining web-compatible.
   FlutterError.onError = (details) {
-    try {
-      final file = File('error_log.txt');
-      file.writeAsStringSync(
-        '======================================================\n'
-        '${DateTime.now()}: EXCEPTION: ${details.exception}\n'
-        'STACK TRACE:\n${details.stack}\n'
-        '======================================================\n\n',
-        mode: FileMode.append,
-      );
-    } catch (_) {}
+    appendErrorLog(
+      '======================================================\n'
+      '${DateTime.now()}: EXCEPTION: ${details.exception}\n'
+      'STACK TRACE:\n${details.stack}\n'
+      '======================================================\n\n',
+    );
     FlutterError.presentError(details);
   };
   await Firebase.initializeApp(
@@ -107,7 +103,7 @@ Future<void> seedInitialData() async {
     if (productsQuery.docs.length >= 2) {
       final doc1 = productsQuery.docs[0];
       final doc2 = productsQuery.docs[1];
-      
+
       // Product 1: Set stock to 3 (Low stock < 5)
       await doc1.reference.update({
         'stock': 3,
@@ -184,7 +180,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
         scaffoldMessengerKey: scaffoldMessengerKey,
-        home: const _AuthBootstrap(child: MainScreen()),
+        // Start with SplashScreen - flow will be: Splash -> Welcome -> Onboarding -> Login -> Main
+        home: const SplashScreen(),
       ),
     );
   }

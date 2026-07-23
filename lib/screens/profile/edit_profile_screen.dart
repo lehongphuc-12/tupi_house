@@ -315,152 +315,158 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-
     final birthdayDisplay = _selectedBirthday == null
         ? 'Chọn ngày sinh'
-        : DateFormat(
-            'dd/MM/yyyy',
-          ).format(_selectedBirthday!);
-
+        : DateFormat('dd/MM/yyyy').format(_selectedBirthday!);
     final isBusy = authProvider.isLoading || _isSaving;
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Chỉnh sửa hồ sơ'),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        title: const Text(
+          'Chỉnh sửa hồ sơ',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildAvatarSection(),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _nameController,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Họ và tên',
-                    prefixIcon: Icon(
-                      Icons.person_outline,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Vui lòng nhập họ và tên';
-                    }
-
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Số điện thoại',
-                    prefixIcon: Icon(
-                      Icons.phone_outlined,
-                    ),
-                  ),
-                  validator: (value) {
-                    final phone = value?.trim() ?? '';
-
-                    if (phone.isEmpty) {
-                      return 'Vui lòng nhập số điện thoại';
-                    }
-
-                    if (!RegExp(r'^[0-9]{9,11}$').hasMatch(phone)) {
-                      return 'Số điện thoại không hợp lệ (9 - 11 chữ số)';
-                    }
-
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedGender,
-                  decoration: const InputDecoration(
-                    labelText: 'Giới tính',
-                    prefixIcon: Icon(
-                      Icons.face_outlined,
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem<String>(
-                      value: 'Nam',
-                      child: Text('Nam'),
-                    ),
-                    DropdownMenuItem<String>(
-                      value: 'Nữ',
-                      child: Text('Nữ'),
-                    ),
-                    DropdownMenuItem<String>(
-                      value: 'Khác',
-                      child: Text('Khác'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (value == null) {
-                      return;
-                    }
-
-                    setState(() {
-                      _selectedGender = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                InkWell(
-                  onTap: _selectBirthday,
-                  borderRadius: BorderRadius.circular(16),
-                  child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Ngày sinh',
-                      prefixIcon: Icon(
-                        Icons.cake_outlined,
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildAvatarSection(),
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: AppColors.outlineSoft),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Thông tin cá nhân',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          TextFormField(
+                            controller: _nameController,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Họ và tên',
+                              prefixIcon: Icon(Icons.person_outline),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Vui lòng nhập họ và tên';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Số điện thoại',
+                              prefixIcon: Icon(Icons.phone_outlined),
+                            ),
+                            validator: (value) {
+                              final phone = value?.trim() ?? '';
+                              if (phone.isEmpty) {
+                                return 'Vui lòng nhập số điện thoại';
+                              }
+                              if (!RegExp(r'^[0-9]{9,11}$').hasMatch(phone)) {
+                                return 'Số điện thoại không hợp lệ (9 - 11 chữ số)';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: _selectedGender,
+                            decoration: const InputDecoration(
+                              labelText: 'Giới tính',
+                              prefixIcon: Icon(Icons.face_outlined),
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: 'Nam', child: Text('Nam')),
+                              DropdownMenuItem(value: 'Nữ', child: Text('Nữ')),
+                              DropdownMenuItem(value: 'Khác', child: Text('Khác')),
+                            ],
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() => _selectedGender = value);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            onTap: _selectBirthday,
+                            borderRadius: BorderRadius.circular(16),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Ngày sinh',
+                                prefixIcon: Icon(Icons.cake_outlined),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      birthdayDisplay,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: _selectedBirthday == null
+                                            ? AppColors.muted
+                                            : AppColors.ink,
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.calendar_today_outlined,
+                                    size: 20,
+                                    color: AppColors.primaryPinkDark,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          birthdayDisplay,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: _selectedBirthday == null
-                                ? AppColors.muted
-                                : AppColors.ink,
-                          ),
-                        ),
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 20,
-                          color: AppColors.pastelPinkDark,
-                        ),
-                      ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      height: 54,
+                      child: ElevatedButton(
+                        onPressed: isBusy ? null : _save,
+                        child: isBusy
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Lưu thay đổi'),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: isBusy ? null : _save,
-                  child: isBusy
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Lưu thay đổi'),
-                ),
-                const SizedBox(height: 20),
-              ],
+              ),
             ),
           ),
         ),
@@ -479,9 +485,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(
-              child: _buildAvatarPreview(
-                avatarUrl: avatarUrl,
-                validUrl: validUrl,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _buildAvatarPreview(
+                    avatarUrl: avatarUrl,
+                    validUrl: validUrl,
+                  ),
+                  Positioned(
+                    right: 2,
+                    bottom: 2,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryPink,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                      child: const Icon(
+                        Icons.photo_camera_outlined,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
@@ -517,7 +546,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const Text(
                 'Không thể tải ảnh từ đường dẫn này.',
                 style: TextStyle(
-                  color: Colors.redAccent,
+                  color: AppColors.error,
                   fontSize: 12,
                 ),
               ),

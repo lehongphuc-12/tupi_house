@@ -128,7 +128,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, true),
@@ -201,10 +201,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                 child: Row(
                   children: [
                     Icon(Icons.delete_outline,
-                        size: 18, color: Colors.redAccent),
+                        size: 18, color: AppColors.error),
                     SizedBox(width: 10),
                     Text('Xóa tất cả đơn hàng',
-                        style: TextStyle(color: Colors.redAccent)),
+                        style: TextStyle(color: AppColors.error)),
                   ],
                 ),
               ),
@@ -240,9 +240,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline,
-                        size: 56, color: Colors.redAccent),
+                        size: 56, color: AppColors.error),
                     const SizedBox(height: 16),
-                    Text(provider.errorMessage!, textAlign: TextAlign.center),
+                    const Text(
+                      'Không thể tải đơn hàng. Vui lòng kiểm tra kết nối và thử lại.',
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () =>
@@ -363,7 +366,7 @@ class _OrderCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF0E8EB)),
+          border: Border.all(color: AppColors.outlineSoft),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -397,7 +400,7 @@ class _OrderCard extends StatelessWidget {
               ),
             ),
 
-            const Divider(height: 1, color: Color(0xFFF5EFF2)),
+            const Divider(height: 1, color: AppColors.outlineSoft),
 
             // Product preview
             if (firstItem != null)
@@ -445,7 +448,7 @@ class _OrderCard extends StatelessWidget {
               ),
 
             if (order.status == 'shipping') ...[
-              const Divider(height: 1, color: Color(0xFFF5EFF2)),
+              const Divider(height: 1, color: AppColors.outlineSoft),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
@@ -477,7 +480,7 @@ class _OrderCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
-                color: Color(0xFFFFFAFB),
+                color: AppColors.warmWhite,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
@@ -553,7 +556,7 @@ class _OrderCard extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('❌ Không thể xác nhận nhận hàng'),
-              backgroundColor: Colors.redAccent,
+              backgroundColor: AppColors.error,
             ),
           );
         }

@@ -5,7 +5,7 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'admin/admin_dashboard_screen.dart';
 import 'main_screen.dart';
-import 'register_screen.dart';  
+import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -95,62 +95,73 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _loginWithGoogle() async {
-    final auth = context.read<AuthProvider>();
-
-    final ok = await auth.loginWithGoogle();
-
-    if (!mounted) {
-      return;
-    }
-
-    if (ok) {
-      _navigateAfterLogin(auth);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            auth.errorMessage ?? 'Đăng nhập Google thất bại',
-          ),
-        ),
-      );
-    }
-  }
-
-  Widget _brand({required bool wide}) {
+  Widget _buildLogoSection() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(18),
+          width: 80,
+          height: 80,
           decoration: BoxDecoration(
             color: AppColors.softPink,
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primaryPink.withValues(alpha: 0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
+          padding: const EdgeInsets.all(16),
           child: Image.asset(
             'assets/logo.png',
-            width: wide ? 190 : 145,
+            fit: BoxFit.contain,
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
         const Text(
           'Tupi House',
-          textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Đăng nhập để theo dõi đơn và ưu đãi.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppColors.muted,
-            height: 1.4,
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+            color: AppColors.ink,
+            letterSpacing: -0.3,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDecorIllustration() {
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildDecorItem(Icons.local_florist, AppColors.primaryPinkLight),
+          const SizedBox(width: 16),
+          _buildDecorItem(Icons.lightbulb_outline, AppColors.sageGreenLight),
+          const SizedBox(width: 16),
+          _buildDecorItem(Icons.emoji_nature, AppColors.woodBrownLight),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDecorItem(IconData icon, Color color) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(icon, color: color, size: 28),
     );
   }
 
@@ -162,20 +173,22 @@ class _LoginScreenState extends State<LoginScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'Chào mừng đến Tupi House',
+            'Chào mừng trở lại',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 24,
               fontWeight: FontWeight.w800,
+              color: AppColors.ink,
             ),
           ),
           const SizedBox(height: 6),
           const Text(
-            'Nhập thông tin tài khoản đã đăng ký.',
+            'Đăng nhập để tiếp tục mua sắm',
             style: TextStyle(
               color: AppColors.muted,
+              fontSize: 14,
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
@@ -200,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _passwordController,
             obscureText: _obscure,
@@ -234,31 +247,43 @@ class _LoginScreenState extends State<LoginScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-                );
-              },
-              child: const Text('Quên mật khẩu?'),
-            ),
-          ),
+          const SizedBox(height: 12),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Checkbox(
-                value: _rememberMe,
-                activeColor: AppColors.pastelGreenDark,
-                onChanged: (value) {
-                  setState(() {
-                    _rememberMe = value ?? false;
-                  });
-                },
+              Row(
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    activeColor: AppColors.primaryPink,
+                    onChanged: (value) {
+                      setState(() {
+                        _rememberMe = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text(
+                    'Ghi nhớ',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.inkLight,
+                    ),
+                  ),
+                ],
               ),
-              const Flexible(
-                child: Text('Ghi nhớ đăng nhập'),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                  );
+                },
+                child: const Text(
+                  'Quên mật khẩu?',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -276,100 +301,105 @@ class _LoginScreenState extends State<LoginScreen> {
                   )
                 : const Text('Đăng nhập'),
           ),
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: auth.isLoading
-                ? null
-                : () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const RegisterScreen(),
-                      ),
-                    );
-                  },
-            child: const Text(
-              'Chưa có tài khoản? Đăng ký ngay',
-            ),
-          ),
           const SizedBox(height: 16),
-          const Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                child: Divider(
-                  color: Color(0xFFE0E0E0),
-                ),
+              const Text(
+                'Chưa có tài khoản? ',
+                style: TextStyle(color: AppColors.muted),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'HOẶC',
-                  style: TextStyle(
-                    color: AppColors.muted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Divider(
-                  color: Color(0xFFE0E0E0),
+              TextButton(
+                onPressed: auth.isLoading
+                    ? null
+                    : () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterScreen(),
+                          ),
+                        );
+                      },
+                child: const Text(
+                  'Đăng ký ngay',
+                  style: TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                vertical: 14,
-              ),
-              side: const BorderSide(
-                color: Color(0xFFE0E0E0),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: auth.isLoading
-                ? null
-                : () async {
-                    final ok = await auth.loginWithGoogle();
-                    if (!mounted) return;
-                    if (ok) {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (_) => const MainScreen()));
-                    } else if (auth.errorMessage != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(auth.errorMessage!)));
-                    }
-                  },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.network(
-                  'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-                  width: 22,
-                  height: 22,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.g_mobiledata,
-                      color: Colors.blue,
-                    );
-                  },
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  'Đăng nhập bằng Google',
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 20),
+          _buildDivider(),
+          const SizedBox(height: 20),
+          _buildGoogleButton(auth),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: AppColors.border)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'hoặc',
+            style: TextStyle(
+              color: AppColors.muted,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
           ),
-        ],
+        ),
+        const Expanded(child: Divider(color: AppColors.border)),
+      ],
+    );
+  }
+
+  Widget _buildGoogleButton(AuthProvider auth) {
+    return SizedBox(
+      height: 52,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.border),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        onPressed: auth.isLoading
+            ? null
+            : () async {
+                final ok = await auth.loginWithGoogle();
+                if (!mounted) return;
+                if (ok) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (_) => const MainScreen()));
+                } else if (auth.errorMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(auth.errorMessage!)));
+                }
+              },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Icon(Icons.g_mobiledata, color: Colors.blue, size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Đăng nhập với Google',
+              style: TextStyle(
+                color: AppColors.ink,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -379,6 +409,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -387,26 +418,49 @@ class _LoginScreenState extends State<LoginScreen> {
             return Center(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
-                  horizontal: isWide ? 40 : 18,
+                  horizontal: isWide ? 40 : 20,
                   vertical: 24,
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: isWide ? 920 : 460,
+                    maxWidth: isWide ? 900 : 440,
                   ),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: Padding(
                       padding: EdgeInsets.all(
-                        isWide ? 34 : 22,
+                        isWide ? 36 : 24,
                       ),
                       child: isWide
                           ? Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: _brand(wide: true),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _buildLogoSection(),
+                                      const SizedBox(height: 20),
+                                      _buildDecorIllustration(),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(width: 34),
+                                Container(
+                                  width: 1,
+                                  height: 320,
+                                  color: AppColors.border,
+                                  margin: const EdgeInsets.symmetric(horizontal: 32),
+                                ),
                                 Expanded(
                                   child: _loginForm(auth),
                                 ),
@@ -415,8 +469,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           : Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                _brand(wide: false),
-                                const SizedBox(height: 26),
+                                _buildLogoSection(),
+                                const SizedBox(height: 20),
+                                _buildDecorIllustration(),
+                                const SizedBox(height: 28),
                                 _loginForm(auth),
                               ],
                             ),

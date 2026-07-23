@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -80,7 +78,9 @@ class NotificationService {
     if (_initialized) return;
     messengerKey = scaffoldMessengerKey;
 
-    final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+    final isMobile = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
     final isFCMSupported = kIsWeb || isMobile;
 
     // Local notifications (mobile only)
@@ -172,7 +172,9 @@ class NotificationService {
     _currentUserId = userId;
     _seenNotificationIds.clear();
 
-    final isFCMSupported = kIsWeb || (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
+    final isFCMSupported = kIsWeb || (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS));
     if (!isFCMSupported) {
       return;
     }
@@ -208,7 +210,9 @@ class NotificationService {
     _currentUserId = null;
     _seenNotificationIds.clear();
 
-    final isFCMSupported = kIsWeb || (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
+    final isFCMSupported = kIsWeb || (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS));
     if (userId == null || !isFCMSupported) return;
 
     try {
